@@ -1,17 +1,16 @@
 {
-  "name": "untilted",
+  "name": "pumpa",
   "version": "0.0.0",
   "description": "",
   "keywords": [],
   "private": true,
-  "author": "your-username",
+  "author": "Ivan Vlatkovic",
   "license": "MIT",
-  "main": "./dist/prod/untilted.js",
-  "umd": "./dist/prod/untilted.umd.js",
+  "main": "./dist/prod/pumpa.js",
   "exports": {
-    "development": "./dist/dev/untilted.esm.js",
-    "import": "./dist/prod/untilted.esm.js",
-    "require": "./dist/prod/untilted.js"
+    "development": "./dist/dev/pumpa.esm.js",
+    "import": "./dist/prod/pumpa.esm.js",
+    "require": "./dist/prod/pumpa.js"
   },
   "types": "./dist/types/index.d.ts",
   "files": [
@@ -25,7 +24,7 @@
     "test": "jest --verbose --coverage",
     "test:watch": "jest --watch",
     "test:ci": "jest --runInBand --ci --coverage --coverageDirectory=coverage",
-    "build:prod": "cross-env NODE_ENV=production microbundle --tsconfig ./tsconfig.json  --format modern,cjs,umd  --output dist/prod",
+    "build:prod": "cross-env NODE_ENV=production microbundle --tsconfig ./tsconfig.json  --format modern,cjs  --output dist/prod",
     "build:dev": "cross-env NODE_ENV=development microbundle --define process.env.NODE_ENV=development --tsconfig ./tsconfig.json --generateTypes false --format modern --output dist/dev",
     "build": "rm -rf ./dist && pnpm build:dev && pnpm build:prod",
     "gen:docs": "rm -rf ./docs/api && typedoc",
@@ -35,12 +34,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/your-username/untilted.git"
+    "url": "git+https://github.com/your-username/pumpa.git"
   },
   "bugs": {
-    "url": "https://github.com/your-username/untilted/issues"
+    "url": "https://github.com/your-username/pumpa/issues"
   },
-  "homepage": "https://github.com/your-username/untilted#readme",
+  "homepage": "https://github.com/your-username/pumpa#readme",
   "devDependencies": {
     "@babel/preset-env": "^7.16.11",
     "@babel/preset-typescript": "^7.16.7",
