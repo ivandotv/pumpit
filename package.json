@@ -1,0 +1,71 @@
+{
+  "name": "untilted",
+  "version": "0.0.0",
+  "description": "",
+  "keywords": [],
+  "private": true,
+  "author": "your-username",
+  "license": "MIT",
+  "main": "./dist/prod/untilted.js",
+  "umd": "./dist/prod/untilted.umd.js",
+  "exports": {
+    "development": "./dist/dev/untilted.esm.js",
+    "import": "./dist/prod/untilted.esm.js",
+    "require": "./dist/prod/untilted.js"
+  },
+  "types": "./dist/types/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "lint": "eslint --fix \"src/**/\"",
+    "lint:check": "eslint \"src/**/\"",
+    "lint:ci": "pnpm lint:check",
+    "test": "jest --verbose --coverage",
+    "test:watch": "jest --watch",
+    "test:ci": "jest --runInBand --ci --coverage --coverageDirectory=coverage",
+    "build:prod": "cross-env NODE_ENV=production microbundle --tsconfig ./tsconfig.json  --format modern,cjs,umd  --output dist/prod",
+    "build:dev": "cross-env NODE_ENV=development microbundle --define process.env.NODE_ENV=development --tsconfig ./tsconfig.json --generateTypes false --format modern --output dist/dev",
+    "build": "rm -rf ./dist && pnpm build:dev && pnpm build:prod",
+    "gen:docs": "rm -rf ./docs/api && typedoc",
+    "prepublishOnly": "pnpm build",
+    "prepare": "husky install",
+    "release": "pnpm run prepublishOnly && pnpm changeset publish"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-username/untilted.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/untilted/issues"
+  },
+  "homepage": "https://github.com/your-username/untilted#readme",
+  "devDependencies": {
+    "@babel/preset-env": "^7.16.11",
+    "@babel/preset-typescript": "^7.16.7",
+    "@changesets/cli": "^2.21.1",
+    "@types/jest": "^27.4.1",
+    "@typescript-eslint/eslint-plugin": "^5.16.0",
+    "@typescript-eslint/parser": "^5.16.0",
+    "babel-plugin-dev-expression": "^0.2.3",
+    "babel-plugin-transform-define": "^2.0.1",
+    "cross-env": "^7.0.3",
+    "eslint": "^8.12.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-jest": "^26.1.3",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-promise": "^6.0.0",
+    "eslint-plugin-tsdoc": "^0.2.14",
+    "husky": "^7.0.4",
+    "jest": "^27.5.1",
+    "jest-mock-console": "^1.2.3",
+    "jest-watch-typeahead": "^1.0.0",
+    "lint-staged": "^12.3.7",
+    "microbundle": "^0.14.2",
+    "prettier": "^2.6.1",
+    "shx": "^0.3.4",
+    "typedoc": "^0.22.13",
+    "typedoc-plugin-markdown": "^3.11.14"
+  }
+}

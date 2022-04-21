@@ -1,0 +1,10 @@
+node_modules/
+coverage/
+dist/
+/.buildcache
+/.vscode/settings.json
+/scratch
+/reports
+scratch
+*.tsbuildinfo
+.pnpm-debug.log
