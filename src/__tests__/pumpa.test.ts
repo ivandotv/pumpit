@@ -7,7 +7,7 @@ describe('Pumpa', () => {
       const key = 'name'
       const nameValue = 'ivan'
 
-      pumpa.bindValue(key, nameValue)
+      pumpa.registerValue(key, nameValue)
       const result = pumpa.resolve(key)
 
       expect(result).toBe(nameValue)
@@ -18,11 +18,33 @@ describe('Pumpa', () => {
       const tag = 'tag_name'
       const nameValue = 'ivan'
 
-      pumpa.bindValue(key, nameValue, { tag })
+      pumpa.registerValue(key, nameValue, { tag })
 
       const result = pumpa.resolve(key, { tag })
 
       expect(result).toBe(nameValue)
+    })
+
+    test('Throw if key is already registered', () => {
+      const pumpa = new Pumpa()
+      const key = 'name'
+      const nameValue = 'ivan'
+
+      pumpa.registerValue(key, nameValue)
+
+      expect(() => pumpa.registerValue(key, nameValue)).toThrowError(`${key}`)
+    })
+    test('Throw if key with a tag i already registered', () => {
+      const pumpa = new Pumpa()
+      const key = 'name'
+      const tag = 'tag_name'
+      const nameValue = 'ivan'
+
+      pumpa.registerValue(key, nameValue, { tag })
+
+      expect(() => pumpa.registerValue(key, nameValue, { tag })).toThrowError(
+        `${key} with tag: ${tag}`
+      )
     })
 
     test('Throw error if resolved key cannot be found', () => {

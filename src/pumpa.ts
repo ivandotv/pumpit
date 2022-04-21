@@ -45,7 +45,7 @@ export class Pumpa {
     }
   }
 
-  bindValue(key: string, value: any, options?: { tag?: string }): this {
+  registerValue(key: string, value: any, options?: { tag?: string }): this {
     this.addData(key, value, { ...options, type: types.value })
 
     return this
