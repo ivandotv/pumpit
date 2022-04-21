@@ -1,18 +1,27 @@
-const types = {
-  value: 'value',
-  class: 'class',
-  constructor: 'constructor'
+import { Cache, normalizeGet } from './utils'
+
+const TYPES = {
+  VALUE: 'VALUE',
+  CLASS: 'CLASS',
+  CONSTRUCTOR: 'CONSTRUCTOR'
 } as const
 
-type AvailableTypes = keyof typeof types
+export const SCOPES = {
+  SINGLETON: 'SINGLETON',
+  TRANSIENT: 'TRANSIENT',
+  REQUEST: 'REQUEST'
+} as const
+
+type AvailableTypes = keyof typeof TYPES
+type AvailableScopes = keyof typeof SCOPES
 
 export class Pumpa {
   protected data: Map<
     string,
-    Map<string | symbol, { value: any; type: AvailableTypes }>
+    { value: any; type: AvailableTypes; scope: AvailableScopes }
   >
 
-  protected defaultTag = Symbol()
+  protected singletonCache: Cache = new Cache()
 
   constructor() {
     //todo - move outside of constructor
@@ -22,89 +31,129 @@ export class Pumpa {
   protected addData(
     key: string,
     value: any,
-    info: { type: AvailableTypes; tag?: string }
+    info: { type: AvailableTypes; scope: AvailableScopes }
   ): void {
-    const tag = info.tag || this.defaultTag
-
     const dataHit = this.data.get(key)
 
     if (dataHit) {
-      //check for tag
-      if (dataHit.get(tag)) {
-        throw new Error(
-          `Key: ${key} ${
-            info?.tag ? `with tag: ${info.tag}` : ''
-          } already exists`
-        )
-      } else {
-        dataHit.set(tag, { ...info, value })
-      }
-    } else {
-      //create value with default tag
-      this.data.set(key, new Map().set(tag, { ...info, value }))
+      throw new Error(`Key: ${key} already exists`)
     }
+    this.data.set(key, { ...info, value })
   }
 
-  registerValue(key: string, value: any, options?: { tag?: string }): this {
-    this.addData(key, value, { ...options, type: types.value })
+  bindValue(key: string, value: any): this {
+    this.addData(key, value, {
+      type: TYPES.VALUE,
+      scope: SCOPES.SINGLETON
+    })
 
     return this
   }
 
-  //TODO  maybeResolve -> which doesn't throw
-  resolve<T>(key: string, options?: { tag?: string }): T {
-    const tag = options?.tag ? options.tag : this.defaultTag
+  bindClass(
+    key: string,
+    value: any,
+    options?: { scope: AvailableScopes; optional?: boolean }
+  ): this {
+    this.addData(key, value, {
+      ...options,
+      type: TYPES.CLASS,
+      scope: options?.scope || SCOPES.TRANSIENT
+    })
+
+    return this
+  }
+
+  resolve<T>(key: string): T {
+    const requestCache = new Cache()
+
+    const result = this._resolve(key, requestCache, { optional: false })
+
+    //TODO request cache clear
+    return result
+  }
+
+  _resolve(
+    key: string,
+    requestCache: Cache,
+    options: { optional?: boolean }
+  ): any {
     const data = this.data.get(key)
-    let resolvedValue
-    if (data) {
-      resolvedValue = data.get(tag)
-    }
-    if (!resolvedValue) {
-      throw new Error(
-        `Key: ${key} ${
-          options?.tag ? `with tag: ${options.tag}` : ''
-        } not found`
-      )
+
+    if (options.optional === true && !data) {
+      return undefined
     }
 
-    const { type, value } = resolvedValue
+    if (!data) {
+      throw new Error(`Key: ${key} not found`)
+    }
 
-    if (type === types.value) {
-      // resolve immediately
+    const { type, value, scope } = data
+
+    if (type === TYPES.VALUE) {
+      // resolve immediately - singleton
       return value
-    } else if (type === types.class) {
-      //resolve class dependencies
-    }
-  }
+    } else if (type === TYPES.CLASS) {
+      if (scope === SCOPES.SINGLETON) {
+        const cachedValue = this.singletonCache.get(key)
+        if (cachedValue) {
+          return cachedValue
+        } else {
+          const result = this.createInstance(value, requestCache)
+          this.singletonCache.set(key, result)
 
-  protected resolveDeps(keys: string[]): any[] {
-    //TODO - throw if it canot be resolved
-    const args = []
-    for (const key of keys) {
-      const value = this.data.get(key)
-      if (value) {
-        args.push(value.get(this.defaultTag)?.value)
-      } else {
-        //throw cannot resolve value
-        throw new Error('cannot resolve value')
+          return result
+        }
       }
-    }
+      if (SCOPES.REQUEST === scope) {
+        const cachedValue = requestCache.get(key)
+        if (cachedValue) {
+          return cachedValue
+        } else {
+          const result = this.createInstance(value, requestCache)
+          requestCache.set(key, result)
 
-    return args
+          return result
+        }
+      }
+
+      // no caching
+      return this.createInstance(value, requestCache)
+    }
   }
 
-  //   has(key: string, options?: { tag?: string })
+  protected createInstance<T>(
+    value: new (...args: any[]) => T,
+    requestCache: Cache
+  ): any {
+    // @ts-expect-error - static inject
+    const deps = value.inject as
+      | string
+      | (() => { key: string; tag?: string; optional?: boolean })[]
 
-  createInstance<T>(clazz: new (...args: any[]) => T): T {
-    // @ts-expect-error  https://stackoverflow.com/a/65847601/1489487
-    const deps: any[] = clazz.inject
-    if (!deps) {
-      throw new Error('no inject') // or warn
+    if (deps) {
+      const finalDeps = this.resolveDeps(deps, requestCache)
+      const result = new value(...finalDeps)
+
+      return result
+    } else {
+      return new value()
+    }
+  }
+
+  protected resolveDeps(
+    deps: string | (() => { key: string; options?: { optional?: boolean } })[],
+    requestCache: Cache
+  ): any[] {
+    const finalDeps = []
+    for (const dep of deps) {
+      const { key, options } = normalizeGet(dep)
+      const doneDep = this._resolve(key, requestCache, {
+        optional: options?.optional
+      })
+      finalDeps.push(doneDep)
     }
 
-    // otherwise resolve
-    const resolvedDeps = this.resolveDeps(deps)
-
-    return new clazz(...resolvedDeps)
+    return finalDeps
   }
 }
