@@ -64,7 +64,8 @@ export class Pumpa {
 
     const result = this._resolve(key, requestCache, { optional: false })
 
-    //TODO request cache clear
+    requestCache.clear()
+
     return result
   }
 
