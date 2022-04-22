@@ -1,8 +1,8 @@
 import { Pumpa } from '../pumpa'
 
 describe('Pumpa', () => {
-  describe('Bind value', () => {
-    test('resolve value', () => {
+  describe('Injec value', () => {
+    test('Resolve value', () => {
       const pumpa = new Pumpa()
       const key = 'name'
       const nameValue = 'ivan'

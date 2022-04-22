@@ -1,3 +1,3 @@
 export * from './pumpa'
-import { get } from './utils'
-export { get }
+import { get, getArray } from './utils'
+export { get, getArray }

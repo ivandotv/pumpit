@@ -49,7 +49,7 @@ module.exports = {
       { blankLine: 'always', prev: '*', next: 'return' }
     ],
     '@typescript-eslint/explicit-function-return-type': [
-      'error',
+      0,
       {
         allowExpressions: true,
         allowTypedFunctionExpressions: true
@@ -82,14 +82,5 @@ module.exports = {
         }
       }
     ]
-  },
-  overrides: [
-    {
-      files: ['*.js', '*.jsx'],
-      rules: {
-        '@typescript-eslint/explicit-function-return-type': 'off',
-        '@typescript-eslint/no-var-requires': 'off'
-      }
-    }
-  ]
+  }
 }

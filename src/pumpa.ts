@@ -1,4 +1,4 @@
-import { normalizeGet } from './utils'
+import { InjectionData, parseInjectionData } from './utils'
 
 const TYPES = {
   VALUE: 'VALUE',
@@ -76,7 +76,7 @@ export class Pumpa {
   ): any {
     const data = this.data.get(key)
 
-    if (options.optional === true && !data) {
+    if (options?.optional === true && !data) {
       return undefined
     }
 
@@ -113,9 +113,47 @@ export class Pumpa {
         }
       }
 
-      // no caching
+      // default - always fresh instance
       return this.createInstance(value, requestCache)
     }
+  }
+
+  protected resolveDeps(
+    deps: InjectionData[],
+    requestCache: Map<string | symbol, any>
+  ): any[] {
+    const finalDeps = []
+    for (const dep of deps) {
+      const { key, options } = parseInjectionData(dep)
+      if (Array.isArray(key)) {
+        //resolve array of injection keys
+
+        const nested = []
+        for (const k of key) {
+          const doneDep = this._resolve(k.key, requestCache, k.options)
+          // @ts-expect-error needs type narrowing for "removeUndefined"
+          if (typeof doneDep === 'undefined' && options.removeUndefined) {
+            continue
+          }
+          nested.push(doneDep)
+        }
+        finalDeps.push(
+          nested.length
+            ? nested
+            : // @ts-expect-error needs type narrowing for "setToUndefinedIfEmpty"
+            options.setToUndefinedIfEmpty
+            ? undefined
+            : nested
+        )
+      } else {
+        const doneDep = this._resolve(key, requestCache, {
+          optional: options?.optional
+        })
+        finalDeps.push(doneDep)
+      }
+    }
+
+    return finalDeps
   }
 
   protected createInstance<T>(
@@ -123,9 +161,7 @@ export class Pumpa {
     requestCache: Map<string | symbol, any>
   ): any {
     // @ts-expect-error - static inject
-    const deps = value.inject as
-      | string
-      | (() => { key: string; tag?: string; optional?: boolean })[]
+    const deps = value.inject as InjectionData[]
 
     if (deps) {
       const finalDeps = this.resolveDeps(deps, requestCache)
@@ -135,21 +171,5 @@ export class Pumpa {
     } else {
       return new value()
     }
-  }
-
-  protected resolveDeps(
-    deps: string | (() => { key: string; options?: { optional?: boolean } })[],
-    requestCache: Map<string | symbol, any>
-  ): any[] {
-    const finalDeps = []
-    for (const dep of deps) {
-      const { key, options } = normalizeGet(dep)
-      const doneDep = this._resolve(key, requestCache, {
-        optional: options?.optional
-      })
-      finalDeps.push(doneDep)
-    }
-
-    return finalDeps
   }
 }
