@@ -21,9 +21,9 @@ describe('Class instance with "transient" scope', () => {
       constructor(public testA: TestA, public testACopy: TestA) {}
     }
 
-    pumpa.bindClass(key, TestA)
-    pumpa.bindClass(keyB, TestB)
-    pumpa.bindClass(keyC, TestC)
+    pumpa.addClass(key, TestA)
+    pumpa.addClass(keyB, TestB)
+    pumpa.addClass(keyC, TestC)
 
     const instance = pumpa.resolve<TestC>(keyC)
 
@@ -45,8 +45,8 @@ describe('Class instance with "transient" scope', () => {
       constructor(public testA: TestA, public testACopy: TestA) {}
     }
 
-    pumpa.bindClass(key, TestA, { scope: SCOPES.TRANSIENT })
-    pumpa.bindClass(keyB, TestB)
+    pumpa.addClass(key, TestA, { scope: SCOPES.TRANSIENT })
+    pumpa.addClass(keyB, TestB)
 
     const instance = pumpa.resolve<TestB>(keyB)
 

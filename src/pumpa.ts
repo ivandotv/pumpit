@@ -36,7 +36,7 @@ export class Pumpa {
     this.data.set(key, { ...info, value })
   }
 
-  bindValue(key: string, value: any): this {
+  addValue(key: string, value: any): this {
     this.addData(key, value, {
       type: TYPES.VALUE,
       scope: SCOPES.SINGLETON
@@ -45,7 +45,7 @@ export class Pumpa {
     return this
   }
 
-  bindClass(
+  addClass(
     key: string,
     value: any,
     options?: { scope: AvailableScopes; optional?: boolean }

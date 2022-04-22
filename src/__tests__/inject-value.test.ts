@@ -7,7 +7,7 @@ describe('Pumpa', () => {
       const key = 'name'
       const nameValue = 'ivan'
 
-      pumpa.bindValue(key, nameValue)
+      pumpa.addValue(key, nameValue)
       const result = pumpa.resolve(key)
 
       expect(result).toBe(nameValue)
@@ -17,7 +17,7 @@ describe('Pumpa', () => {
       const key = 'name'
       const nameValue = 'ivan'
 
-      pumpa.bindValue(key, nameValue)
+      pumpa.addValue(key, nameValue)
 
       const result = pumpa.resolve(key)
 
@@ -29,9 +29,9 @@ describe('Pumpa', () => {
       const key = 'name'
       const nameValue = 'ivan'
 
-      pumpa.bindValue(key, nameValue)
+      pumpa.addValue(key, nameValue)
 
-      expect(() => pumpa.bindValue(key, nameValue)).toThrowError(`${key}`)
+      expect(() => pumpa.addValue(key, nameValue)).toThrowError(`${key}`)
     })
 
     test('Throw error if resolved key cannot be found', () => {

@@ -16,9 +16,9 @@ describe('Inject array of values as a single property', () => {
       constructor(public props?: [string?, number?]) {}
     }
 
-    pumpa.bindValue(keyOne, valueOne)
-    pumpa.bindValue(keyTwo, valueTwo)
-    pumpa.bindClass('class_a', TestA)
+    pumpa.addValue(keyOne, valueOne)
+    pumpa.addValue(keyTwo, valueTwo)
+    pumpa.addClass('class_a', TestA)
 
     const instance = pumpa.resolve<TestA>('class_a')
 
@@ -37,8 +37,8 @@ describe('Inject array of values as a single property', () => {
       constructor(public props?: [string, number?]) {}
     }
 
-    pumpa.bindValue(keyTwo, valueTwo)
-    pumpa.bindClass('class_a', TestA)
+    pumpa.addValue(keyTwo, valueTwo)
+    pumpa.addClass('class_a', TestA)
 
     const instance = pumpa.resolve<TestA>('class_a')
 
@@ -61,8 +61,8 @@ describe('Inject array of values as a single property', () => {
       constructor(public props?: [string, number?]) {}
     }
 
-    pumpa.bindValue(keyTwo, valueTwo)
-    pumpa.bindClass('class_a', TestA)
+    pumpa.addValue(keyTwo, valueTwo)
+    pumpa.addClass('class_a', TestA)
 
     const instance = pumpa.resolve<TestA>('class_a')
 
@@ -85,8 +85,8 @@ describe('Inject array of values as a single property', () => {
       constructor(public props?: [string, number?]) {}
     }
 
-    pumpa.bindValue(keyTwo, valueTwo)
-    pumpa.bindClass('class_a', TestA)
+    pumpa.addValue(keyTwo, valueTwo)
+    pumpa.addClass('class_a', TestA)
 
     expect(() => pumpa.resolve<TestA>('class_a')).toThrowError('not found')
   })
@@ -111,7 +111,7 @@ describe('Inject array of values as a single property', () => {
       constructor(public props?: [string, number?]) {}
     }
 
-    pumpa.bindClass('class_a', TestA)
+    pumpa.addClass('class_a', TestA)
 
     const instance = pumpa.resolve<TestA>('class_a')
 

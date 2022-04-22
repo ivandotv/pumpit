@@ -11,7 +11,7 @@ describe('Optional injection', () => {
       constructor(public optionalProp?: string) {}
     }
 
-    pumpa.bindClass('class_a', TestA)
+    pumpa.addClass('class_a', TestA)
 
     expect(() => pumpa.resolve<TestA>('class_a')).not.toThrow()
   })
@@ -24,7 +24,7 @@ describe('Optional injection', () => {
       constructor(public optionalProp?: string) {}
     }
 
-    pumpa.bindClass('class_a', TestA)
+    pumpa.addClass('class_a', TestA)
     const instance = pumpa.resolve<TestA>('class_a')
 
     expect(instance.optionalProp).toBeUndefined()
@@ -48,8 +48,8 @@ describe('Optional injection', () => {
       ) {}
     }
 
-    pumpa.bindValue(keyOne, valueOne)
-    pumpa.bindClass('class_a', TestA)
+    pumpa.addValue(keyOne, valueOne)
+    pumpa.addClass('class_a', TestA)
 
     const instance = pumpa.resolve<TestA>('class_a')
 
@@ -77,9 +77,9 @@ describe('Optional injection', () => {
       ) {}
     }
 
-    pumpa.bindValue(keyOne, valueOne)
-    pumpa.bindValue(keyThree, valueThree)
-    pumpa.bindClass('class_a', TestA)
+    pumpa.addValue(keyOne, valueOne)
+    pumpa.addValue(keyThree, valueThree)
+    pumpa.addClass('class_a', TestA)
 
     const instance = pumpa.resolve<TestA>('class_a')
 
