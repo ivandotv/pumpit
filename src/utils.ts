@@ -25,23 +25,3 @@ export function normalizeGet(
     options: ex.options
   }
 }
-
-export class Cache<T = any> {
-  protected cache: Map<string, T> = new Map()
-
-  set(key: string, value: T): boolean {
-    const dataHit = this.cache.get(key)
-
-    if (!dataHit) {
-      this.cache.set(key, value)
-
-      return true
-    }
-
-    return false
-  }
-
-  get(key: string): T | undefined {
-    return this.cache.get(key)
-  }
-}

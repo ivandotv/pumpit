@@ -1,4 +1,4 @@
-import { Cache, normalizeGet } from './utils'
+import { normalizeGet } from './utils'
 
 const TYPES = {
   VALUE: 'VALUE',
@@ -19,14 +19,9 @@ export class Pumpa {
   protected data: Map<
     string,
     { value: any; type: AvailableTypes; scope: AvailableScopes }
-  >
+  > = new Map()
 
-  protected singletonCache: Cache = new Cache()
-
-  constructor() {
-    //todo - move outside of constructor
-    this.data = new Map()
-  }
+  protected singletonCache: Map<string | symbol, any> = new Map()
 
   protected addData(
     key: string,
@@ -65,7 +60,7 @@ export class Pumpa {
   }
 
   resolve<T>(key: string): T {
-    const requestCache = new Cache()
+    const requestCache = new Map()
 
     const result = this._resolve(key, requestCache, { optional: false })
 
@@ -75,7 +70,7 @@ export class Pumpa {
 
   _resolve(
     key: string,
-    requestCache: Cache,
+    requestCache: Map<string | symbol, any>,
     options: { optional?: boolean }
   ): any {
     const data = this.data.get(key)
@@ -124,7 +119,7 @@ export class Pumpa {
 
   protected createInstance<T>(
     value: new (...args: any[]) => T,
-    requestCache: Cache
+    requestCache: Map<string | symbol, any>
   ): any {
     // @ts-expect-error - static inject
     const deps = value.inject as
@@ -143,7 +138,7 @@ export class Pumpa {
 
   protected resolveDeps(
     deps: string | (() => { key: string; options?: { optional?: boolean } })[],
-    requestCache: Cache
+    requestCache: Map<string | symbol, any>
   ): any[] {
     const finalDeps = []
     for (const dep of deps) {
