@@ -21,7 +21,7 @@ export class Pumpa {
     { value: any; type: AvailableTypes; scope: AvailableScopes }
   > = new Map()
 
-  protected singletonCache: Map<string | symbol, any> = new Map()
+  protected permanentCache: Map<string | symbol, any> = new Map()
 
   protected addData(
     key: string,
@@ -91,12 +91,12 @@ export class Pumpa {
       return value
     } else if (type === TYPES.CLASS) {
       if (scope === SCOPES.SINGLETON) {
-        const cachedValue = this.singletonCache.get(key)
+        const cachedValue = this.permanentCache.get(key)
         if (cachedValue) {
           return cachedValue
         } else {
           const result = this.createInstance(value, requestCache)
-          this.singletonCache.set(key, result)
+          this.permanentCache.set(key, result)
 
           return result
         }
