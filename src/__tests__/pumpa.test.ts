@@ -87,4 +87,16 @@ describe('Optional injection', () => {
     expect(instance.optionalProp).toBeUndefined()
     expect(instance.keyThree).toBe(valueThree)
   })
+
+  test('"Add" methods are chainable', () => {
+    const pumpa = new Pumpa()
+
+    const ref = pumpa
+      .addClass('a', class {})
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      .addFactory('b', () => () => {})
+      .addValue('c', true)
+
+    expect(ref).toBe(pumpa)
+  })
 })

@@ -1,8 +1,7 @@
 import { Pumpa, SCOPES } from '../../pumpa'
 
-// console.log(TestA) //TODO  better errors when resolving failes
-describe('class instance with "request" scope', () => {
-  test('"request" returns the same instance for a single resolve', () => {
+describe('Class instance with "request" scope', () => {
+  test('Return the same instance for a single resolve call', () => {
     const pumpa = new Pumpa()
 
     const keyA = 'key_a'
@@ -11,19 +10,16 @@ describe('class instance with "request" scope', () => {
     const request_key = 'request'
 
     class RequestTest {}
-
     class TestA {
       static inject = [request_key]
 
       constructor(public request: RequestTest) {}
     }
-
     class TestB {
       static inject = [request_key]
 
       constructor(public request: RequestTest) {}
     }
-
     class TestC {
       static inject = [keyA, keyB, request_key]
 
@@ -34,10 +30,11 @@ describe('class instance with "request" scope', () => {
       ) {}
     }
 
-    pumpa.addClass(request_key, RequestTest, { scope: SCOPES.REQUEST })
-    pumpa.addClass(keyA, TestA)
-    pumpa.addClass(keyB, TestB)
-    pumpa.addClass(keyC, TestC)
+    pumpa
+      .addClass(request_key, RequestTest, { scope: SCOPES.REQUEST })
+      .addClass(keyA, TestA)
+      .addClass(keyB, TestB)
+      .addClass(keyC, TestC)
 
     const instanceC = pumpa.resolve<TestC>(keyC)
 
@@ -53,7 +50,6 @@ describe('class instance with "request" scope', () => {
   test('Multiple resolve calls return different instances', () => {
     const pumpa = new Pumpa()
     const key = 'some_key'
-
     class TestA {}
 
     pumpa.addClass(key, TestA, { scope: SCOPES.REQUEST })
@@ -65,29 +61,28 @@ describe('class instance with "request" scope', () => {
     expect(instanceA).not.toBe(instanceB)
   })
 
-  test('Multiple resolve calls return different injected instance', () => {
+  test('Multiple resolve calls return different injected instances', () => {
     const pumpa = new Pumpa()
 
     const keyC = 'key_c'
     const request_key = 'request'
 
     class RequestTest {}
-
     class TestC {
       static inject = [request_key]
 
       constructor(public request: RequestTest) {}
     }
 
-    pumpa.addClass(request_key, RequestTest, { scope: SCOPES.REQUEST })
-    pumpa.addClass(keyC, TestC)
+    pumpa
+      .addClass(request_key, RequestTest, { scope: SCOPES.REQUEST })
+      .addClass(keyC, TestC)
 
     const instanceOne = pumpa.resolve<TestC>(keyC)
     const instanceTwo = pumpa.resolve<TestC>(keyC)
 
     expect(instanceOne.request).toBeInstanceOf(RequestTest)
     expect(instanceTwo.request).toBeInstanceOf(RequestTest)
-
     expect(instanceOne.request).not.toBe(instanceTwo.request)
   })
 })

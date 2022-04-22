@@ -1,11 +1,9 @@
 import { Pumpa, SCOPES } from '../../pumpa'
 
-// console.log(TestA) //TODO  better errors when resolving failes
-describe('Register singleton', () => {
-  test('Can register singleton', () => {
+describe('Class singleton', () => {
+  test('Same class instance is always returned', () => {
     const pumpa = new Pumpa()
     const key = 'some_key'
-
     class TestA {}
 
     pumpa.addClass(key, TestA, { scope: SCOPES.SINGLETON })
@@ -28,25 +26,24 @@ describe('Register singleton', () => {
 
       constructor(public keyB: TestB, public keyC: TestC) {}
     }
-
     class TestB {}
     class TestC {}
 
-    pumpa.addClass(key, TestA, { scope: SCOPES.SINGLETON })
-    pumpa.addClass(keyB, TestB)
-    pumpa.addClass(keyC, TestC)
+    pumpa
+      .addClass(key, TestA, { scope: SCOPES.SINGLETON })
+      .addClass(keyB, TestB)
+      .addClass(keyC, TestC)
 
     const instanceOne = pumpa.resolve<TestA>(key)
     const instanceTwo = pumpa.resolve<TestA>(key)
 
     expect(instanceOne).toBeInstanceOf(TestA)
     expect(instanceOne).toBe(instanceTwo)
-
     expect(instanceOne.keyB).toBeInstanceOf(TestB)
     expect(instanceOne.keyC).toBeInstanceOf(TestC)
   })
 
-  test('Singleton dependencies are also cached', () => {
+  test('Singleton dependencies are cached', () => {
     const pumpa = new Pumpa()
     const key = 'some_key'
     const keyB = 'key_b'
@@ -57,13 +54,13 @@ describe('Register singleton', () => {
 
       constructor(public keyB: TestB, public keyC: TestC) {}
     }
-
     class TestB {}
     class TestC {}
 
-    pumpa.addClass(key, TestA, { scope: SCOPES.SINGLETON })
-    pumpa.addClass(keyB, TestB)
-    pumpa.addClass(keyC, TestC)
+    pumpa
+      .addClass(key, TestA, { scope: SCOPES.SINGLETON })
+      .addClass(keyB, TestB)
+      .addClass(keyC, TestC)
 
     const instanceOne = pumpa.resolve<TestA>(key)
     const instanceTwo = pumpa.resolve<TestA>(key)

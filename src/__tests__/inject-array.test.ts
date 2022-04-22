@@ -1,10 +1,9 @@
 import { Pumpa } from '../pumpa'
 import { get, getArray } from '../utils'
 
-describe('Inject array of values as a single property', () => {
+describe('Inject array of values for a single property', () => {
   test('Inject  values', () => {
     const pumpa = new Pumpa()
-
     const keyOne = 'key_one'
     const valueOne = 'hello'
     const keyTwo = 'key_two'
@@ -16,18 +15,18 @@ describe('Inject array of values as a single property', () => {
       constructor(public props?: [string?, number?]) {}
     }
 
-    pumpa.addValue(keyOne, valueOne)
-    pumpa.addValue(keyTwo, valueTwo)
-    pumpa.addClass('class_a', TestA)
+    pumpa
+      .addValue(keyOne, valueOne)
+      .addValue(keyTwo, valueTwo)
+      .addClass('class_a', TestA)
 
     const instance = pumpa.resolve<TestA>('class_a')
 
     expect(instance.props).toEqual([valueOne, valueTwo])
   })
 
-  test('If value is not found, set it to undefined', () => {
+  test('If the key is not found, set it to undefined', () => {
     const pumpa = new Pumpa()
-
     const keyTwo = 'key_two'
     const valueTwo = 2
 
@@ -45,9 +44,8 @@ describe('Inject array of values as a single property', () => {
     expect(instance.props).toEqual([undefined, valueTwo])
   })
 
-  test('If the value is not found, do not add undefined', () => {
+  test('If the key is not found, do not add "undefined" value', () => {
     const pumpa = new Pumpa()
-
     const keyTwo = 'key_two'
     const valueTwo = 2
 
@@ -69,9 +67,8 @@ describe('Inject array of values as a single property', () => {
     expect(instance.props).toEqual([valueTwo])
   })
 
-  test('Throw if any value in array is not optional', () => {
+  test('Throw if all keys in the array are not optional', () => {
     const pumpa = new Pumpa()
-
     const keyTwo = 'key_two'
     const valueTwo = 2
 
@@ -91,9 +88,8 @@ describe('Inject array of values as a single property', () => {
     expect(() => pumpa.resolve<TestA>('class_a')).toThrowError('not found')
   })
 
-  test('Set the whole array to undefined if no keys are resolved', () => {
+  test('Set the whole array to undefined if there are no resolved keys', () => {
     const pumpa = new Pumpa()
-
     class TestA {
       static inject = [
         getArray(
