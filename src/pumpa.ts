@@ -3,7 +3,7 @@ import { InjectionData, parseInjectionData } from './utils'
 const TYPES = {
   VALUE: 'VALUE',
   CLASS: 'CLASS',
-  CONSTRUCTOR: 'CONSTRUCTOR'
+  FACTORY: 'FACTORY'
 } as const
 
 export const SCOPES = {
@@ -23,7 +23,7 @@ export class Pumpa {
 
   protected permanentCache: Map<string | symbol, any> = new Map()
 
-  protected addData(
+  protected add(
     key: string,
     value: any,
     info: { type: AvailableTypes; scope: AvailableScopes }
@@ -37,9 +37,23 @@ export class Pumpa {
   }
 
   addValue(key: string, value: any): this {
-    this.addData(key, value, {
+    this.add(key, value, {
       type: TYPES.VALUE,
       scope: SCOPES.SINGLETON
+    })
+
+    return this
+  }
+
+  addFactory(
+    key: string,
+    value: (...args: any[]) => (...args: any[]) => any,
+    options?: { scope: AvailableScopes; optional?: boolean }
+  ) {
+    this.add(key, value, {
+      ...options,
+      type: TYPES.FACTORY,
+      scope: options?.scope || SCOPES.TRANSIENT
     })
 
     return this
@@ -50,7 +64,7 @@ export class Pumpa {
     value: any,
     options?: { scope: AvailableScopes; optional?: boolean }
   ): this {
-    this.addData(key, value, {
+    this.add(key, value, {
       ...options,
       type: TYPES.CLASS,
       scope: options?.scope || SCOPES.TRANSIENT
@@ -90,32 +104,14 @@ export class Pumpa {
       // resolve immediately - singleton
       return value
     } else if (type === TYPES.CLASS) {
-      if (scope === SCOPES.SINGLETON) {
-        const cachedValue = this.permanentCache.get(key)
-        if (cachedValue) {
-          return cachedValue
-        } else {
-          const result = this.createInstance(value, requestCache)
-          this.permanentCache.set(key, result)
-
-          return result
-        }
-      }
-      if (SCOPES.REQUEST === scope) {
-        const cachedValue = requestCache.get(key)
-        if (cachedValue) {
-          return cachedValue
-        } else {
-          const result = this.createInstance(value, requestCache)
-          requestCache.set(key, result)
-
-          return result
-        }
-      }
-
-      // default - always fresh instance
-      return this.createInstance(value, requestCache)
+      return this.run(scope, key, requestCache, () =>
+        this.createInstance(value, requestCache)
+      )
     }
+
+    return this.run(scope, key, requestCache, () =>
+      this.createFactory(value, requestCache)
+    )
   }
 
   protected resolveDeps(
@@ -157,19 +153,66 @@ export class Pumpa {
   }
 
   protected createInstance<T>(
-    value: new (...args: any[]) => T,
+    value: {
+      new (...args: any[]): T
+      inject: any[]
+    },
     requestCache: Map<string | symbol, any>
-  ): any {
-    // @ts-expect-error - static inject
+  ): T {
     const deps = value.inject as InjectionData[]
 
     if (deps) {
-      const finalDeps = this.resolveDeps(deps, requestCache)
-      const result = new value(...finalDeps)
-
-      return result
+      return new value(...this.resolveDeps(deps, requestCache))
     } else {
       return new value()
     }
+  }
+
+  protected createFactory(
+    value: {
+      (...args: any[]): any
+      inject: any[]
+    },
+    requestCache: Map<string | symbol, any>
+  ): (...args: any) => any {
+    const deps = value.inject as InjectionData[]
+
+    if (deps) {
+      return value(...this.resolveDeps(deps, requestCache))
+    } else {
+      return value()
+    }
+  }
+
+  protected run(
+    scope: AvailableScopes,
+    key: string | symbol,
+    requestCache: Map<string | symbol, any>,
+    fn: (...args: any[]) => any
+  ) {
+    if (scope === SCOPES.SINGLETON) {
+      const cachedValue = this.permanentCache.get(key)
+      if (cachedValue) {
+        return cachedValue
+      } else {
+        const result = fn()
+        this.permanentCache.set(key, result)
+
+        return result
+      }
+    }
+    if (SCOPES.REQUEST === scope) {
+      const cachedValue = requestCache.get(key)
+      if (cachedValue) {
+        return cachedValue
+      } else {
+        const result = fn()
+        requestCache.set(key, result)
+
+        return result
+      }
+    }
+
+    return fn()
   }
 }
