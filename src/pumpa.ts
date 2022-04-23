@@ -23,6 +23,8 @@ export class Pumpa {
 
   protected permanentCache: Map<string | symbol, any> = new Map()
 
+  protected requestCache: Map<string | symbol, any> = new Map()
+
   protected add(
     key: string,
     value: any,
@@ -74,20 +76,14 @@ export class Pumpa {
   }
 
   resolve<T>(key: string): T {
-    const requestCache = new Map()
+    const result = this._resolve(key, { optional: false })
 
-    const result = this._resolve(key, requestCache, { optional: false })
-
-    requestCache.clear()
+    this.requestCache.clear()
 
     return result
   }
 
-  _resolve(
-    key: string,
-    requestCache: Map<string | symbol, any>,
-    options: { optional?: boolean }
-  ): any {
+  _resolve(key: string, options: { optional?: boolean }): any {
     const data = this.data.get(key)
 
     if (options?.optional === true && !data) {
@@ -104,20 +100,13 @@ export class Pumpa {
       // resolve immediately - singleton
       return value
     } else if (type === TYPES.CLASS) {
-      return this.run(scope, key, requestCache, () =>
-        this.createInstance(value, requestCache)
-      )
+      return this.run(scope, key, () => this.createInstance(value))
     }
 
-    return this.run(scope, key, requestCache, () =>
-      this.createFactory(value, requestCache)
-    )
+    return this.run(scope, key, () => this.createFactory(value))
   }
 
-  protected resolveDeps(
-    deps: InjectionData[],
-    requestCache: Map<string | symbol, any>
-  ): any[] {
+  protected resolveDeps(deps: InjectionData[]): any[] {
     const finalDeps = []
     for (const dep of deps) {
       const { key, options } = parseInjectionData(dep)
@@ -126,7 +115,7 @@ export class Pumpa {
 
         const nested = []
         for (const k of key) {
-          const doneDep = this._resolve(k.key, requestCache, k.options)
+          const doneDep = this._resolve(k.key, k.options)
           // @ts-expect-error needs type narrowing for "removeUndefined"
           if (typeof doneDep === 'undefined' && options.removeUndefined) {
             continue
@@ -142,7 +131,7 @@ export class Pumpa {
             : nested
         )
       } else {
-        const doneDep = this._resolve(key, requestCache, {
+        const doneDep = this._resolve(key, {
           optional: options?.optional
         })
         finalDeps.push(doneDep)
@@ -152,33 +141,27 @@ export class Pumpa {
     return finalDeps
   }
 
-  protected createInstance<T>(
-    value: {
-      new (...args: any[]): T
-      inject: any[]
-    },
-    requestCache: Map<string | symbol, any>
-  ): T {
+  protected createInstance<T>(value: {
+    new (...args: any[]): T
+    inject: any[]
+  }): T {
     const deps = value.inject as InjectionData[]
 
     if (deps) {
-      return new value(...this.resolveDeps(deps, requestCache))
+      return new value(...this.resolveDeps(deps))
     } else {
       return new value()
     }
   }
 
-  protected createFactory(
-    value: {
-      (...args: any[]): any
-      inject: any[]
-    },
-    requestCache: Map<string | symbol, any>
-  ): (...args: any) => any {
+  protected createFactory(value: {
+    (...args: any[]): any
+    inject: any[]
+  }): (...args: any) => any {
     const deps = value.inject as InjectionData[]
 
     if (deps) {
-      return value(...this.resolveDeps(deps, requestCache))
+      return value(...this.resolveDeps(deps))
     } else {
       return value()
     }
@@ -187,7 +170,6 @@ export class Pumpa {
   protected run(
     scope: AvailableScopes,
     key: string | symbol,
-    requestCache: Map<string | symbol, any>,
     fn: (...args: any[]) => any
   ) {
     if (scope === SCOPES.SINGLETON) {
@@ -202,12 +184,12 @@ export class Pumpa {
       }
     }
     if (SCOPES.REQUEST === scope) {
-      const cachedValue = requestCache.get(key)
+      const cachedValue = this.requestCache.get(key)
       if (cachedValue) {
         return cachedValue
       } else {
         const result = fn()
-        requestCache.set(key, result)
+        this.requestCache.set(key, result)
 
         return result
       }
