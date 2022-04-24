@@ -17,7 +17,7 @@ type AvailableScopes = keyof typeof SCOPES
 
 export class Pumpa {
   protected data: Map<
-    string,
+    string | symbol,
     { value: any; type: AvailableTypes; scope: AvailableScopes }
   > = new Map()
 
@@ -25,8 +25,13 @@ export class Pumpa {
 
   protected requestCache: Map<string | symbol, any> = new Map()
 
+  protected requestedKeys: Map<
+    string | symbol,
+    { constructed: boolean; value: any }
+  > = new Map()
+
   protected add(
-    key: string,
+    key: string | symbol,
     value: any,
     info: { type: AvailableTypes; scope: AvailableScopes }
   ): void {
@@ -38,7 +43,7 @@ export class Pumpa {
     this.data.set(key, { ...info, value })
   }
 
-  addValue(key: string, value: any): this {
+  addValue(key: string | symbol, value: any): this {
     this.add(key, value, {
       type: TYPES.VALUE,
       scope: SCOPES.SINGLETON
@@ -48,7 +53,7 @@ export class Pumpa {
   }
 
   addFactory(
-    key: string,
+    key: string | symbol,
     value: (...args: any[]) => (...args: any[]) => any,
     options?: { scope: AvailableScopes; optional?: boolean }
   ) {
@@ -62,7 +67,7 @@ export class Pumpa {
   }
 
   addClass(
-    key: string,
+    key: string | symbol,
     value: any,
     options?: { scope: AvailableScopes; optional?: boolean }
   ): this {
@@ -75,15 +80,16 @@ export class Pumpa {
     return this
   }
 
-  resolve<T>(key: string): T {
+  resolve<T>(key: string | symbol): T {
     const result = this._resolve(key, { optional: false })
 
     this.requestCache.clear()
+    this.requestedKeys.clear()
 
     return result
   }
 
-  _resolve(key: string, options: { optional?: boolean }): any {
+  _resolve(key: string | symbol, options: { optional?: boolean }): any {
     const data = this.data.get(key)
 
     if (options?.optional === true && !data) {
@@ -91,19 +97,35 @@ export class Pumpa {
     }
 
     if (!data) {
-      throw new Error(`Key: ${key} not found`)
+      throw new Error(`Key: ${String(key)} not found`)
     }
 
     const { type, value, scope } = data
+
+    //values have no circular references
+    if (type !== TYPES.VALUE) {
+      const keySeen = this.requestedKeys.get(key)
+      if (keySeen && !keySeen.constructed) {
+        let path = ''
+        this.requestedKeys.forEach((seenData, seenKey) => {
+          path = `${path} [${String(seenKey)}:${seenData.value.name}] ->`
+        })
+        throw new Error(
+          `Circular reference detected: ${path} ${String(key)} ${value.name}`
+        )
+      }
+
+      this.requestedKeys.set(key, { constructed: false, value }) //add type and scope
+    }
 
     if (type === TYPES.VALUE) {
       // resolve immediately - singleton
       return value
     } else if (type === TYPES.CLASS) {
-      return this.run(scope, key, () => this.createInstance(value))
+      return this.run(scope, key, () => this.createInstance(key, value))
     }
 
-    return this.run(scope, key, () => this.createFactory(value))
+    return this.run(scope, key, () => this.createFactory(key, value))
   }
 
   protected resolveDeps(deps: InjectionData[]): any[] {
@@ -141,30 +163,43 @@ export class Pumpa {
     return finalDeps
   }
 
-  protected createInstance<T>(value: {
-    new (...args: any[]): T
-    inject: any[]
-  }): T {
-    const deps = value.inject as InjectionData[]
-
-    if (deps) {
-      return new value(...this.resolveDeps(deps))
-    } else {
-      return new value()
+  protected createInstance<T>(
+    key: string | symbol,
+    value: {
+      new (...args: any[]): T
+      inject: any[]
     }
+  ): T {
+    const deps = value.inject as InjectionData[]
+    let result
+    if (deps) {
+      result = new value(...this.resolveDeps(deps))
+    } else {
+      result = new value()
+    }
+
+    this.requestedKeys.get(key)!.constructed = true
+
+    return result
   }
 
-  protected createFactory(value: {
-    (...args: any[]): any
-    inject: any[]
-  }): (...args: any) => any {
-    const deps = value.inject as InjectionData[]
-
-    if (deps) {
-      return value(...this.resolveDeps(deps))
-    } else {
-      return value()
+  protected createFactory(
+    key: string | symbol,
+    value: {
+      (...args: any[]): any
+      inject: any[]
     }
+  ): (...args: any) => any {
+    const deps = value.inject as InjectionData[]
+    let result
+    if (deps) {
+      result = value(...this.resolveDeps(deps))
+    } else {
+      result = value()
+    }
+    this.requestedKeys.get(key)!.constructed = true
+
+    return result
   }
 
   protected run(

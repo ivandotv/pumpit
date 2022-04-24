@@ -6,7 +6,7 @@ describe('Optional injection', () => {
     const pumpa = new Pumpa()
 
     class TestA {
-      static inject = [get('some_key', { optional: true })]
+      static inject = [get('key_a', { optional: true })]
 
       constructor(public optionalProp?: string) {}
     }
@@ -19,7 +19,7 @@ describe('Optional injection', () => {
     const pumpa = new Pumpa()
 
     class TestA {
-      static inject = [get('some_key', { optional: true })]
+      static inject = [get('key_a', { optional: true })]
 
       constructor(public optionalProp?: string) {}
     }

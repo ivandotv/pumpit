@@ -67,7 +67,7 @@ module.exports = {
         'ts-expect-error': 'allow-with-description'
       }
     ],
-    '@typescript-eslint/no-non-null-assertion': [2],
+    '@typescript-eslint/no-non-null-assertion': [0],
     '@typescript-eslint/no-explicit-any': [0, { ignoreRestArgs: true }],
     '@typescript-eslint/member-delimiter-style': [
       'error',
