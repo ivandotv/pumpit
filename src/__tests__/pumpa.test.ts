@@ -99,4 +99,29 @@ describe('Optional injection', () => {
 
     expect(ref).toBe(pumpa)
   })
+
+  test('Can retrieve values via symbols', () => {
+    const pumpa = new Pumpa()
+    const keyA = Symbol('key_a')
+    const keyB = Symbol('key_b')
+    const keyC = Symbol()
+
+    class TestA {}
+    const value = { hello: 'world' }
+
+    const factoryReturnValue = 'hello'
+    const factory = () => () => factoryReturnValue
+
+    pumpa.addClass(keyA, TestA)
+    pumpa.addValue(keyB, value)
+    pumpa.addFactory(keyC, factory)
+
+    const resolvedClass = pumpa.resolve<TestA>(keyA)
+    const resolvedValue = pumpa.resolve<typeof value>(keyB)
+    const resolvedFactory = pumpa.resolve<ReturnType<typeof factory>>(keyC)
+
+    expect(resolvedClass).toBeInstanceOf(TestA)
+    expect(resolvedFactory()).toBe(factoryReturnValue)
+    expect(resolvedValue).toBe(value)
+  })
 })
