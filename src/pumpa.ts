@@ -50,6 +50,33 @@ export class Pumpa {
     this.pool.set(key, { ...info, value })
   }
 
+  remove(key: string | symbol, callDispose = true): void {
+    const found = this.pool.get(key)
+
+    if (found) {
+      this.pool.delete(key)
+      const value = this.singletonCache.get(key)
+      if (value) {
+        this.singletonCache.delete(key)
+        const disposeProp = 'dispose'
+        if (
+          disposeProp in value &&
+          typeof value[disposeProp] === 'function' &&
+          callDispose
+        ) {
+          value[disposeProp]()
+        }
+      }
+
+      return
+    }
+    throw new Error(`Key: ${String(key)} not found`)
+  }
+
+  has(key: string | symbol) {
+    return this.pool.has(key)
+  }
+
   addValue(key: string | symbol, value: any): this {
     this.add(key, value, {
       type: TYPES.VALUE,
@@ -63,7 +90,7 @@ export class Pumpa {
     key: string | symbol,
     value: (...args: any[]) => (...args: any[]) => any,
     options?: { scope: AvailableScopes; optional?: boolean }
-  ) {
+  ): this {
     this.add(key, value, {
       ...options,
       type: TYPES.FACTORY,

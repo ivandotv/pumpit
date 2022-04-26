@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 import { Pumpa } from '../pumpa'
 import { get } from '../utils'
 
@@ -93,7 +94,7 @@ describe('Optional injection', () => {
 
     const ref = pumpa
       .addClass('a', class {})
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
+
       .addFactory('b', () => () => {})
       .addValue('c', true)
 
@@ -123,5 +124,131 @@ describe('Optional injection', () => {
     expect(resolvedClass).toBeInstanceOf(TestA)
     expect(resolvedFactory()).toBe(factoryReturnValue)
     expect(resolvedValue).toBe(value)
+  })
+  describe('Remove', () => {
+    test('Throw if the key is not found', () => {
+      const pumpa = new Pumpa()
+
+      expect(() => pumpa.remove('does_not_exist')).toThrowError('not found')
+    })
+
+    test('Remove factory', () => {
+      const pumpa = new Pumpa()
+      const keyA = Symbol('key_a')
+
+      const factoryReturnValue = 'hello'
+      const factory = () => () => factoryReturnValue
+      factory.dispose = jest.fn()
+
+      pumpa.addFactory(keyA, factory)
+      pumpa.remove(keyA)
+
+      expect(pumpa.has(keyA)).toBe(false)
+    })
+
+    test('Remove factory and call the "dispose" method', () => {
+      const pumpa = new Pumpa()
+      const keyA = Symbol('key_a')
+
+      const disposeCall = jest.fn()
+      const factory = () => {
+        const functionToReturn = () => {}
+
+        functionToReturn.dispose = disposeCall
+
+        return functionToReturn
+      }
+
+      pumpa.addFactory(keyA, factory, { scope: 'SINGLETON' })
+      pumpa.resolve(keyA)
+
+      pumpa.remove(keyA)
+
+      expect(pumpa.has(keyA)).toBe(false)
+      expect(() => pumpa.resolve(keyA)).toThrowError('not found')
+      expect(disposeCall).toHaveBeenCalled()
+    })
+
+    test('Remove factory and do not call the "dispose" method', () => {
+      const pumpa = new Pumpa()
+      const keyA = Symbol('key_a')
+
+      const disposeCall = jest.fn()
+      const factory = () => {
+        const functionToReturn = () => {}
+
+        functionToReturn.dispose = disposeCall
+
+        return functionToReturn
+      }
+
+      pumpa.addFactory(keyA, factory, { scope: 'SINGLETON' })
+      pumpa.resolve(keyA)
+
+      pumpa.remove(keyA, false)
+
+      expect(pumpa.has(keyA)).toBe(false)
+      expect(() => pumpa.resolve(keyA)).toThrowError('not found')
+      expect(disposeCall).not.toHaveBeenCalled()
+    })
+
+    test('Remove class', () => {
+      const pumpa = new Pumpa()
+      const keyA = Symbol('key_a')
+
+      const disposeCall = jest.fn()
+      class TestA {
+        dispose() {
+          disposeCall()
+        }
+      }
+
+      pumpa.addClass(keyA, TestA)
+      pumpa.remove(keyA)
+
+      expect(pumpa.has(keyA)).toBe(false)
+    })
+
+    test('Remove class and call the "dispose" method', () => {
+      const pumpa = new Pumpa()
+      const keyA = Symbol('key_a')
+
+      const disposeCall = jest.fn()
+      class TestA {
+        dispose() {
+          disposeCall()
+        }
+      }
+
+      pumpa.addClass(keyA, TestA, { scope: 'SINGLETON' })
+      pumpa.resolve(keyA)
+
+      pumpa.remove(keyA)
+
+      expect(pumpa.has(keyA)).toBe(false)
+      expect(() => pumpa.resolve(keyA)).toThrowError('not found')
+      expect(disposeCall).toHaveBeenCalled()
+    })
+
+    test('Remove class and do not call the "dispose" method', () => {
+      const pumpa = new Pumpa()
+      const keyA = Symbol('key_a')
+
+      const disposeCall = jest.fn()
+      class TestA {
+        dispose() {
+          disposeCall()
+        }
+      }
+
+      pumpa.addClass(keyA, TestA, { scope: 'SINGLETON' })
+      pumpa.resolve(keyA)
+
+      pumpa.remove(keyA)
+
+      expect(pumpa.has(keyA)).toBe(false)
+      expect(() => pumpa.resolve(keyA)).toThrowError('not found')
+      expect(disposeCall).toHaveBeenCalled()
+    })
   })
 })
