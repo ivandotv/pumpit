@@ -1,4 +1,4 @@
-import { InjectionData, parseInjectionData } from './utils'
+import { createProxy, InjectionData, parseInjectionData } from './utils'
 
 const TYPES = {
   VALUE: 'VALUE',
@@ -15,32 +15,39 @@ export const SCOPES = {
 type AvailableTypes = keyof typeof TYPES
 type AvailableScopes = keyof typeof SCOPES
 
+type RequestCtx = {
+  singletonCache: Map<string | symbol, any>
+  requestCache: Map<string | symbol, any>
+  transientCache: Map<string | symbol, any>
+  requestedKeys: Map<string | symbol, { constructed: boolean; value: any }>
+  delayed: Map<
+    string | symbol,
+    {
+      proxy: Record<string, any>
+      proxyTarget: Record<string, { current: any }> | { (): any; current: any }
+    }
+  >
+}
+
 export class Pumpa {
-  protected data: Map<
+  protected pool: Map<
     string | symbol,
     { value: any; type: AvailableTypes; scope: AvailableScopes }
   > = new Map()
 
-  protected permanentCache: Map<string | symbol, any> = new Map()
-
-  protected requestCache: Map<string | symbol, any> = new Map()
-
-  protected requestedKeys: Map<
-    string | symbol,
-    { constructed: boolean; value: any }
-  > = new Map()
+  protected singletonCache: Map<string | symbol, any> = new Map()
 
   protected add(
     key: string | symbol,
     value: any,
     info: { type: AvailableTypes; scope: AvailableScopes }
   ): void {
-    const dataHit = this.data.get(key)
+    const dataHit = this.pool.get(key)
 
     if (dataHit) {
-      throw new Error(`Key: ${key} already exists`)
+      throw new Error(`Key: ${String(key)} already exists`)
     }
-    this.data.set(key, { ...info, value })
+    this.pool.set(key, { ...info, value })
   }
 
   addValue(key: string | symbol, value: any): this {
@@ -81,16 +88,40 @@ export class Pumpa {
   }
 
   resolve<T>(key: string | symbol): T {
-    const result = this._resolve(key, { optional: false })
+    const ctx: RequestCtx = {
+      singletonCache: this.singletonCache,
+      transientCache: new Map(),
+      requestCache: new Map(),
+      requestedKeys: new Map(),
+      delayed: new Map()
+    }
 
-    this.requestCache.clear()
-    this.requestedKeys.clear()
+    const result = this._resolve(key, { optional: false }, ctx)
+
+    ctx.delayed.forEach((value, key) => {
+      const resolvedValue =
+        ctx.singletonCache.get(key) ||
+        ctx.requestCache.get(key) ||
+        ctx.transientCache.get(key)
+
+      if (resolvedValue) {
+        value.proxyTarget.current = resolvedValue
+
+        return
+      }
+
+      throw new Error(`Can't resolve delayed key: ${String(key)}`)
+    })
 
     return result
   }
 
-  _resolve(key: string | symbol, options: { optional?: boolean }): any {
-    const data = this.data.get(key)
+  _resolve(
+    key: string | symbol,
+    options: { optional?: boolean; lazy?: boolean },
+    ctx: RequestCtx
+  ): any {
+    const data = this.pool.get(key)
 
     if (options?.optional === true && !data) {
       return undefined
@@ -102,42 +133,64 @@ export class Pumpa {
 
     const { type, value, scope } = data
 
+    let useLazy = false
+
     //values have no circular references
     if (type !== TYPES.VALUE) {
-      const keySeen = this.requestedKeys.get(key)
-      if (keySeen && !keySeen.constructed) {
-        let path = ''
-        this.requestedKeys.forEach((seenData, seenKey) => {
-          path = `${path} [${String(seenKey)}:${seenData.value.name}] ->`
-        })
-        throw new Error(
-          `Circular reference detected: ${path} ${String(key)} ${value.name}`
-        )
+      const keySeen = ctx.requestedKeys.get(key)
+
+      //if key has been seen
+      if (keySeen) {
+        //check if it is constructed
+        if (!keySeen.constructed) {
+          // check if using lazy is ok
+          if (options.lazy) {
+            //delay construction
+            useLazy = true
+          } else {
+            //throw circular reference error
+            const previous = Array.from(ctx.requestedKeys.entries()).pop()
+            const path = previous
+              ? `[ ${String(previous[0])}: ${previous[1].value.name} ]`
+              : ''
+
+            throw new Error(
+              `Circular reference detected: ${path} -> [ ${String(key)}: ${
+                value.name
+              } ]`
+            )
+          }
+        }
+      } else {
+        ctx.requestedKeys.set(key, { constructed: false, value })
       }
-
-      this.requestedKeys.set(key, { constructed: false, value }) //add type and scope
     }
 
+    let fn
     if (type === TYPES.VALUE) {
-      // resolve immediately - singleton
+      // resolve immediately - value with no deps
       return value
+    }
+    if (useLazy) {
+      fn = () => this.createLazy(key, type, ctx)
     } else if (type === TYPES.CLASS) {
-      return this.run(scope, key, () => this.createInstance(key, value))
+      fn = () => this.createInstance(key, value, ctx)
+    } else {
+      fn = () => this.createFactory(key, value, ctx)
     }
 
-    return this.run(scope, key, () => this.createFactory(key, value))
+    return this.run(scope, key, fn, ctx)
   }
 
-  protected resolveDeps(deps: InjectionData[]): any[] {
+  protected resolveDeps(deps: InjectionData[], ctx: RequestCtx): any[] {
     const finalDeps = []
     for (const dep of deps) {
       const { key, options } = parseInjectionData(dep)
       if (Array.isArray(key)) {
         //resolve array of injection keys
-
         const nested = []
         for (const k of key) {
-          const doneDep = this._resolve(k.key, k.options)
+          const doneDep = this._resolve(k.key, { ...k.options }, ctx)
           // @ts-expect-error needs type narrowing for "removeUndefined"
           if (typeof doneDep === 'undefined' && options.removeUndefined) {
             continue
@@ -153,9 +206,7 @@ export class Pumpa {
             : nested
         )
       } else {
-        const doneDep = this._resolve(key, {
-          optional: options?.optional
-        })
+        const doneDep = this._resolve(key, { ...options }, ctx)
         finalDeps.push(doneDep)
       }
     }
@@ -163,22 +214,45 @@ export class Pumpa {
     return finalDeps
   }
 
+  protected createLazy(
+    key: string | symbol,
+    type: AvailableTypes,
+    ctx: RequestCtx
+  ) {
+    const cachedProxy = ctx.delayed.get(key)
+    if (cachedProxy) {
+      return cachedProxy.proxy
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    const proxyTarget = type === TYPES.CLASS ? {} : function () {}
+    const proxy = createProxy(proxyTarget, type === TYPES.CLASS, key)
+
+    ctx.delayed.set(key, {
+      proxy,
+      proxyTarget
+    })
+
+    return proxy
+  }
+
   protected createInstance<T>(
     key: string | symbol,
     value: {
       new (...args: any[]): T
       inject: any[]
-    }
+    },
+    ctx: RequestCtx
   ): T {
     const deps = value.inject as InjectionData[]
     let result
     if (deps) {
-      result = new value(...this.resolveDeps(deps))
+      result = new value(...this.resolveDeps(deps, ctx))
     } else {
       result = new value()
     }
 
-    this.requestedKeys.get(key)!.constructed = true
+    ctx.requestedKeys.get(key)!.constructed = true
 
     return result
   }
@@ -188,16 +262,17 @@ export class Pumpa {
     value: {
       (...args: any[]): any
       inject: any[]
-    }
+    },
+    ctx: RequestCtx
   ): (...args: any) => any {
     const deps = value.inject as InjectionData[]
     let result
     if (deps) {
-      result = value(...this.resolveDeps(deps))
+      result = value(...this.resolveDeps(deps, ctx))
     } else {
       result = value()
     }
-    this.requestedKeys.get(key)!.constructed = true
+    ctx.requestedKeys.get(key)!.constructed = true
 
     return result
   }
@@ -205,31 +280,36 @@ export class Pumpa {
   protected run(
     scope: AvailableScopes,
     key: string | symbol,
-    fn: (...args: any[]) => any
+    fn: (...args: any[]) => any,
+    ctx: RequestCtx
   ) {
     if (scope === SCOPES.SINGLETON) {
-      const cachedValue = this.permanentCache.get(key)
+      const cachedValue = ctx.singletonCache.get(key)
       if (cachedValue) {
         return cachedValue
       } else {
         const result = fn()
-        this.permanentCache.set(key, result)
+        this.singletonCache.set(key, result)
 
         return result
       }
     }
     if (SCOPES.REQUEST === scope) {
-      const cachedValue = this.requestCache.get(key)
+      const cachedValue = ctx.requestCache.get(key)
       if (cachedValue) {
         return cachedValue
       } else {
         const result = fn()
-        this.requestCache.set(key, result)
+        ctx.requestCache.set(key, result)
 
         return result
       }
     }
 
-    return fn()
+    const result = fn()
+
+    ctx.transientCache.set(key, result)
+
+    return result
   }
 }
