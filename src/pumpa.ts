@@ -14,6 +14,11 @@ export const SCOPES = {
 
 type AvailableTypes = keyof typeof TYPES
 type AvailableScopes = keyof typeof SCOPES
+type Injectable = {
+  value: any
+  type: AvailableTypes
+  scope: AvailableScopes
+}
 
 type RequestCtx = {
   singletonCache: Map<string | symbol, any>
@@ -29,6 +34,10 @@ type RequestCtx = {
   >
 }
 
+type ChildOptions = {
+  shareSingletons?: boolean
+}
+
 export class Pumpa {
   protected pool: Map<
     string | symbol,
@@ -36,6 +45,10 @@ export class Pumpa {
   > = new Map()
 
   protected singletonCache: Map<string | symbol, any> = new Map()
+
+  protected parent: this | undefined
+
+  protected options: ChildOptions = { shareSingletons: false }
 
   protected add(
     key: string | symbol,
@@ -73,7 +86,11 @@ export class Pumpa {
     throw new Error(`Key: ${String(key)} not found`)
   }
 
-  has(key: string | symbol) {
+  has(key: string | symbol, searchParent = true): boolean {
+    if (searchParent && this.parent) {
+      return this.getInjectable(key) ? true : false
+    }
+
     return this.pool.has(key)
   }
 
@@ -114,6 +131,35 @@ export class Pumpa {
     return this
   }
 
+  child(options: ChildOptions = { shareSingletons: false }): this {
+    const child = new (this.constructor as new () => this)()
+    child.parent = this
+    child.options = options
+
+    return child
+  }
+
+  getParent(): Pumpa | undefined {
+    return this.parent
+  }
+
+  protected getInjectable(
+    key: string | symbol
+  ): { value: Injectable; fromParent: boolean } | undefined {
+    const value = this.pool.get(key)
+    if (value) return { value, fromParent: false }
+
+    const parentValue = this.parent?.getInjectable(key)
+    if (parentValue) {
+      return {
+        value: parentValue.value,
+        fromParent: true
+      }
+    }
+
+    return undefined
+  }
+
   resolve<T>(key: string | symbol): T {
     const ctx: RequestCtx = {
       singletonCache: this.singletonCache,
@@ -137,7 +183,7 @@ export class Pumpa {
         return
       }
 
-      throw new Error(`Can't resolve delayed key: ${String(key)}`)
+      throw new Error(`Can't resolve lazy key: ${String(key)}`)
     })
 
     return result
@@ -148,7 +194,7 @@ export class Pumpa {
     options: { optional?: boolean; lazy?: boolean },
     ctx: RequestCtx
   ): any {
-    const data = this.pool.get(key)
+    const data = this.getInjectable(key)
 
     if (options?.optional === true && !data) {
       return undefined
@@ -158,7 +204,10 @@ export class Pumpa {
       throw new Error(`Key: ${String(key)} not found`)
     }
 
-    const { type, value, scope } = data
+    const {
+      value: { value, scope, type },
+      fromParent
+    } = data
 
     let useLazy = false
 
@@ -170,8 +219,8 @@ export class Pumpa {
       if (keySeen) {
         //check if it is constructed
         if (!keySeen.constructed) {
-          // check if using lazy is ok
-          if (options.lazy) {
+          // check if using lazy or key is on the paren, then it's ok
+          if (options.lazy || fromParent) {
             //delay construction
             useLazy = true
           } else {
@@ -195,7 +244,7 @@ export class Pumpa {
 
     let fn
     if (type === TYPES.VALUE) {
-      // resolve immediately - value with no deps
+      // resolve immediately - value type has no dependencies
       return value
     }
     if (useLazy) {
@@ -311,6 +360,10 @@ export class Pumpa {
     ctx: RequestCtx
   ) {
     if (scope === SCOPES.SINGLETON) {
+      //if singleton and key is on the parent resolve the key via parent
+      if (!this.pool.has(key) && this.options.shareSingletons) {
+        return this.parent?.resolve(key)
+      }
       const cachedValue = ctx.singletonCache.get(key)
       if (cachedValue) {
         return cachedValue
