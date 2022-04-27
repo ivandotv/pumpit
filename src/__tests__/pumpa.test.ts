@@ -16,6 +16,7 @@ describe('Optional injection', () => {
 
     expect(() => pumpa.resolve<TestA>('class_a')).not.toThrow()
   })
+
   test('Optional injection resolves to undefined', () => {
     const pumpa = new Pumpa()
 
@@ -31,7 +32,7 @@ describe('Optional injection', () => {
     expect(instance.optionalProp).toBeUndefined()
   })
 
-  test('Optional injection at last position', () => {
+  test('Optional injection can be at the last position', () => {
     const pumpa = new Pumpa()
 
     const keyOne = 'key_one'
@@ -58,7 +59,7 @@ describe('Optional injection', () => {
     expect(instance.optionalProp).toBeUndefined()
   })
 
-  test('Optional injection can at in any position', () => {
+  test('Optional injection can be at in any position', () => {
     const pumpa = new Pumpa()
 
     const keyOne = 'key_one'
@@ -87,6 +88,31 @@ describe('Optional injection', () => {
     expect(instance.keyOne).toBe(valueOne)
     expect(instance.optionalProp).toBeUndefined()
     expect(instance.keyThree).toBe(valueThree)
+  })
+
+  test('Class - empty injection does not throw', () => {
+    const pumpa = new Pumpa()
+    const key = 'some_key'
+
+    class TestA {
+      static inject = []
+    }
+
+    pumpa.addClass(key, TestA)
+
+    expect(() => pumpa.resolve(key)).not.toThrow()
+  })
+
+  test('Factory - empty injection does not throw', () => {
+    const pumpa = new Pumpa()
+    const key = 'some_key'
+
+    const factory = () => {}
+    factory.inject = []
+
+    pumpa.addFactory(key, factory)
+
+    expect(() => pumpa.resolve(key)).not.toThrow()
   })
 
   test('"Add" methods are chainable', () => {
@@ -125,6 +151,7 @@ describe('Optional injection', () => {
     expect(resolvedFactory()).toBe(factoryReturnValue)
     expect(resolvedValue).toBe(value)
   })
+
   describe('Remove', () => {
     test('Throw if the key is not found', () => {
       const pumpa = new Pumpa()
