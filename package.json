@@ -7,10 +7,11 @@
   "author": "Ivan Vlatkovic",
   "license": "MIT",
   "main": "./dist/prod/pumpa.js",
+  "module": "./dist/prod/pumpa.modern.mjs",
   "exports": {
-    "development": "./dist/dev/pumpa.esm.js",
-    "import": "./dist/prod/pumpa.esm.js",
-    "require": "./dist/prod/pumpa.js"
+    "require": "./dist/prod/pumpa.js",
+    "development": "./dist/dev/pumpa.modern.mjs",
+    "default": "./dist/prod/pumpa.modern.mjs"
   },
   "types": "./dist/types/index.d.ts",
   "files": [
