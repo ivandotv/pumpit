@@ -1,4 +1,5 @@
-import { createProxy, InjectionData, parseInjectionData } from './utils'
+import { createProxy } from './proxy'
+import { Injection, InjectionData, parseInjectionData } from './utils'
 
 const TYPES = {
   VALUE: 'VALUE',
@@ -258,7 +259,7 @@ export class Pumpa {
     return this.run(scope, key, fn, ctx)
   }
 
-  protected resolveDeps(deps: InjectionData[], ctx: RequestCtx): any[] {
+  protected resolveDeps(deps: Injection[], ctx: RequestCtx): any[] {
     const finalDeps = []
     for (const dep of deps) {
       const { key, options } = parseInjectionData(dep)
@@ -316,21 +317,41 @@ export class Pumpa {
     key: string | symbol,
     value: {
       new (...args: any[]): T
-      inject: any[]
+      inject: InjectionData
     },
     ctx: RequestCtx
   ): T {
-    const deps = value.inject as InjectionData[]
+    const deps = value.inject
     let result
-    if (deps) {
-      result = new value(...this.resolveDeps(deps, ctx))
-    } else {
+
+    if (!deps) {
       result = new value()
+    } else {
+      result = new value(...this.handleInjectionData(deps, ctx))
     }
 
     ctx.requestedKeys.get(key)!.constructed = true
 
     return result
+  }
+
+  protected handleInjectionData(deps: InjectionData, ctx: RequestCtx) {
+    let handler: {
+      fn: (...args: any[]) => any
+      deps: Injection[]
+    } = {
+      fn: (...args) => args,
+      deps: []
+    }
+
+    if (Array.isArray(deps)) {
+      handler.deps = deps
+    } else {
+      handler = deps
+      handler.fn = deps.fn
+    }
+
+    return handler.fn(...this.resolveDeps(handler.deps, ctx))
   }
 
   protected createFactory(

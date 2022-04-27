@@ -1,5 +1,6 @@
+import { PROXY_TARGET } from '../proxy'
 import { Pumpa, SCOPES } from '../pumpa'
-import { get, getArray, PROXY_TARGET } from '../utils'
+import { get, getArray } from '../utils'
 
 describe('Circular dependency', () => {
   test('Throw when circular reference is detected', () => {

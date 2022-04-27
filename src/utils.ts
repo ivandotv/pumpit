@@ -1,4 +1,4 @@
-export const PROXY_TARGET = Symbol('proxy_target_identity')
+export const TRANSFORM_DEPS = Symbol()
 
 export type ParsedInjectionData =
   | { key: string | symbol; options: { optional?: boolean; lazy?: boolean } } //get
@@ -11,11 +11,15 @@ export type ParsedInjectionData =
       }
     }
 
-export type InjectionData =
+export type Injection =
   | string
   | symbol
   | ReturnType<typeof get>
   | ReturnType<typeof getArray>
+
+export type InjectionData =
+  | Injection[]
+  | { action: symbol; fn: (...args: any) => any; deps: Injection[] }
 
 export function get(
   key: string | symbol,
@@ -33,16 +37,16 @@ export function get(
 }
 
 export function getArray(
-  data: (string | symbol | ReturnType<typeof get>)[],
+  deps: (string | symbol | ReturnType<typeof get>)[],
   options?: {
     removeUndefined?: boolean
     setToUndefinedIfEmpty?: boolean
   }
 ) {
-  return function a() {
+  return () => {
     const result = []
-    for (const d of data) {
-      result.push(parseInjectionData(d))
+    for (const dep of deps) {
+      result.push(parseInjectionData(dep))
     }
 
     return {
@@ -55,7 +59,7 @@ export function getArray(
   }
 }
 
-export function parseInjectionData(key: InjectionData): ParsedInjectionData {
+export function parseInjectionData(key: Injection): ParsedInjectionData {
   if (typeof key === 'function') {
     const ex = key()
 
@@ -69,70 +73,10 @@ export function parseInjectionData(key: InjectionData): ParsedInjectionData {
   return { key, options: { optional: false } }
 }
 
-export function createProxy(
-  proxyTarget: any,
-  isClass: boolean,
-  key: string | symbol
-) {
-  function checkCurrent() {
-    if (!proxyTarget.current) {
-      throw new Error(`Lazy target for key:${String(key)} not yet set`)
-    }
-
-    return proxyTarget.current
+export function withTransform(deps: any[], fn: (...args: any[]) => any) {
+  return {
+    action: TRANSFORM_DEPS,
+    fn: fn,
+    deps
   }
-
-  return new Proxy(proxyTarget, {
-    apply: function (_, args) {
-      const t = checkCurrent()
-
-      return Reflect.apply(t, isClass ? t : undefined, args)
-    },
-
-    construct: function (_, args) {
-      //allow completely new instance if someone calls the constructor
-      return Reflect.construct(checkCurrent(), args)
-    },
-    get: function (target, prop, receiver) {
-      if (prop === PROXY_TARGET) {
-        return target.current
-      }
-
-      return Reflect.get(checkCurrent(), prop, receiver)
-    },
-    set: function (target, prop, value) {
-      if (prop === 'current') {
-        return Reflect.set(target, prop, value)
-      }
-
-      return Reflect.set(checkCurrent(), prop, value)
-    },
-    defineProperty: function (_, key, descriptor) {
-      return Reflect.defineProperty(checkCurrent(), key, descriptor)
-    },
-    deleteProperty: function (_, prop) {
-      return Reflect.deleteProperty(checkCurrent(), prop)
-    },
-    getPrototypeOf: function (_) {
-      return Reflect.getPrototypeOf(checkCurrent())
-    },
-    setPrototypeOf: function (_, proto) {
-      return Reflect.setPrototypeOf(checkCurrent(), proto)
-    },
-    getOwnPropertyDescriptor: function (_, prop) {
-      return Reflect.getOwnPropertyDescriptor(checkCurrent(), prop)
-    },
-    has: function (_, prop) {
-      return Reflect.has(checkCurrent(), prop)
-    },
-    isExtensible: function (_) {
-      return Reflect.isExtensible(checkCurrent())
-    },
-    ownKeys: function (_) {
-      return Reflect.ownKeys(checkCurrent())
-    },
-    preventExtensions: function (_) {
-      return Reflect.preventExtensions(checkCurrent())
-    }
-  })
 }
