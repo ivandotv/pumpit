@@ -106,7 +106,7 @@ export class Pumpa {
 
   addFactory(
     key: string | symbol,
-    value: (...args: any[]) => (...args: any[]) => any,
+    value: (...args: any[]) => any,
     options?: { scope: AvailableScopes; optional?: boolean }
   ): this {
     this.add(key, value, {
@@ -327,7 +327,7 @@ export class Pumpa {
     if (!deps) {
       result = new value()
     } else {
-      result = new value(...this.handleInjectionData(deps, ctx))
+      result = new value(...this.parseInjectionData(deps, ctx))
     }
 
     ctx.requestedKeys.get(key)!.constructed = true
@@ -335,7 +335,29 @@ export class Pumpa {
     return result
   }
 
-  protected handleInjectionData(deps: InjectionData, ctx: RequestCtx) {
+  protected createFactory(
+    key: string | symbol,
+    value: {
+      (...args: any[]): any
+      inject: any[]
+    },
+    ctx: RequestCtx
+  ): (...args: any) => any {
+    const deps = value.inject
+    let result
+
+    if (!deps) {
+      result = value()
+    } else {
+      result = value(...this.parseInjectionData(deps, ctx))
+    }
+
+    ctx.requestedKeys.get(key)!.constructed = true
+
+    return result
+  }
+
+  protected parseInjectionData(deps: InjectionData, ctx: RequestCtx) {
     let handler: {
       fn: (...args: any[]) => any
       deps: Injection[]
@@ -352,26 +374,6 @@ export class Pumpa {
     }
 
     return handler.fn(...this.resolveDeps(handler.deps, ctx))
-  }
-
-  protected createFactory(
-    key: string | symbol,
-    value: {
-      (...args: any[]): any
-      inject: any[]
-    },
-    ctx: RequestCtx
-  ): (...args: any) => any {
-    const deps = value.inject as InjectionData[]
-    let result
-    if (deps) {
-      result = value(...this.resolveDeps(deps, ctx))
-    } else {
-      result = value()
-    }
-    ctx.requestedKeys.get(key)!.constructed = true
-
-    return result
   }
 
   protected run(
