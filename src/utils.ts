@@ -73,7 +73,7 @@ export function parseInjectionData(key: Injection): ParsedInjectionData {
   return { key, options: { optional: false } }
 }
 
-export function withTransform(deps: any[], fn: (...args: any[]) => any) {
+export function transform(deps: any[], fn: (...args: any[]) => any) {
   return {
     action: TRANSFORM_DEPS,
     fn: fn,

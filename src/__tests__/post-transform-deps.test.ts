@@ -1,9 +1,9 @@
 import { Pumpa } from '../pumpa'
-import { withTransform } from '../utils'
+import { transform } from '../utils'
 
 describe('post transform dependencies', () => {
   describe('Class', () => {
-    test('transform function gets resolved dependencies', () => {
+    test('transform function receives resolved dependencies', () => {
       const pumpa = new Pumpa()
       const classKey = Symbol()
       const keyA = Symbol()
@@ -12,29 +12,22 @@ describe('post transform dependencies', () => {
 
       const valueA = {}
       const valueB = {}
-      const ValueC = {}
+      const valueC = {}
 
-      expect.assertions(3)
+      const transformFn = jest.fn().mockReturnValue([valueA, valueB, valueC])
 
       class TestA {
-        static inject = withTransform(
-          [keyA, keyB, keyC],
-          (vA: any, vB: any, vC: any) => {
-            expect(vA).toBe(valueA)
-            expect(vB).toBe(valueB)
-            expect(vC).toBe(ValueC)
-
-            return [vA, vB, vC]
-          }
-        )
+        static inject = transform([keyA, keyB, keyC], transformFn)
       }
 
       pumpa
         .addClass(classKey, TestA)
         .addValue(keyA, valueA)
         .addValue(keyB, valueB)
-        .addValue(keyC, ValueC)
+        .addValue(keyC, valueC)
         .resolve<TestA>(classKey)
+
+      expect(transformFn).toHaveBeenCalledWith(pumpa, valueA, valueB, valueC)
     })
 
     test('Transform function can replace dependencies', () => {
@@ -46,19 +39,18 @@ describe('post transform dependencies', () => {
 
       const valueA = {}
       const valueB = {}
-      const ValueC = {}
+      const valueC = {}
 
       const transformedA = {}
       const transformedB = {}
       const transformedC = {}
 
+      const injectTransform = jest
+        .fn()
+        .mockReturnValue([transformedA, transformedB, transformedC])
+
       class TestA {
-        static inject = withTransform(
-          [keyA, keyB, keyC],
-          (_keyA: any, _keyB: any, _keyC: any) => {
-            return [transformedA, transformedB, transformedC]
-          }
-        )
+        static inject = transform([keyA, keyB, keyC], injectTransform)
 
         constructor(public keyA: any, public keyB: any, public keyC: any) {}
       }
@@ -67,10 +59,16 @@ describe('post transform dependencies', () => {
         .addClass(classKey, TestA)
         .addValue(keyA, valueA)
         .addValue(keyB, valueB)
-        .addValue(keyC, ValueC)
+        .addValue(keyC, valueC)
 
       const instance = pumpa.resolve<TestA>(classKey)
 
+      expect(injectTransform).toHaveBeenCalledWith(
+        pumpa,
+        valueA,
+        valueB,
+        valueC
+      )
       expect(instance.keyA).toBe(transformedA)
       expect(instance.keyB).toBe(transformedB)
       expect(instance.keyC).toBe(transformedC)
@@ -78,7 +76,7 @@ describe('post transform dependencies', () => {
   })
 
   describe('Factory', () => {
-    test('transform function gets resolved dependencies', () => {
+    test('transform function receives resolved dependencies', () => {
       const pumpa = new Pumpa()
       const factoryKey = Symbol()
       const keyA = Symbol()
@@ -87,32 +85,32 @@ describe('post transform dependencies', () => {
 
       const valueA = {}
       const valueB = {}
-      const ValueC = {}
+      const valueC = {}
 
-      expect.assertions(3)
+      const injectTransform = jest
+        .fn()
+        .mockReturnValue([valueA, valueB, valueC])
 
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       const factory = () => {}
-      factory.inject = withTransform(
-        [keyA, keyB, keyC],
-        (vA: any, vB: any, vC: any) => {
-          expect(vA).toBe(valueA)
-          expect(vB).toBe(valueB)
-          expect(vC).toBe(ValueC)
-
-          return [vA, vB, vC]
-        }
-      )
+      factory.inject = transform([keyA, keyB, keyC], injectTransform)
 
       pumpa
         .addFactory(factoryKey, factory)
         .addValue(keyA, valueA)
         .addValue(keyB, valueB)
-        .addValue(keyC, ValueC)
+        .addValue(keyC, valueC)
         .resolve<ReturnType<typeof factory>>(factoryKey)
+
+      expect(injectTransform).toHaveBeenCalledWith(
+        pumpa,
+        valueA,
+        valueB,
+        valueC
+      )
     })
 
-    test('Transform function can replace dependencies', () => {
+    test('transform function can replace dependencies', () => {
       const pumpa = new Pumpa()
       const factoryKey = Symbol()
       const keyA = Symbol()
@@ -121,34 +119,32 @@ describe('post transform dependencies', () => {
 
       const valueA = {}
       const valueB = {}
-      const ValueC = {}
+      const valueC = {}
 
       const transformedA = {}
       const transformedB = {}
       const transformedC = {}
 
-      const factory = (keyA: any, keyB: any, keyC: any) => {
-        return {
-          keyA,
-          keyB,
-          keyC
-        }
-      }
-      factory.inject = withTransform([keyA, keyB, keyC], () => {
-        return [transformedA, transformedB, transformedC]
-      })
+      const factory = jest.fn()
+      // @ts-expect-error - there is no inject on jest.fn
+      factory.inject = transform([keyA, keyB, keyC], () => [
+        transformedA,
+        transformedB,
+        transformedC
+      ])
+
       pumpa
         .addFactory(factoryKey, factory)
         .addValue(keyA, valueA)
         .addValue(keyB, valueB)
-        .addValue(keyC, ValueC)
+        .addValue(keyC, valueC)
+        .resolve<typeof factory>(factoryKey)
 
-      const resolvedFactory =
-        pumpa.resolve<ReturnType<typeof factory>>(factoryKey)
-
-      expect(resolvedFactory.keyA).toBe(transformedA)
-      expect(resolvedFactory.keyB).toBe(transformedB)
-      expect(resolvedFactory.keyC).toBe(transformedC)
+      expect(factory).toHaveBeenCalledWith(
+        transformedA,
+        transformedB,
+        transformedC
+      )
     })
   })
 })

@@ -357,23 +357,12 @@ export class Pumpa {
     return result
   }
 
-  protected parseInjectionData(deps: InjectionData, ctx: RequestCtx) {
-    let handler: {
-      fn: (...args: any[]) => any
-      deps: Injection[]
-    } = {
-      fn: (...args) => args,
-      deps: []
+  protected parseInjectionData(data: InjectionData, ctx: RequestCtx) {
+    if (Array.isArray(data)) {
+      return this.resolveDeps(data, ctx)
     }
 
-    if (Array.isArray(deps)) {
-      handler.deps = deps
-    } else {
-      handler = deps
-      handler.fn = deps.fn
-    }
-
-    return handler.fn(...this.resolveDeps(handler.deps, ctx))
+    return data.fn(this, ...this.resolveDeps(data.deps, ctx))
   }
 
   protected run(
