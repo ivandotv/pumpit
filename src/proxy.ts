@@ -1,5 +1,7 @@
 export const PROXY_TARGET = Symbol()
+export const IS_PROXY = Symbol()
 
+/* istanbul ignore next: not all proxy methods can be easily covered */
 export function createProxy(
   proxyTarget: any,
   isClass: boolean,
@@ -27,6 +29,9 @@ export function createProxy(
     get: function (target, prop, receiver) {
       if (prop === PROXY_TARGET) {
         return target.current
+      }
+      if (prop === IS_PROXY) {
+        return true
       }
 
       return Reflect.get(checkCurrent(), prop, receiver)
@@ -66,4 +71,9 @@ export function createProxy(
       return Reflect.preventExtensions(checkCurrent())
     }
   })
+}
+
+export function isProxy(target: Record<string, any>) {
+  // @ts-expect-error - using symbol as index signature for object
+  return !!target[IS_PROXY]
 }

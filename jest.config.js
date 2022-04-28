@@ -19,7 +19,7 @@ module.exports = {
   collectCoverageFrom: [
     '<rootDir>/src/**',
     '!<rootDir>/src/index.ts',
-    '!<rootDir>/src/proxy.ts',
+    // '!<rootDir>/src/proxy.ts',
     '!<rootDir>/src/utils.ts',
     '!<rootDir>/src/types.ts',
     '!<rootDir>/src/**.d.ts',

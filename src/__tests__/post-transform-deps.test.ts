@@ -1,5 +1,6 @@
+import { isProxy } from '../proxy'
 import { Pumpa } from '../pumpa'
-import { transform } from '../utils'
+import { get, getArray, transform } from '../utils'
 
 describe('post transform dependencies', () => {
   describe('Class', () => {
@@ -28,6 +29,58 @@ describe('post transform dependencies', () => {
         .resolve<TestA>(classKey)
 
       expect(transformFn).toHaveBeenCalledWith(pumpa, valueA, valueB, valueC)
+    })
+
+    test('transform function receives resolved dependency as an array', () => {
+      const pumpa = new Pumpa()
+      const classKey = Symbol()
+      const keyA = Symbol()
+      const keyB = Symbol()
+      const keyC = Symbol()
+
+      const valueA = {}
+      const valueB = {}
+      const valueC = {}
+
+      const transformFn = jest.fn().mockReturnValue([valueA, valueB, valueC])
+
+      class TestA {
+        static inject = transform([getArray([keyA, keyB, keyC])], transformFn)
+      }
+
+      pumpa
+        .addClass(classKey, TestA)
+        .addValue(keyA, valueA)
+        .addValue(keyB, valueB)
+        .addValue(keyC, valueC)
+        .resolve<TestA>(classKey)
+
+      expect(transformFn).toHaveBeenCalledWith(pumpa, [valueA, valueB, valueC])
+    })
+
+    test('transform function receives proxy dependency', () => {
+      const pumpa = new Pumpa()
+      const keyA = Symbol('keyA')
+      const keyB = Symbol('keyB')
+
+      class TestA {
+        static inject = [get(keyB)]
+      }
+
+      class TestB {
+        static inject = transform(
+          [get(keyA, { lazy: true })],
+          (_injector: Pumpa, keyA: TestA) => {
+            expect(isProxy(keyA)).toBe(true)
+
+            return [keyA]
+          }
+        )
+      }
+
+      pumpa.addClass(keyA, TestA).addClass(keyB, TestB).resolve<TestA>(keyA)
+
+      expect.assertions(1)
     })
 
     test('Transform function can replace dependencies', () => {
