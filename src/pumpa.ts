@@ -63,6 +63,14 @@ export class Pumpa {
     throw new Error(`Key: ${String(key)} not found`)
   }
 
+  removeAll() {
+    for (const key of this.pool.keys()) {
+      this.remove(key)
+    }
+    this.pool.clear()
+    this.singletonCache.clear()
+  }
+
   clearInstances() {
     for (const value of this.singletonCache.values()) {
       this.callDispose(value)

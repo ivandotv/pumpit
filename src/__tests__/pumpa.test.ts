@@ -277,6 +277,48 @@ describe('Optional injection', () => {
       expect(() => pumpa.resolve(keyA)).toThrowError('not found')
       expect(disposeCall).toHaveBeenCalled()
     })
+    describe('Remove all', () => {
+      test('After removing all the keys, no keys can be retrieved', () => {
+        const pumpa = new Pumpa()
+        const factoryKey = Symbol('a')
+        const classKey = Symbol('b')
+        const valueKey = Symbol('c')
+
+        const classDisposeCall = jest.fn()
+        class TestA {
+          dispose() {
+            classDisposeCall()
+          }
+        }
+
+        const factoryDisposeCall = jest.fn()
+        const factory = () => {
+          const functionToReturn = () => {}
+
+          functionToReturn.dispose = factoryDisposeCall
+
+          return functionToReturn
+        }
+
+        const value = { name: 'ivan' }
+
+        pumpa.addFactory(factoryKey, factory, { scope: 'SINGLETON' })
+        pumpa.addClass(classKey, TestA)
+        pumpa.addValue(valueKey, value)
+
+        pumpa.resolve(factoryKey)
+        pumpa.removeAll()
+
+        expect(pumpa.has(factoryKey)).toBe(false)
+        expect(pumpa.has(classKey)).toBe(false)
+        expect(pumpa.has(valueKey)).toBe(false)
+        expect(() => pumpa.resolve(factoryKey)).toThrowError('not found')
+        expect(() => pumpa.resolve(classKey)).toThrowError('not found')
+        expect(() => pumpa.resolve(classKey)).toThrowError('not found')
+        expect(factoryDisposeCall).toHaveBeenCalledTimes(1)
+        expect(classDisposeCall).not.toHaveBeenCalled()
+      })
+    })
   })
 
   test('When the instances are cleared, singletons are created again', () => {
