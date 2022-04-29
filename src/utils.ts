@@ -1,4 +1,5 @@
 export const TRANSFORM_DEPS = Symbol()
+import { IS_PROXY } from './proxy'
 
 export type ParsedInjectionData =
   | { key: string | symbol; options: { optional?: boolean; lazy?: boolean } } //get
@@ -79,4 +80,9 @@ export function transform(deps: any[], fn: (...args: any[]) => any[]) {
     fn: fn,
     deps
   }
+}
+
+export function isProxy(target: Record<string, any>) {
+  // @ts-expect-error - using symbol as index signature for object
+  return !!target[IS_PROXY]
 }

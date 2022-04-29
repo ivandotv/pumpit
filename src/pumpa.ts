@@ -1,9 +1,19 @@
 import { createProxy } from './proxy'
+import type { AvailableScopes, AvailableTypes, ChildOptions } from './types'
+import {
+  ClassOptions,
+  ClassPoolData,
+  FactoryOptions,
+  FactoryPoolData,
+  PoolData,
+  RequestCtx
+} from './types-internal'
 import { Injection, InjectionData, parseInjectionData } from './utils'
 
+//track undefined values from factory
 const UNDEFINED_RESULT = Symbol()
 
-const TYPE = {
+export const TYPE = {
   VALUE: 'VALUE',
   CLASS: 'CLASS',
   FACTORY: 'FACTORY'
@@ -14,70 +24,6 @@ export const SCOPE = {
   TRANSIENT: 'TRANSIENT',
   REQUEST: 'REQUEST'
 } as const
-
-type AvailableTypes = keyof typeof TYPE
-type AvailableScopes = keyof typeof SCOPE
-
-type RequestCtx = {
-  singletonCache: Map<string | symbol, any>
-  requestCache: Map<string | symbol, any>
-  transientCache: Map<string | symbol, any>
-  requestedKeys: Map<string | symbol, { constructed: boolean; value: any }>
-  delayed: Map<
-    string | symbol,
-    {
-      proxy: Record<string, any>
-      proxyTarget: Record<string, { current: any }> | { (): any; current: any }
-    }
-  >
-}
-
-type ChildOptions = {
-  shareSingletons?: boolean
-}
-
-type ClassOptions<
-  T extends new (...args: any[]) => T = new (...args: any[]) => any
-> = {
-  type: typeof TYPE.CLASS
-  scope: AvailableScopes
-  beforeResolve?: (data: {
-    ctx: Pumpa
-    value: new (...args: ConstructorParameters<T>) => T
-    deps?: ConstructorParameters<T>
-  }) => T
-  afterResolve?: (data: { value: InstanceType<T> }) => void
-}
-
-type FactoryOptions<
-  T extends (...args: any[]) => any = (...args: any[]) => any
-> = {
-  type: typeof TYPE.FACTORY
-  scope: AvailableScopes
-  beforeResolve?: (data: {
-    ctx: Pumpa
-    value: T
-    deps?: Parameters<T>
-  }) => ReturnType<T>
-  afterResolve?: (value: ReturnType<T>) => void
-}
-
-type ValueOptions = {
-  type: typeof TYPE.VALUE
-  scope: AvailableScopes
-}
-
-type ClassPoolData = ClassOptions & {
-  value: { new (...args: any[]): any; inject?: InjectionData }
-}
-
-type ValuePoolData = ValueOptions & { value: any }
-
-type FactoryPoolData = FactoryOptions & {
-  value: { (...args: any[]): any; inject?: InjectionData }
-}
-
-type PoolData = ValuePoolData | ClassPoolData | FactoryPoolData
 
 export class Pumpa {
   protected pool: Map<string | symbol, PoolData> = new Map()
@@ -141,7 +87,7 @@ export class Pumpa {
   addFactory<T extends (...args: any[]) => any>(
     key: string | symbol,
     value: T,
-    options?: Partial<FactoryOptions<T>>
+    options?: Omit<Partial<FactoryOptions<T>>, 'type'>
   ): this {
     // @ts-expect-error generic constraint mismatch
     this.add(key, value, {
@@ -158,7 +104,7 @@ export class Pumpa {
   addClass<T extends new (...args: any[]) => any>(
     key: string | symbol,
     value: T,
-    options?: Partial<ClassOptions<T>>
+    options?: Omit<Partial<ClassOptions<T>>, 'type'>
   ): this {
     // @ts-expect-error generic constraint mismatch
     this.add(key, value, {

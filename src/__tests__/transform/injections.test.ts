@@ -1,6 +1,5 @@
-import { isProxy } from '../../proxy'
 import { Pumpa } from '../../pumpa'
-import { get, getArray, transform } from '../../utils'
+import { get, getArray, isProxy, transform } from '../../utils'
 
 describe('post transform dependencies', () => {
   describe('Class', () => {

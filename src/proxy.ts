@@ -72,8 +72,3 @@ export function createProxy(
     }
   })
 }
-
-export function isProxy(target: Record<string, any>) {
-  // @ts-expect-error - using symbol as index signature for object
-  return !!target[IS_PROXY]
-}

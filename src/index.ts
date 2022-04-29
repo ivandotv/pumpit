@@ -1,3 +1,5 @@
 export * from './pumpa'
-import { get, getArray } from './utils'
-export { get, getArray }
+export * from './types'
+
+import { get, getArray, isProxy, transform } from './utils'
+export { get, getArray, transform, isProxy }
