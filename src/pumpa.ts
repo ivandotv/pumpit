@@ -13,6 +13,8 @@ import { Injection, InjectionData, parseInjectionData } from './utils'
 //track undefined values from factory
 const UNDEFINED_RESULT = Symbol()
 
+const DISPOSE_PROP = 'dispose'
+
 export const TYPE = {
   VALUE: 'VALUE',
   CLASS: 'CLASS',
@@ -51,19 +53,31 @@ export class Pumpa {
       const value = this.singletonCache.get(key)
       if (value) {
         this.singletonCache.delete(key)
-        const disposeProp = 'dispose'
-        if (
-          disposeProp in value &&
-          typeof value[disposeProp] === 'function' &&
-          callDispose
-        ) {
-          value[disposeProp]()
+        if (callDispose) {
+          this.callDispose(value)
         }
       }
 
       return
     }
     throw new Error(`Key: ${String(key)} not found`)
+  }
+
+  clearInstances() {
+    for (const value of this.singletonCache.values()) {
+      this.callDispose(value)
+    }
+    this.singletonCache.clear()
+  }
+
+  protected callDispose(value: any) {
+    if (
+      typeof value !== 'symbol' &&
+      DISPOSE_PROP in value &&
+      typeof value[DISPOSE_PROP] === 'function'
+    ) {
+      value[DISPOSE_PROP]()
+    }
   }
 
   has(key: string | symbol, searchParent = true): boolean {

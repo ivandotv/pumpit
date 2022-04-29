@@ -278,4 +278,44 @@ describe('Optional injection', () => {
       expect(disposeCall).toHaveBeenCalled()
     })
   })
+
+  test('When the instances are cleared, singletons are created again', () => {
+    const pumpa = new Pumpa()
+    const keyA = Symbol('key_a')
+
+    const disposeCall = jest.fn()
+    class TestA {
+      static count = 0
+
+      constructor() {
+        TestA.count++
+      }
+
+      dispose() {
+        disposeCall()
+      }
+    }
+
+    const afterResolve = jest.fn()
+    let beforeResolveCount = 0
+    pumpa.addClass(keyA, TestA, {
+      scope: 'SINGLETON',
+      beforeResolve: ({ value, deps }) => {
+        beforeResolveCount++
+
+        return new value(...deps)
+      },
+      afterResolve
+    })
+    const instanceOne = pumpa.resolve(keyA)
+
+    pumpa.clearInstances()
+    const instanceTwo = pumpa.resolve(keyA)
+
+    expect(instanceOne).not.toBe(instanceTwo)
+    expect(TestA.count).toBe(2)
+    expect(disposeCall).toHaveBeenCalledTimes(1)
+    expect(beforeResolveCount).toBe(2)
+    expect(afterResolve).toHaveBeenCalledTimes(2)
+  })
 })
