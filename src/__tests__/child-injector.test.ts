@@ -21,9 +21,9 @@ describe('Child injector', () => {
     const factory = () => () => factoryResult
     const value = {}
     class TestA {}
-    parent.addClass(classKey, TestA)
-    parent.addFactory(factoryKey, factory)
-    parent.addValue(valueKey, value)
+    parent.bindClass(classKey, TestA)
+    parent.bindFactory(factoryKey, factory)
+    parent.bindValue(valueKey, value)
 
     const resolveClass = child.resolve(classKey)
     const resolveFactory = child.resolve<ReturnType<typeof factory>>(factoryKey)
@@ -42,8 +42,8 @@ describe('Child injector', () => {
     class ParentClass {}
     class ChildClass {}
 
-    parent.addClass(classKey, ParentClass)
-    child.addClass(classKey, ChildClass)
+    parent.bindClass(classKey, ParentClass)
+    child.bindClass(classKey, ChildClass)
 
     const resolveClass = child.resolve(classKey)
 
@@ -56,10 +56,10 @@ describe('Child injector', () => {
     const classKey = Symbol()
     class ParentClass {}
     class ChildClass {}
-    parent.addClass(classKey, ParentClass)
-    child.addClass(classKey, ChildClass)
+    parent.bindClass(classKey, ParentClass)
+    child.bindClass(classKey, ChildClass)
 
-    child.remove(classKey)
+    child.unbind(classKey)
 
     expect(child.has(classKey, false)).toBe(false)
     expect(child.has(classKey, true)).toBe(true)
@@ -80,7 +80,7 @@ describe('Child injector', () => {
             TestA.count++
           }
         }
-        parent.addClass(key, TestA, { scope: 'SINGLETON' })
+        parent.bindClass(key, TestA, { scope: 'SINGLETON' })
 
         const childInstance = child.resolve<TestA>(key)
         const parentInstance = parent.resolve<TestA>(key)
@@ -101,8 +101,8 @@ describe('Child injector', () => {
             TestA.count++
           }
         }
-        parent.addClass(key, TestA, { scope: 'SINGLETON' })
-        child.addClass(key, TestA, { scope: 'SINGLETON' })
+        parent.bindClass(key, TestA, { scope: 'SINGLETON' })
+        child.bindClass(key, TestA, { scope: 'SINGLETON' })
 
         const childInstance = child.resolve<TestA>(key)
         const parentInstance = parent.resolve<TestA>(key)
@@ -124,7 +124,7 @@ describe('Child injector', () => {
             TestA.count++
           }
         }
-        parent.addClass(key, TestA, { scope: 'SINGLETON' })
+        parent.bindClass(key, TestA, { scope: 'SINGLETON' })
 
         const childInstance = child.resolve<TestA>(key)
         const parentInstance = parent.resolve<TestA>(key)
@@ -145,8 +145,8 @@ describe('Child injector', () => {
             TestA.count++
           }
         }
-        parent.addClass(key, TestA, { scope: 'SINGLETON' })
-        child.addClass(key, TestA, { scope: 'SINGLETON' })
+        parent.bindClass(key, TestA, { scope: 'SINGLETON' })
+        child.bindClass(key, TestA, { scope: 'SINGLETON' })
 
         const childInstance = child.resolve<TestA>(key)
         const parentInstance = parent.resolve<TestA>(key)
@@ -180,8 +180,8 @@ describe('Child injector', () => {
             }
           }
 
-          parent.addClass(keyA, TestA, { scope: 'SINGLETON' })
-          child.addClass(keyB, TestB, { scope: 'SINGLETON' })
+          parent.bindClass(keyA, TestA, { scope: 'SINGLETON' })
+          child.bindClass(keyB, TestB, { scope: 'SINGLETON' })
 
           const childB = child.resolve<TestB>(keyB)
           const parentA = parent.resolve<TestA>(keyA)
@@ -213,8 +213,8 @@ describe('Child injector', () => {
               TestB.count++
             }
           }
-          parent.addClass(keyA, TestA, { scope: 'SINGLETON' })
-          child.addClass(keyB, TestB, { scope: 'SINGLETON' })
+          parent.bindClass(keyA, TestA, { scope: 'SINGLETON' })
+          child.bindClass(keyB, TestB, { scope: 'SINGLETON' })
 
           const childB = child.resolve<TestB>(keyB)
           child.resolve<TestB>(keyB)
@@ -263,9 +263,9 @@ describe('Child injector', () => {
             }
           }
 
-          parent.addClass(keyA, TestA, { scope: 'SINGLETON' })
-          child.addClass(keyB, TestB, { scope: 'SINGLETON' })
-          child.addClass(keyC, TestC, { scope: 'SINGLETON' })
+          parent.bindClass(keyA, TestA, { scope: 'SINGLETON' })
+          child.bindClass(keyB, TestB, { scope: 'SINGLETON' })
+          child.bindClass(keyC, TestC, { scope: 'SINGLETON' })
 
           const childB = child.resolve<TestB>(keyB)
           child.resolve<TestB>(keyB)
@@ -317,9 +317,9 @@ describe('Child injector', () => {
             }
           }
 
-          grandParent.addClass(keyA, TestA, { scope: 'SINGLETON' })
-          child.addClass(keyB, TestB, { scope: 'SINGLETON' })
-          child.addClass(keyC, TestC, { scope: 'SINGLETON' })
+          grandParent.bindClass(keyA, TestA, { scope: 'SINGLETON' })
+          child.bindClass(keyB, TestB, { scope: 'SINGLETON' })
+          child.bindClass(keyC, TestC, { scope: 'SINGLETON' })
 
           const childB = child.resolve<TestB>(keyB)
           child.resolve<TestB>(keyB)
@@ -373,9 +373,9 @@ describe('Child injector', () => {
             }
           }
 
-          parent.addClass(keyA, TestA, { scope: 'SINGLETON' })
-          child.addClass(keyB, TestB, { scope: 'SINGLETON' })
-          child.addClass(keyC, TestC)
+          parent.bindClass(keyA, TestA, { scope: 'SINGLETON' })
+          child.bindClass(keyB, TestB, { scope: 'SINGLETON' })
+          child.bindClass(keyC, TestC)
 
           const childB = child.resolve<TestB>(keyB)
           const childC = child.resolve<TestC>(keyC)

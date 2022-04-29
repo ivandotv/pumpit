@@ -30,7 +30,10 @@ describe('Factory with "transient" scope', () => {
       constructor(public fn: Fn, public fnCopy: Fn, public b: TestB) {}
     }
 
-    pumpa.addFactory(key, factory).addClass(keyB, TestB).addClass(keyC, TestC)
+    pumpa
+      .bindFactory(key, factory)
+      .bindClass(keyB, TestB)
+      .bindClass(keyC, TestC)
 
     const instance = pumpa.resolve<TestC>(keyC)
 
@@ -68,9 +71,9 @@ describe('Factory with "transient" scope', () => {
     }
 
     pumpa
-      .addFactory(key, factory, { scope: SCOPE.TRANSIENT })
-      .addClass(keyB, TestB)
-      .addClass(keyC, TestC)
+      .bindFactory(key, factory, { scope: SCOPE.TRANSIENT })
+      .bindClass(keyB, TestB)
+      .bindClass(keyC, TestC)
 
     const instance = pumpa.resolve<TestC>(keyC)
 

@@ -12,7 +12,7 @@ describe('Optional injection', () => {
       constructor(public optionalProp?: string) {}
     }
 
-    pumpa.addClass('class_a', TestA)
+    pumpa.bindClass('class_a', TestA)
 
     expect(() => pumpa.resolve<TestA>('class_a')).not.toThrow()
   })
@@ -26,7 +26,7 @@ describe('Optional injection', () => {
       constructor(public optionalProp?: string) {}
     }
 
-    pumpa.addClass('class_a', TestA)
+    pumpa.bindClass('class_a', TestA)
     const instance = pumpa.resolve<TestA>('class_a')
 
     expect(instance.optionalProp).toBeUndefined()
@@ -50,8 +50,8 @@ describe('Optional injection', () => {
       ) {}
     }
 
-    pumpa.addValue(keyOne, valueOne)
-    pumpa.addClass('class_a', TestA)
+    pumpa.bindValue(keyOne, valueOne)
+    pumpa.bindClass('class_a', TestA)
 
     const instance = pumpa.resolve<TestA>('class_a')
 
@@ -79,9 +79,9 @@ describe('Optional injection', () => {
       ) {}
     }
 
-    pumpa.addValue(keyOne, valueOne)
-    pumpa.addValue(keyThree, valueThree)
-    pumpa.addClass('class_a', TestA)
+    pumpa.bindValue(keyOne, valueOne)
+    pumpa.bindValue(keyThree, valueThree)
+    pumpa.bindClass('class_a', TestA)
 
     const instance = pumpa.resolve<TestA>('class_a')
 
@@ -98,7 +98,7 @@ describe('Optional injection', () => {
       static inject = []
     }
 
-    pumpa.addClass(key, TestA)
+    pumpa.bindClass(key, TestA)
 
     expect(() => pumpa.resolve(key)).not.toThrow()
   })
@@ -110,7 +110,7 @@ describe('Optional injection', () => {
     const factory = () => {}
     factory.inject = []
 
-    pumpa.addFactory(key, factory)
+    pumpa.bindFactory(key, factory)
 
     expect(() => pumpa.resolve(key)).not.toThrow()
   })
@@ -119,10 +119,10 @@ describe('Optional injection', () => {
     const pumpa = new Pumpa()
 
     const ref = pumpa
-      .addClass('a', class {})
+      .bindClass('a', class {})
 
-      .addFactory('b', () => () => {})
-      .addValue('c', true)
+      .bindFactory('b', () => () => {})
+      .bindValue('c', true)
 
     expect(ref).toBe(pumpa)
   })
@@ -139,9 +139,9 @@ describe('Optional injection', () => {
     const factoryReturnValue = 'hello'
     const factory = () => () => factoryReturnValue
 
-    pumpa.addClass(keyA, TestA)
-    pumpa.addValue(keyB, value)
-    pumpa.addFactory(keyC, factory)
+    pumpa.bindClass(keyA, TestA)
+    pumpa.bindValue(keyB, value)
+    pumpa.bindFactory(keyC, factory)
 
     const resolvedClass = pumpa.resolve<TestA>(keyA)
     const resolvedValue = pumpa.resolve<typeof value>(keyB)
@@ -156,7 +156,7 @@ describe('Optional injection', () => {
     test('Throw if the key is not found', () => {
       const pumpa = new Pumpa()
 
-      expect(() => pumpa.remove('does_not_exist')).toThrowError('not found')
+      expect(() => pumpa.unbind('does_not_exist')).toThrowError('not found')
     })
 
     test('Remove factory', () => {
@@ -167,8 +167,8 @@ describe('Optional injection', () => {
       const factory = () => () => factoryReturnValue
       factory.dispose = jest.fn()
 
-      pumpa.addFactory(keyA, factory)
-      pumpa.remove(keyA)
+      pumpa.bindFactory(keyA, factory)
+      pumpa.unbind(keyA)
 
       expect(pumpa.has(keyA)).toBe(false)
     })
@@ -186,10 +186,10 @@ describe('Optional injection', () => {
         return functionToReturn
       }
 
-      pumpa.addFactory(keyA, factory, { scope: 'SINGLETON' })
+      pumpa.bindFactory(keyA, factory, { scope: 'SINGLETON' })
       pumpa.resolve(keyA)
 
-      pumpa.remove(keyA)
+      pumpa.unbind(keyA)
 
       expect(pumpa.has(keyA)).toBe(false)
       expect(() => pumpa.resolve(keyA)).toThrowError('not found')
@@ -209,10 +209,10 @@ describe('Optional injection', () => {
         return functionToReturn
       }
 
-      pumpa.addFactory(keyA, factory, { scope: 'SINGLETON' })
+      pumpa.bindFactory(keyA, factory, { scope: 'SINGLETON' })
       pumpa.resolve(keyA)
 
-      pumpa.remove(keyA, false)
+      pumpa.unbind(keyA, false)
 
       expect(pumpa.has(keyA)).toBe(false)
       expect(() => pumpa.resolve(keyA)).toThrowError('not found')
@@ -230,8 +230,8 @@ describe('Optional injection', () => {
         }
       }
 
-      pumpa.addClass(keyA, TestA)
-      pumpa.remove(keyA)
+      pumpa.bindClass(keyA, TestA)
+      pumpa.unbind(keyA)
 
       expect(pumpa.has(keyA)).toBe(false)
     })
@@ -247,10 +247,10 @@ describe('Optional injection', () => {
         }
       }
 
-      pumpa.addClass(keyA, TestA, { scope: 'SINGLETON' })
+      pumpa.bindClass(keyA, TestA, { scope: 'SINGLETON' })
       pumpa.resolve(keyA)
 
-      pumpa.remove(keyA)
+      pumpa.unbind(keyA)
 
       expect(pumpa.has(keyA)).toBe(false)
       expect(() => pumpa.resolve(keyA)).toThrowError('not found')
@@ -268,10 +268,10 @@ describe('Optional injection', () => {
         }
       }
 
-      pumpa.addClass(keyA, TestA, { scope: 'SINGLETON' })
+      pumpa.bindClass(keyA, TestA, { scope: 'SINGLETON' })
       pumpa.resolve(keyA)
 
-      pumpa.remove(keyA)
+      pumpa.unbind(keyA)
 
       expect(pumpa.has(keyA)).toBe(false)
       expect(() => pumpa.resolve(keyA)).toThrowError('not found')
@@ -302,12 +302,12 @@ describe('Optional injection', () => {
 
         const value = { name: 'ivan' }
 
-        pumpa.addFactory(factoryKey, factory, { scope: 'SINGLETON' })
-        pumpa.addClass(classKey, TestA)
-        pumpa.addValue(valueKey, value)
+        pumpa.bindFactory(factoryKey, factory, { scope: 'SINGLETON' })
+        pumpa.bindClass(classKey, TestA)
+        pumpa.bindValue(valueKey, value)
 
         pumpa.resolve(factoryKey)
-        pumpa.removeAll()
+        pumpa.unbindAll()
 
         expect(pumpa.has(factoryKey)).toBe(false)
         expect(pumpa.has(classKey)).toBe(false)
@@ -340,7 +340,7 @@ describe('Optional injection', () => {
 
     const afterResolve = jest.fn()
     let beforeResolveCount = 0
-    pumpa.addClass(keyA, TestA, {
+    pumpa.bindClass(keyA, TestA, {
       scope: 'SINGLETON',
       beforeResolve: ({ value, deps }) => {
         beforeResolveCount++

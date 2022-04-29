@@ -21,10 +21,10 @@ describe('post transform dependencies', () => {
       }
 
       pumpa
-        .addClass(classKey, TestA)
-        .addValue(keyA, valueA)
-        .addValue(keyB, valueB)
-        .addValue(keyC, valueC)
+        .bindClass(classKey, TestA)
+        .bindValue(keyA, valueA)
+        .bindValue(keyB, valueB)
+        .bindValue(keyC, valueC)
         .resolve<TestA>(classKey)
 
       expect(transformFn).toHaveBeenCalledWith(pumpa, valueA, valueB, valueC)
@@ -48,10 +48,10 @@ describe('post transform dependencies', () => {
       }
 
       pumpa
-        .addClass(classKey, TestA)
-        .addValue(keyA, valueA)
-        .addValue(keyB, valueB)
-        .addValue(keyC, valueC)
+        .bindClass(classKey, TestA)
+        .bindValue(keyA, valueA)
+        .bindValue(keyB, valueB)
+        .bindValue(keyC, valueC)
         .resolve<TestA>(classKey)
 
       expect(transformFn).toHaveBeenCalledWith(pumpa, [valueA, valueB, valueC])
@@ -77,7 +77,7 @@ describe('post transform dependencies', () => {
         )
       }
 
-      pumpa.addClass(keyA, TestA).addClass(keyB, TestB).resolve<TestA>(keyA)
+      pumpa.bindClass(keyA, TestA).bindClass(keyB, TestB).resolve<TestA>(keyA)
 
       expect.assertions(1)
     })
@@ -108,10 +108,10 @@ describe('post transform dependencies', () => {
       }
 
       pumpa
-        .addClass(classKey, TestA)
-        .addValue(keyA, valueA)
-        .addValue(keyB, valueB)
-        .addValue(keyC, valueC)
+        .bindClass(classKey, TestA)
+        .bindValue(keyA, valueA)
+        .bindValue(keyB, valueB)
+        .bindValue(keyC, valueC)
 
       const instance = pumpa.resolve<TestA>(classKey)
 
@@ -148,10 +148,10 @@ describe('post transform dependencies', () => {
       factory.inject = transform([keyA, keyB, keyC], injectTransform)
 
       pumpa
-        .addFactory(factoryKey, factory)
-        .addValue(keyA, valueA)
-        .addValue(keyB, valueB)
-        .addValue(keyC, valueC)
+        .bindFactory(factoryKey, factory)
+        .bindValue(keyA, valueA)
+        .bindValue(keyB, valueB)
+        .bindValue(keyC, valueC)
         .resolve<ReturnType<typeof factory>>(factoryKey)
 
       expect(injectTransform).toHaveBeenCalledWith(
@@ -186,10 +186,10 @@ describe('post transform dependencies', () => {
       ])
 
       pumpa
-        .addFactory(factoryKey, factory)
-        .addValue(keyA, valueA)
-        .addValue(keyB, valueB)
-        .addValue(keyC, valueC)
+        .bindFactory(factoryKey, factory)
+        .bindValue(keyA, valueA)
+        .bindValue(keyB, valueB)
+        .bindValue(keyC, valueC)
         .resolve<typeof factory>(factoryKey)
 
       expect(factory).toHaveBeenCalledWith(

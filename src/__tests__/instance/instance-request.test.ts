@@ -31,10 +31,10 @@ describe('Class instance with "request" scope', () => {
     }
 
     pumpa
-      .addClass(request_key, RequestTest, { scope: SCOPE.REQUEST })
-      .addClass(keyA, TestA)
-      .addClass(keyB, TestB)
-      .addClass(keyC, TestC)
+      .bindClass(request_key, RequestTest, { scope: SCOPE.REQUEST })
+      .bindClass(keyA, TestA)
+      .bindClass(keyB, TestB)
+      .bindClass(keyC, TestC)
 
     const instanceC = pumpa.resolve<TestC>(keyC)
 
@@ -52,7 +52,7 @@ describe('Class instance with "request" scope', () => {
     const key = 'some_key'
     class TestA {}
 
-    pumpa.addClass(key, TestA, { scope: SCOPE.REQUEST })
+    pumpa.bindClass(key, TestA, { scope: SCOPE.REQUEST })
 
     const instanceA = pumpa.resolve(key)
     const instanceB = pumpa.resolve(key)
@@ -75,8 +75,8 @@ describe('Class instance with "request" scope', () => {
     }
 
     pumpa
-      .addClass(request_key, RequestTest, { scope: SCOPE.REQUEST })
-      .addClass(keyC, TestC)
+      .bindClass(request_key, RequestTest, { scope: SCOPE.REQUEST })
+      .bindClass(keyC, TestC)
 
     const instanceOne = pumpa.resolve<TestC>(keyC)
     const instanceTwo = pumpa.resolve<TestC>(keyC)

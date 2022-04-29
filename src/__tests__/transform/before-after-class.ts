@@ -15,8 +15,8 @@ describe('Resolve transform class', () => {
         constructor(public keyB: typeof valueB) {}
       }
 
-      pumpa.addValue(keyB, valueB)
-      pumpa.addClass(keyA, TestA, {
+      pumpa.bindValue(keyB, valueB)
+      pumpa.bindClass(keyA, TestA, {
         beforeResolve: ({ ctx: injector, value: constructor, deps }) => {
           expect(injector).toBe(pumpa)
           expect(constructor).toBe(TestA)
@@ -47,8 +47,8 @@ describe('Resolve transform class', () => {
         constructor(public keyB: typeof valueB) {}
       }
 
-      pumpa.addValue(keyB, valueB)
-      pumpa.addClass(keyA, TestA, {
+      pumpa.bindValue(keyB, valueB)
+      pumpa.bindClass(keyA, TestA, {
         beforeResolve: ({ ctx: injector, value: constructor, deps }) => {
           expect(injector).toBe(pumpa)
           expect(constructor).toBe(TestA)
@@ -77,8 +77,8 @@ describe('Resolve transform class', () => {
         constructor(public keyB: typeof valueB) {}
       }
 
-      pumpa.addValue(keyB, valueB)
-      pumpa.addClass(keyA, TestA, {
+      pumpa.bindValue(keyB, valueB)
+      pumpa.bindClass(keyA, TestA, {
         beforeResolve: ({ value: constructor }) => {
           return new constructor(substituteValue)
         }
@@ -117,9 +117,9 @@ describe('Resolve transform class', () => {
         constructor(public keyA: TestA) {}
       }
 
-      pumpa.addClass(keyB, TestB)
-      pumpa.addClass(keyC, TestC)
-      pumpa.addClass(keyA, TestA, {
+      pumpa.bindClass(keyB, TestB)
+      pumpa.bindClass(keyC, TestC)
+      pumpa.bindClass(keyA, TestA, {
         beforeResolve: ({ value: constructor }) => {
           resolveCount = resolveCount + 1
 
@@ -166,9 +166,9 @@ describe('Resolve transform class', () => {
         constructor(public keyA: TestA, public keyB: TestB) {}
       }
 
-      pumpa.addClass(keyB, TestB)
-      pumpa.addClass(keyC, TestC)
-      pumpa.addClass(keyA, TestA, {
+      pumpa.bindClass(keyB, TestB)
+      pumpa.bindClass(keyC, TestC)
+      pumpa.bindClass(keyA, TestA, {
         beforeResolve: ({ value: constructor }) => {
           resolveCount = resolveCount + 1
 
@@ -212,9 +212,9 @@ describe('Resolve transform class', () => {
         constructor(public keyA: TestA, public keyB: TestB) {}
       }
 
-      pumpa.addClass(keyB, TestB)
-      pumpa.addClass(keyC, TestC)
-      pumpa.addClass(keyA, TestA, {
+      pumpa.bindClass(keyB, TestB)
+      pumpa.bindClass(keyC, TestC)
+      pumpa.bindClass(keyA, TestA, {
         beforeResolve: ({ value: constructor }) => {
           resolveCount = resolveCount + 1
 
@@ -245,8 +245,8 @@ describe('Resolve transform class', () => {
 
       const afterResolve = jest.fn()
 
-      pumpa.addValue(keyB, valueB)
-      pumpa.addClass(keyA, TestA, {
+      pumpa.bindValue(keyB, valueB)
+      pumpa.bindClass(keyA, TestA, {
         afterResolve
       })
 
@@ -282,9 +282,9 @@ describe('Resolve transform class', () => {
         constructor(public keyA: TestA) {}
       }
 
-      pumpa.addClass(keyB, TestB)
-      pumpa.addClass(keyC, TestC)
-      pumpa.addClass(keyA, TestA, {
+      pumpa.bindClass(keyB, TestB)
+      pumpa.bindClass(keyC, TestC)
+      pumpa.bindClass(keyA, TestA, {
         afterResolve: () => {
           resolveCount = resolveCount + 1
         },
@@ -327,9 +327,9 @@ describe('Resolve transform class', () => {
         constructor(public keyA: TestA, public keyB: TestB) {}
       }
 
-      pumpa.addClass(keyB, TestB)
-      pumpa.addClass(keyC, TestC)
-      pumpa.addClass(keyA, TestA, {
+      pumpa.bindClass(keyB, TestB)
+      pumpa.bindClass(keyC, TestC)
+      pumpa.bindClass(keyA, TestA, {
         afterResolve: () => {
           resolveCount = resolveCount + 1
         },
@@ -371,9 +371,9 @@ describe('Resolve transform class', () => {
         constructor(public keyA: TestA, public keyB: TestB) {}
       }
 
-      pumpa.addClass(keyB, TestB)
-      pumpa.addClass(keyC, TestC)
-      pumpa.addClass(keyA, TestA, {
+      pumpa.bindClass(keyB, TestB)
+      pumpa.bindClass(keyC, TestC)
+      pumpa.bindClass(keyA, TestA, {
         afterResolve: () => {
           resolveCount = resolveCount + 1
         },

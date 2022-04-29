@@ -19,7 +19,7 @@ describe('Circular dependency', () => {
       static inject = [keyA]
     }
 
-    pumpa.addClass(keyA, TestA).addClass(keyB, TestB).addClass(keyC, TestC)
+    pumpa.bindClass(keyA, TestA).bindClass(keyB, TestB).bindClass(keyC, TestC)
 
     expect(() => pumpa.resolve<TestA>(keyA)).toThrowError(
       'Circular reference detected'
@@ -48,7 +48,7 @@ describe('Circular dependency', () => {
         constructor(public keyA: TestA) {}
       }
 
-      pumpa.addClass(keyA, TestA).addClass(keyB, TestB)
+      pumpa.bindClass(keyA, TestA).bindClass(keyB, TestB)
 
       const instance = pumpa.resolve<TestA>(keyA)
 
@@ -83,7 +83,7 @@ describe('Circular dependency', () => {
         constructor(public keyA: TestA) {}
       }
 
-      pumpa.addClass(keyA, TestA).addClass(keyB, TestB)
+      pumpa.bindClass(keyA, TestA).bindClass(keyB, TestB)
 
       const instance = pumpa.resolve<TestA>(keyA)
 
@@ -120,9 +120,9 @@ describe('Circular dependency', () => {
       }
 
       pumpa
-        .addClass(keyA, TestA, { scope: SCOPE.SINGLETON })
-        .addClass(keyB, TestB, { scope: SCOPE.SINGLETON })
-        .addClass(keyC, TestC)
+        .bindClass(keyA, TestA, { scope: SCOPE.SINGLETON })
+        .bindClass(keyB, TestB, { scope: SCOPE.SINGLETON })
+        .bindClass(keyC, TestC)
 
       const instance = pumpa.resolve<TestB>(keyB)
       const instanceTwo = pumpa.resolve<TestB>(keyB)
@@ -170,8 +170,8 @@ describe('Circular dependency', () => {
 
       factoryB.inject = [get(keyA, { lazy: true })]
 
-      pumpa.addFactory(keyA, factoryA)
-      pumpa.addFactory(keyB, factoryB)
+      pumpa.bindFactory(keyA, factoryA)
+      pumpa.bindFactory(keyB, factoryB)
 
       const resolvedFactoryA =
         pumpa.resolve<() => { fn: () => any; result: string }>(keyA)
@@ -203,7 +203,7 @@ describe('Circular dependency', () => {
         constructor(public keyB: TestB) {}
       }
 
-      pumpa.addClass(keyA, TestA).addClass(keyB, TestB).addClass(keyC, TestC)
+      pumpa.bindClass(keyA, TestA).bindClass(keyB, TestB).bindClass(keyC, TestC)
 
       const instance = pumpa.resolve<TestB>(keyB)
 

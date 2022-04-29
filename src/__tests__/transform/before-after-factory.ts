@@ -13,8 +13,8 @@ describe('Resolve transform factory', () => {
 
       factoryValue.inject = [keyB]
 
-      pumpa.addValue(keyB, valueB)
-      pumpa.addFactory(keyA, factoryValue, {
+      pumpa.bindValue(keyB, valueB)
+      pumpa.bindFactory(keyA, factoryValue, {
         beforeResolve: ({ ctx: injector, value: factory, deps }) => {
           expect(injector).toBe(pumpa)
           expect(factory).toBe(factory)
@@ -37,7 +37,7 @@ describe('Resolve transform factory', () => {
 
       const factoryValue = () => {}
 
-      pumpa.addFactory(keyA, factoryValue, {
+      pumpa.bindFactory(keyA, factoryValue, {
         beforeResolve: () => {
           return substituteValue
         }
@@ -70,10 +70,10 @@ describe('Resolve transform factory', () => {
         constructor(public keyA: typeof factory) {}
       }
 
-      pumpa.addClass(keyB, TestB)
-      pumpa.addClass(keyC, TestC)
+      pumpa.bindClass(keyB, TestB)
+      pumpa.bindClass(keyC, TestC)
 
-      pumpa.addFactory(keyA, factory, {
+      pumpa.bindFactory(keyA, factory, {
         beforeResolve: ({ value: factory }) => {
           return factory()
         },
@@ -112,9 +112,9 @@ describe('Resolve transform factory', () => {
       }
 
       pumpa
-        .addClass(keyB, TestB)
-        .addClass(keyC, TestC)
-        .addFactory(keyA, factory, {
+        .bindClass(keyB, TestB)
+        .bindClass(keyC, TestC)
+        .bindFactory(keyA, factory, {
           beforeResolve: ({ value: factory }) => {
             return factory()
           },
@@ -149,9 +149,9 @@ describe('Resolve transform factory', () => {
       }
 
       pumpa
-        .addClass(keyB, TestB)
-        .addClass(keyC, TestC)
-        .addFactory(keyA, factory, {
+        .bindClass(keyB, TestB)
+        .bindClass(keyC, TestC)
+        .bindFactory(keyA, factory, {
           beforeResolve: ({ value: factory }) => {
             return factory()
           },
@@ -172,7 +172,7 @@ describe('Resolve transform factory', () => {
 
       const factoryReturnValue = {}
       const factory = () => factoryReturnValue
-      pumpa.addFactory(keyA, factory, {
+      pumpa.bindFactory(keyA, factory, {
         afterResolve
       })
 
@@ -202,9 +202,9 @@ describe('Resolve transform factory', () => {
         constructor(public keyA: typeof factory) {}
       }
 
-      pumpa.addClass(keyB, TestB)
-      pumpa.addClass(keyC, TestC)
-      pumpa.addFactory(keyA, factory, {
+      pumpa.bindClass(keyB, TestB)
+      pumpa.bindClass(keyC, TestC)
+      pumpa.bindFactory(keyA, factory, {
         afterResolve,
         scope: SCOPE.SINGLETON
       })
@@ -237,9 +237,9 @@ describe('Resolve transform factory', () => {
       }
 
       pumpa
-        .addClass(keyB, TestB)
-        .addClass(keyC, TestC)
-        .addFactory(keyA, factory, {
+        .bindClass(keyB, TestB)
+        .bindClass(keyC, TestC)
+        .bindFactory(keyA, factory, {
           afterResolve,
           scope: SCOPE.TRANSIENT
         })
@@ -270,9 +270,9 @@ describe('Resolve transform factory', () => {
       }
 
       pumpa
-        .addClass(keyB, TestB)
-        .addClass(keyC, TestC)
-        .addFactory(factoryKey, factory, {
+        .bindClass(keyB, TestB)
+        .bindClass(keyC, TestC)
+        .bindFactory(factoryKey, factory, {
           afterResolve,
           scope: SCOPE.REQUEST
         })

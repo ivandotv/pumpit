@@ -16,7 +16,7 @@ describe('Singleton factory', () => {
       }
     }
 
-    pumpa.addFactory(key, factory, { scope: SCOPE.SINGLETON })
+    pumpa.bindFactory(key, factory, { scope: SCOPE.SINGLETON })
 
     const instanceA = pumpa.resolve<Fn>(key)
     const instanceB = pumpa.resolve<Fn>(key)
@@ -51,9 +51,9 @@ describe('Singleton factory', () => {
     factory.inject = [keyB, keyC]
 
     pumpa
-      .addFactory(key, factory, { scope: SCOPE.SINGLETON })
-      .addClass(keyB, TestB)
-      .addClass(keyC, TestC)
+      .bindFactory(key, factory, { scope: SCOPE.SINGLETON })
+      .bindClass(keyB, TestB)
+      .bindClass(keyC, TestC)
 
     const fnOne = pumpa.resolve<Fn>(key)
     const fnTwo = pumpa.resolve<Fn>(key)

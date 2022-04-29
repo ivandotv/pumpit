@@ -6,7 +6,7 @@ describe('Class singleton', () => {
     const key = 'some_key'
     class TestA {}
 
-    pumpa.addClass(key, TestA, { scope: SCOPE.SINGLETON })
+    pumpa.bindClass(key, TestA, { scope: SCOPE.SINGLETON })
 
     const instanceA = pumpa.resolve(key)
     const instanceB = pumpa.resolve(key)
@@ -30,9 +30,9 @@ describe('Class singleton', () => {
     class TestC {}
 
     pumpa
-      .addClass(key, TestA, { scope: SCOPE.SINGLETON })
-      .addClass(keyB, TestB)
-      .addClass(keyC, TestC)
+      .bindClass(key, TestA, { scope: SCOPE.SINGLETON })
+      .bindClass(keyB, TestB)
+      .bindClass(keyC, TestC)
 
     const instanceOne = pumpa.resolve<TestA>(key)
     const instanceTwo = pumpa.resolve<TestA>(key)
@@ -58,9 +58,9 @@ describe('Class singleton', () => {
     class TestC {}
 
     pumpa
-      .addClass(key, TestA, { scope: SCOPE.SINGLETON })
-      .addClass(keyB, TestB)
-      .addClass(keyC, TestC)
+      .bindClass(key, TestA, { scope: SCOPE.SINGLETON })
+      .bindClass(keyB, TestB)
+      .bindClass(keyC, TestC)
 
     const instanceOne = pumpa.resolve<TestA>(key)
     const instanceTwo = pumpa.resolve<TestA>(key)

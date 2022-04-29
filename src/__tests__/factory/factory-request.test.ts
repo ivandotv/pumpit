@@ -39,10 +39,10 @@ describe('Factory with "request" scope', () => {
     }
 
     pumpa
-      .addFactory(request_key, factory, { scope: SCOPE.REQUEST })
-      .addClass(keyA, TestA)
-      .addClass(keyB, TestB)
-      .addClass(keyC, TestC)
+      .bindFactory(request_key, factory, { scope: SCOPE.REQUEST })
+      .bindClass(keyA, TestA)
+      .bindClass(keyB, TestB)
+      .bindClass(keyC, TestC)
 
     const instance = pumpa.resolve<TestC>(keyC)
 
@@ -67,7 +67,7 @@ describe('Factory with "request" scope', () => {
       }
     }
 
-    pumpa.addFactory(key, factory, { scope: SCOPE.REQUEST })
+    pumpa.bindFactory(key, factory, { scope: SCOPE.REQUEST })
 
     const instanceA = pumpa.resolve<Fn>(key)
     const instanceB = pumpa.resolve<Fn>(key)

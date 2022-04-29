@@ -45,7 +45,7 @@ export class Pumpa {
     this.pool.set(key, { ...info, value })
   }
 
-  remove(key: string | symbol, callDispose = true): void {
+  unbind(key: string | symbol, callDispose = true): void {
     const found = this.pool.get(key)
 
     if (found) {
@@ -63,9 +63,9 @@ export class Pumpa {
     throw new Error(`Key: ${String(key)} not found`)
   }
 
-  removeAll() {
+  unbindAll() {
     for (const key of this.pool.keys()) {
-      this.remove(key)
+      this.unbind(key)
     }
     this.pool.clear()
     this.singletonCache.clear()
@@ -96,7 +96,7 @@ export class Pumpa {
     return this.pool.has(key)
   }
 
-  addValue(key: string | symbol, value: any): this {
+  bindValue(key: string | symbol, value: any): this {
     this.add(key, value, {
       type: TYPE.VALUE,
       scope: SCOPE.SINGLETON,
@@ -106,7 +106,7 @@ export class Pumpa {
     return this
   }
 
-  addFactory<T extends (...args: any[]) => any>(
+  bindFactory<T extends (...args: any[]) => any>(
     key: string | symbol,
     value: T,
     options?: Omit<Partial<FactoryOptions<T>>, 'type'>
@@ -123,7 +123,7 @@ export class Pumpa {
   }
 
   // T extends new (...args: any[]) => T = new (...args: any[]) => any
-  addClass<T extends new (...args: any[]) => any>(
+  bindClass<T extends new (...args: any[]) => any>(
     key: string | symbol,
     value: T,
     options?: Omit<Partial<ClassOptions<T>>, 'type'>
