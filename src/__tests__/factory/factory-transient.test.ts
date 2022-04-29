@@ -1,7 +1,7 @@
 import { Pumpa, SCOPE } from '../../pumpa'
 
-describe('Factory with "transient" scope', () => {
-  test('Default scope is "transient"', () => {
+describe('Factory with scope: transient', () => {
+  test('default scope is "transient"', () => {
     const pumpa = new Pumpa()
     const key = 'some_key'
     const keyB = 'key_b'
@@ -41,7 +41,7 @@ describe('Factory with "transient" scope', () => {
     expect(count).toBe(3)
   })
 
-  test('Explicitly pass "transient" scope', () => {
+  test('explicitly pass "transient" scope', () => {
     const pumpa = new Pumpa()
     const key = 'some_key'
     const keyB = 'key_b'

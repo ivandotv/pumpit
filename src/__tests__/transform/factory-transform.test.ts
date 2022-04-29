@@ -48,7 +48,7 @@ describe('Resolve transform factory', () => {
       expect(instance).toBe(substituteValue)
     })
 
-    test('Runs once when the scope is "singleton"', () => {
+    test('runs once when the scope is "singleton"', () => {
       const pumpa = new Pumpa()
       const keyA = 'key_a'
       const keyB = Symbol()
@@ -89,7 +89,7 @@ describe('Resolve transform factory', () => {
       expect(instanceC.keyA).toBe(factoryResolved)
     })
 
-    test('Runs every time when the scope is "transient"', () => {
+    test('runs every time when the scope is "transient"', () => {
       const pumpa = new Pumpa()
       const keyA = 'key_a'
       const keyB = Symbol()
@@ -126,7 +126,7 @@ describe('Resolve transform factory', () => {
       expect(resolveCount).toBe(2)
     })
 
-    test('Runs once per resolve request when the scope is "request"', () => {
+    test('runs once per resolve request when the scope is "request"', () => {
       const pumpa = new Pumpa()
       const keyA = 'key_a'
       const keyB = Symbol()
@@ -181,7 +181,7 @@ describe('Resolve transform factory', () => {
       expect(afterResolve).toHaveBeenCalledWith({ value: factoryReturnValue })
     })
 
-    test('Runs once when the scope is "singleton"', () => {
+    test('runs once when the scope is "singleton"', () => {
       const pumpa = new Pumpa()
       const keyA = 'key_a'
       const keyB = Symbol()
@@ -216,7 +216,7 @@ describe('Resolve transform factory', () => {
       expect(afterResolve).toHaveBeenCalledTimes(1)
     })
 
-    test('Runs every time when the scope is "transient"', () => {
+    test('runs every time when the scope is "transient"', () => {
       const pumpa = new Pumpa()
       const keyA = 'key_a'
       const keyB = Symbol()
@@ -249,7 +249,7 @@ describe('Resolve transform factory', () => {
       expect(afterResolve).toBeCalledTimes(2)
     })
 
-    test('Runs once per resolve request when the scope is "request"', () => {
+    test('runs once per resolve request when the scope is "request"', () => {
       const pumpa = new Pumpa()
       const factoryKey = 'key_a'
       const keyB = Symbol()

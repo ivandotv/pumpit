@@ -1,7 +1,7 @@
 import { Pumpa, SCOPE } from '../../pumpa'
 
-describe('Class instance with "request" scope', () => {
-  test('Return the same instance for a single resolve call', () => {
+describe('Class with scope: request', () => {
+  test('return the same instance for a single resolve call', () => {
     const pumpa = new Pumpa()
 
     const keyA = 'key_a'
@@ -47,7 +47,7 @@ describe('Class instance with "request" scope', () => {
     expect(instanceC.keyA.request).toBe(instanceC.keyB.request)
   })
 
-  test('Multiple resolve calls return different instances', () => {
+  test('multiple resolve calls return different instances', () => {
     const pumpa = new Pumpa()
     const key = 'some_key'
     class TestA {}
@@ -61,7 +61,7 @@ describe('Class instance with "request" scope', () => {
     expect(instanceA).not.toBe(instanceB)
   })
 
-  test('Multiple resolve calls return different injected instances', () => {
+  test('multiple resolve calls return different injected instances', () => {
     const pumpa = new Pumpa()
 
     const keyC = 'key_c'

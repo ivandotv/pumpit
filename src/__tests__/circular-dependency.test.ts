@@ -3,7 +3,7 @@ import { Pumpa, SCOPE } from '../pumpa'
 import { get, getArray } from '../utils'
 
 describe('Circular dependency', () => {
-  test('Throw when circular reference is detected', () => {
+  test('throw when circular reference is detected', () => {
     const pumpa = new Pumpa()
     const keyA = 'key_a'
     const keyB = Symbol('key_b')
@@ -27,7 +27,7 @@ describe('Circular dependency', () => {
   })
 
   describe('Lazy injection', () => {
-    test('Inject on one side', () => {
+    test('inject on one side', () => {
       const pumpa = new Pumpa()
       const keyA = 'key_a'
       const keyB = Symbol('key_b')
@@ -62,7 +62,7 @@ describe('Circular dependency', () => {
       expect(instance.keyB.keyA.constructor.hello()).toBe(staticResult)
     })
 
-    test('Inject on both sides', () => {
+    test('inject on both sides', () => {
       const pumpa = new Pumpa()
       const keyA = 'key_a'
       const keyB = Symbol('key_b')
@@ -97,7 +97,7 @@ describe('Circular dependency', () => {
       expect(instance.keyB.keyA.constructor.hello()).toBe(staticResult)
     })
 
-    test('Inject class Singleton', () => {
+    test('inject class singleton', () => {
       const pumpa = new Pumpa()
       const keyA = 'key_a'
       const keyB = Symbol('key_b')
@@ -140,7 +140,7 @@ describe('Circular dependency', () => {
       expect(instanceTwo.keyA.keyB[PROXY_TARGET]).toBe(instance)
     })
 
-    test('Inject in to factories', () => {
+    test('inject in to factory', () => {
       const pumpa = new Pumpa()
       const keyA = 'key_a'
       const keyB = Symbol('key_b')
@@ -181,7 +181,7 @@ describe('Circular dependency', () => {
       expect(resolvedFactoryA().fn().fn().result).toBe(resultA)
     })
 
-    test('Inject with arrays', () => {
+    test('inject with arrays', () => {
       const pumpa = new Pumpa()
       const keyA = 'key_a'
       const keyB = Symbol('key_b')

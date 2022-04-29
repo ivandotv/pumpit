@@ -1,7 +1,7 @@
 import { Pumpa } from '../../pumpa'
 import { get, getArray, isProxy, transform } from '../../utils'
 
-describe('post transform dependencies', () => {
+describe('Transform dependencies', () => {
   describe('Class', () => {
     test('transform function receives resolved dependencies', () => {
       const pumpa = new Pumpa()
@@ -82,7 +82,7 @@ describe('post transform dependencies', () => {
       expect.assertions(1)
     })
 
-    test('Transform function can replace dependencies', () => {
+    test('transform function can replace dependencies', () => {
       const pumpa = new Pumpa()
       const classKey = Symbol()
       const keyA = Symbol()

@@ -1,8 +1,8 @@
 import { Pumpa } from '../pumpa'
 import { get, getArray } from '../utils'
 
-describe('Inject array of values for a single property', () => {
-  test('Inject  values', () => {
+describe('Inject array of values as a single dependency', () => {
+  test('inject  values', () => {
     const pumpa = new Pumpa()
     const keyOne = 'key_one'
     const valueOne = 'hello'
@@ -25,7 +25,7 @@ describe('Inject array of values for a single property', () => {
     expect(instance.props).toEqual([valueOne, valueTwo])
   })
 
-  test('If the key is not found, set it to undefined', () => {
+  test('if the key is not found, set it to undefined', () => {
     const pumpa = new Pumpa()
     const keyTwo = 'key_two'
     const valueTwo = 2
@@ -44,8 +44,9 @@ describe('Inject array of values for a single property', () => {
     expect(instance.props).toEqual([undefined, valueTwo])
   })
 
-  test('If the key is not found, do not add "undefined" value', () => {
+  test('if the key is not found, do not add "undefined" value', () => {
     const pumpa = new Pumpa()
+    const classKey = 'key_class'
     const keyTwo = 'key_two'
     const valueTwo = 2
 
@@ -60,14 +61,14 @@ describe('Inject array of values for a single property', () => {
     }
 
     pumpa.bindValue(keyTwo, valueTwo)
-    pumpa.bindClass('class_a', TestA)
+    pumpa.bindClass(classKey, TestA)
 
-    const instance = pumpa.resolve<TestA>('class_a')
+    const instance = pumpa.resolve<TestA>(classKey)
 
     expect(instance.props).toEqual([valueTwo])
   })
 
-  test('Throw if all keys in the array are not optional', () => {
+  test('throw if all the keys in the array are not optional', () => {
     const pumpa = new Pumpa()
     const keyTwo = 'key_two'
     const valueTwo = 2
@@ -88,7 +89,7 @@ describe('Inject array of values for a single property', () => {
     expect(() => pumpa.resolve<TestA>('class_a')).toThrowError('not found')
   })
 
-  test('Set the whole array to undefined if there are no resolved keys', () => {
+  test('set the whole array to undefined if there are no resolved keys', () => {
     const pumpa = new Pumpa()
     class TestA {
       static inject = [

@@ -1,7 +1,7 @@
 import { Pumpa, SCOPE } from '../../pumpa'
 
-describe('Class singleton', () => {
-  test('Same class instance is always returned', () => {
+describe('Class with scope: singleton', () => {
+  test('same class instance is always returned', () => {
     const pumpa = new Pumpa()
     const key = 'some_key'
     class TestA {}
@@ -15,7 +15,7 @@ describe('Class singleton', () => {
     expect(instanceA).toBe(instanceB)
   })
 
-  test('Can register singleton with dependencies', () => {
+  test('can register singleton with dependencies', () => {
     const pumpa = new Pumpa()
     const key = 'some_key'
     const keyB = 'key_b'
@@ -43,7 +43,7 @@ describe('Class singleton', () => {
     expect(instanceOne.keyC).toBeInstanceOf(TestC)
   })
 
-  test('Singleton dependencies are cached', () => {
+  test('singleton dependencies are cached', () => {
     const pumpa = new Pumpa()
     const key = 'some_key'
     const keyB = 'key_b'

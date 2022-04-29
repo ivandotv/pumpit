@@ -1,7 +1,7 @@
 import { Pumpa, SCOPE } from '../../pumpa'
 import { transform } from '../../utils'
 
-describe('Resolve transform class', () => {
+describe('Class transform', () => {
   describe('Before resolve', () => {
     test('receives correct parameters', () => {
       const pumpa = new Pumpa()
@@ -32,7 +32,7 @@ describe('Resolve transform class', () => {
       expect(instance.keyB).toBe(valueB)
     })
 
-    test('receives correct parameters after injection transform', () => {
+    test('receives correct parameters after injection transformation', () => {
       const pumpa = new Pumpa()
       const keyA = 'key_a'
       const keyB = Symbol()
@@ -138,7 +138,7 @@ describe('Resolve transform class', () => {
       expect(instanceC.keyA).toBe(instance)
     })
 
-    test('Run every time when scope is "transient"', () => {
+    test('Runs every time when the scope is "transient"', () => {
       const pumpa = new Pumpa()
       const keyA = 'key_a'
       const keyB = Symbol()
@@ -184,7 +184,7 @@ describe('Resolve transform class', () => {
       expect(resolveCount).toBe(3)
     })
 
-    test('Run once per resolve request when scope is "request"', () => {
+    test('Run once per resolve request when this scope is "request"', () => {
       const pumpa = new Pumpa()
       const keyA = 'key_a'
       const keyB = Symbol()
@@ -231,7 +231,7 @@ describe('Resolve transform class', () => {
     })
   })
   describe('After resolve', () => {
-    test('receives correct parameters', () => {
+    test('Receives correct parameters', () => {
       const pumpa = new Pumpa()
       const keyA = 'key_a'
       const keyB = Symbol()
@@ -299,7 +299,7 @@ describe('Resolve transform class', () => {
       expect(resolveCount).toBe(1)
     })
 
-    test('Run every time when the scope is "transient"', () => {
+    test('Runs every time when the scope is "transient"', () => {
       const pumpa = new Pumpa()
       const keyA = 'key_a'
       const keyB = Symbol()
@@ -343,7 +343,7 @@ describe('Resolve transform class', () => {
       expect(resolveCount).toBe(3)
     })
 
-    test('Run once per resolve request when scope is "request"', () => {
+    test('Runs once per resolve request when the scope is "request"', () => {
       const pumpa = new Pumpa()
       const keyA = 'key_a'
       const keyB = Symbol()

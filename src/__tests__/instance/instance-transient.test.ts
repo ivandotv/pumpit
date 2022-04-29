@@ -1,7 +1,7 @@
 import { Pumpa, SCOPE } from '../../pumpa'
 
-describe('Class instance with "transient" scope', () => {
-  test('Default scope is "transient"', () => {
+describe('Class with scope: transient', () => {
+  test('default scope is "transient"', () => {
     const pumpa = new Pumpa()
     const key = 'some_key'
     const keyB = 'key_b'
@@ -28,7 +28,7 @@ describe('Class instance with "transient" scope', () => {
     expect(instance.testA).not.toBe(instance.testACopy)
   })
 
-  test('Explicitly pass "transient" scope', () => {
+  test('explicitly pass "transient" scope', () => {
     const pumpa = new Pumpa()
     const key = 'some_key'
     const keyB = 'key_c'

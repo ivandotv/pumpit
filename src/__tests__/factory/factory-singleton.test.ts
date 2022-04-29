@@ -1,7 +1,7 @@
 import { Pumpa, SCOPE } from '../../pumpa'
 
-describe('Singleton factory', () => {
-  test('Same factory is always returned', () => {
+describe('Factory with scope: singleton', () => {
+  test('same factory reference is always returned', () => {
     const pumpa = new Pumpa()
     const key = 'some_key'
 
@@ -26,7 +26,7 @@ describe('Singleton factory', () => {
     expect(instanceA).toBe(instanceB)
   })
 
-  test('Can register singleton with dependencies', () => {
+  test('can register singleton with dependencies', () => {
     const pumpa = new Pumpa()
     const key = 'some_key'
     const keyB = 'key_b'

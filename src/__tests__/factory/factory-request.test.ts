@@ -1,7 +1,7 @@
 import { Pumpa, SCOPE } from '../../pumpa'
 
-describe('Factory with "request" scope', () => {
-  test('Return the same factory for a single resolve call', () => {
+describe('Factory with the scope: request', () => {
+  test('return the same factory for a single resolve call', () => {
     const pumpa = new Pumpa()
 
     const keyA = 'key_a'
@@ -52,7 +52,7 @@ describe('Factory with "request" scope', () => {
     expect(instance.keyA.request).toBe(instance.keyB.request)
   })
 
-  test('Multiple resolve calls return different factories', () => {
+  test('multiple resolve calls return different factories', () => {
     const pumpa = new Pumpa()
     const key = 'some_key'
 

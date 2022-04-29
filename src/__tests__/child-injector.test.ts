@@ -34,7 +34,7 @@ describe('Child injector', () => {
     expect(resolveValue).toBe(value)
   })
 
-  test('Child injector key shadows parent key', () => {
+  test('Child injector keys shadow parent keys', () => {
     const parent = new Pumpa()
     const child = parent.child()
     const classKey = Symbol()
@@ -50,7 +50,7 @@ describe('Child injector', () => {
     expect(resolveClass).toBeInstanceOf(ChildClass)
   })
 
-  test('Removing the value from child injector does not remove it from the parent', () => {
+  test('removing the value from child injector does not remove it from the parent', () => {
     const parent = new Pumpa()
     const child = parent.child()
     const classKey = Symbol()
@@ -68,7 +68,7 @@ describe('Child injector', () => {
 
   describe('Singletons', () => {
     describe('Shared', () => {
-      test('When the key is on the parent, singleton is created on the parent', () => {
+      test('when the key is on the parent, singleton is created on the parent', () => {
         const parent = new Pumpa()
         const child = parent.child({ shareSingletons: true })
         const key = Symbol('key')
@@ -89,7 +89,7 @@ describe('Child injector', () => {
         expect(TestA.count).toBe(1)
       })
 
-      test('When the key is on the child, singleton is created on the child', () => {
+      test('when the key is on the child, singleton is created on the child', () => {
         const parent = new Pumpa()
         const child = parent.child({ shareSingletons: true })
         const key = Symbol('key')
@@ -112,7 +112,7 @@ describe('Child injector', () => {
       })
     })
     describe('Not shared', () => {
-      test('When the the key is on the parent, singleton is created on the child', () => {
+      test('when the the key is on the parent, singleton is created on the child', () => {
         const parent = new Pumpa()
         const child = parent.child({ shareSingletons: false })
         const key = Symbol('key')
@@ -133,7 +133,7 @@ describe('Child injector', () => {
         expect(TestA.count).toBe(2)
       })
 
-      test('When the key is on the child, singleton is created on the child', () => {
+      test('when the key is on the child, singleton is created on the child', () => {
         const parent = new Pumpa()
         const child = parent.child({ shareSingletons: false })
         const key = Symbol('key')
@@ -156,7 +156,7 @@ describe('Child injector', () => {
       })
 
       describe('Inject from parent', () => {
-        test('Shared', () => {
+        test('shared', () => {
           const parent = new Pumpa()
           const child = parent.child({ shareSingletons: true })
           const keyA = Symbol('keyA')
@@ -190,7 +190,7 @@ describe('Child injector', () => {
           expect(TestB.count).toBe(1)
           expect(childB.keyA).toBe(parentA)
         })
-        test('Not shared', () => {
+        test('not shared', () => {
           const parent = new Pumpa()
           const child = parent.child({ shareSingletons: false })
           const keyA = Symbol('keyA')
@@ -228,7 +228,7 @@ describe('Child injector', () => {
       })
 
       describe('Circular injection', () => {
-        test('Shared', () => {
+        test('shared', () => {
           const parent = new Pumpa()
           const child = parent.child({ shareSingletons: true })
           const keyA = Symbol('keyA')
@@ -281,7 +281,7 @@ describe('Child injector', () => {
           expect(childB.keyC.keyA).toBe(parentA)
         })
 
-        test('Circular injection shared - three levels', () => {
+        test('shared three levels', () => {
           const grandParent = new Pumpa()
           const parent = grandParent.child({ shareSingletons: true })
           const child = parent.child({ shareSingletons: true })
@@ -338,7 +338,7 @@ describe('Child injector', () => {
           expect(childB.keyC.keyA).toBe(parentA)
         })
 
-        test('Not shared', () => {
+        test('not shared', () => {
           const parent = new Pumpa()
           const child = parent.child({ shareSingletons: false })
           const keyA = Symbol('keyA')
