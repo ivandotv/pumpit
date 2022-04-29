@@ -1,25 +1,22 @@
 import { createProxy } from './proxy'
 import { Injection, InjectionData, parseInjectionData } from './utils'
 
-const TYPES = {
+const UNDEFINED_RESULT = Symbol()
+
+const TYPE = {
   VALUE: 'VALUE',
   CLASS: 'CLASS',
   FACTORY: 'FACTORY'
 } as const
 
-export const SCOPES = {
+export const SCOPE = {
   SINGLETON: 'SINGLETON',
   TRANSIENT: 'TRANSIENT',
   REQUEST: 'REQUEST'
 } as const
 
-type AvailableTypes = keyof typeof TYPES
-type AvailableScopes = keyof typeof SCOPES
-type Injectable = {
-  value: any
-  type: AvailableTypes
-  scope: AvailableScopes
-}
+type AvailableTypes = keyof typeof TYPE
+type AvailableScopes = keyof typeof SCOPE
 
 type RequestCtx = {
   singletonCache: Map<string | symbol, any>
@@ -39,11 +36,51 @@ type ChildOptions = {
   shareSingletons?: boolean
 }
 
+type ClassOptions<
+  T extends new (...args: any[]) => T = new (...args: any[]) => any
+> = {
+  type: typeof TYPE.CLASS
+  scope: AvailableScopes
+  beforeResolve?: (data: {
+    ctx: Pumpa
+    value: new (...args: ConstructorParameters<T>) => T
+    deps?: ConstructorParameters<T>
+  }) => T
+  afterResolve?: (data: { value: InstanceType<T> }) => void
+}
+
+type FactoryOptions<
+  T extends (...args: any[]) => any = (...args: any[]) => any
+> = {
+  type: typeof TYPE.FACTORY
+  scope: AvailableScopes
+  beforeResolve?: (data: {
+    ctx: Pumpa
+    value: T
+    deps?: Parameters<T>
+  }) => ReturnType<T>
+  afterResolve?: (value: ReturnType<T>) => void
+}
+
+type ValueOptions = {
+  type: typeof TYPE.VALUE
+  scope: AvailableScopes
+}
+
+type ClassPoolData = ClassOptions & {
+  value: { new (...args: any[]): any; inject?: InjectionData }
+}
+
+type ValuePoolData = ValueOptions & { value: any }
+
+type FactoryPoolData = FactoryOptions & {
+  value: { (...args: any[]): any; inject?: InjectionData }
+}
+
+type PoolData = ValuePoolData | ClassPoolData | FactoryPoolData
+
 export class Pumpa {
-  protected pool: Map<
-    string | symbol,
-    { value: any; type: AvailableTypes; scope: AvailableScopes }
-  > = new Map()
+  protected pool: Map<string | symbol, PoolData> = new Map()
 
   protected singletonCache: Map<string | symbol, any> = new Map()
 
@@ -51,11 +88,7 @@ export class Pumpa {
 
   protected options: ChildOptions = { shareSingletons: false }
 
-  protected add(
-    key: string | symbol,
-    value: any,
-    info: { type: AvailableTypes; scope: AvailableScopes }
-  ): void {
+  protected add(key: string | symbol, value: any, info: PoolData): void {
     const dataHit = this.pool.get(key)
 
     if (dataHit) {
@@ -97,36 +130,42 @@ export class Pumpa {
 
   addValue(key: string | symbol, value: any): this {
     this.add(key, value, {
-      type: TYPES.VALUE,
-      scope: SCOPES.SINGLETON
+      type: TYPE.VALUE,
+      scope: SCOPE.SINGLETON,
+      value
     })
 
     return this
   }
 
-  addFactory(
+  addFactory<T extends (...args: any[]) => any>(
     key: string | symbol,
-    value: (...args: any[]) => any,
-    options?: { scope: AvailableScopes; optional?: boolean }
+    value: T,
+    options?: Partial<FactoryOptions<T>>
   ): this {
+    // @ts-expect-error generic constraint mismatch
     this.add(key, value, {
       ...options,
-      type: TYPES.FACTORY,
-      scope: options?.scope || SCOPES.TRANSIENT
+      type: TYPE.FACTORY,
+      scope: options?.scope || SCOPE.TRANSIENT,
+      value
     })
 
     return this
   }
 
-  addClass(
+  // T extends new (...args: any[]) => T = new (...args: any[]) => any
+  addClass<T extends new (...args: any[]) => any>(
     key: string | symbol,
-    value: any,
-    options?: { scope: AvailableScopes; optional?: boolean }
+    value: T,
+    options?: Partial<ClassOptions<T>>
   ): this {
+    // @ts-expect-error generic constraint mismatch
     this.add(key, value, {
       ...options,
-      type: TYPES.CLASS,
-      scope: options?.scope || SCOPES.TRANSIENT
+      type: TYPE.CLASS,
+      scope: options?.scope || SCOPE.TRANSIENT,
+      value
     })
 
     return this
@@ -146,8 +185,8 @@ export class Pumpa {
 
   protected getInjectable(
     key: string | symbol
-  ): { value: Injectable; fromParent: boolean } | undefined {
-    const value = this.pool.get(key)
+  ): { value: PoolData; fromParent: boolean } | undefined {
+    const value = this.pool.get(key)!
     if (value) return { value, fromParent: false }
 
     const parentValue = this.parent?.getInjectable(key)
@@ -213,7 +252,7 @@ export class Pumpa {
     let useLazy = false
 
     //values have no circular references
-    if (type !== TYPES.VALUE) {
+    if (type !== TYPE.VALUE) {
       const keySeen = ctx.requestedKeys.get(key)
 
       //if key has been seen
@@ -244,16 +283,16 @@ export class Pumpa {
     }
 
     let fn
-    if (type === TYPES.VALUE) {
+    if (type === TYPE.VALUE) {
       // resolve immediately - value type has no dependencies
       return value
     }
     if (useLazy) {
       fn = () => this.createLazy(key, type, ctx)
-    } else if (type === TYPES.CLASS) {
-      fn = () => this.createInstance(key, value, ctx)
+    } else if (type === TYPE.CLASS) {
+      fn = () => this.createInstance(key, data.value as ClassPoolData, ctx)
     } else {
-      fn = () => this.createFactory(key, value, ctx)
+      fn = () => this.createFactory(key, data.value as FactoryPoolData, ctx)
     }
 
     return this.run(scope, key, fn, ctx)
@@ -269,7 +308,7 @@ export class Pumpa {
         for (const k of key) {
           const doneDep = this._resolve(k.key, { ...k.options }, ctx)
           // @ts-expect-error needs type narrowing for "removeUndefined"
-          if (typeof doneDep === 'undefined' && options.removeUndefined) {
+          if (doneDep === undefined && options.removeUndefined) {
             continue
           }
           nested.push(doneDep)
@@ -302,8 +341,8 @@ export class Pumpa {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    const proxyTarget = type === TYPES.CLASS ? {} : function () {}
-    const proxy = createProxy(proxyTarget, type === TYPES.CLASS, key)
+    const proxyTarget = type === TYPE.CLASS ? {} : function () {}
+    const proxy = createProxy(proxyTarget, type === TYPE.CLASS, key)
 
     ctx.delayed.set(key, {
       proxy,
@@ -313,56 +352,66 @@ export class Pumpa {
     return proxy
   }
 
-  protected createInstance<T>(
-    key: string | symbol,
-    value: {
-      new (...args: any[]): T
-      inject: InjectionData
-    },
-    ctx: RequestCtx
-  ): T {
-    const deps = value.inject
-    let result
+  protected createInstance<
+    T extends { new (...args: any[]): any; inject: InjectionData }
+  >(key: string | symbol, data: ClassPoolData, ctx: RequestCtx): T {
+    return this.create(
+      key,
+      data,
+      ctx,
+      (value, deps) =>
+        // @ts-expect-error - todo narrow the type to ClassPoolData['value']
+        new value(...deps)
+    )
+  }
 
-    if (!deps) {
-      result = new value()
-    } else {
-      result = new value(...this.parseInjectionData(deps, ctx))
+  protected createFactory<
+    T extends { (...args: any[]): any; inject: InjectionData }
+  >(key: string | symbol, data: FactoryPoolData, ctx: RequestCtx): T {
+    return this.create(key, data, ctx, (value, deps) =>
+      // @ts-expect-error - todo narrow the type to FactoryPoolData['value']
+      value(...deps)
+    )
+  }
+
+  protected create(
+    key: string | symbol,
+    data: FactoryPoolData | ClassPoolData,
+    ctx: RequestCtx,
+    create: (
+      value: FactoryPoolData['value'] | ClassPoolData['value'],
+      deps: any[]
+    ) => void
+  ) {
+    const { beforeResolve, afterResolve, value } = data
+    const injectionData = value.inject
+    let resolvedDeps = []
+
+    if (injectionData) {
+      if (Array.isArray(injectionData)) {
+        resolvedDeps = this.resolveDeps(injectionData, ctx)
+      } else {
+        resolvedDeps = injectionData.fn(
+          this,
+          ...this.resolveDeps(injectionData.deps, ctx)
+        )
+      }
     }
+
+    const result = beforeResolve
+      ? beforeResolve({
+          ctx: this,
+          // @ts-expect-error type narrow between factory and class value
+          value,
+          deps: resolvedDeps
+        })
+      : create(value, resolvedDeps)
+
+    afterResolve ? afterResolve({ value: result }) : null
 
     ctx.requestedKeys.get(key)!.constructed = true
 
     return result
-  }
-
-  protected createFactory(
-    key: string | symbol,
-    value: {
-      (...args: any[]): any
-      inject: any[]
-    },
-    ctx: RequestCtx
-  ): (...args: any) => any {
-    const deps = value.inject
-    let result
-
-    if (!deps) {
-      result = value()
-    } else {
-      result = value(...this.parseInjectionData(deps, ctx))
-    }
-
-    ctx.requestedKeys.get(key)!.constructed = true
-
-    return result
-  }
-
-  protected parseInjectionData(data: InjectionData, ctx: RequestCtx) {
-    if (Array.isArray(data)) {
-      return this.resolveDeps(data, ctx)
-    }
-
-    return data.fn(this, ...this.resolveDeps(data.deps, ctx))
   }
 
   protected run(
@@ -371,27 +420,35 @@ export class Pumpa {
     fn: (...args: any[]) => any,
     ctx: RequestCtx
   ) {
-    if (scope === SCOPES.SINGLETON) {
+    if (scope === SCOPE.SINGLETON) {
       //if singleton and key is on the parent resolve the key via parent
       if (!this.pool.has(key) && this.options.shareSingletons) {
         return this.parent?.resolve(key)
       }
       const cachedValue = ctx.singletonCache.get(key)
-      if (cachedValue) {
-        return cachedValue
+      if (cachedValue !== undefined) {
+        return cachedValue === UNDEFINED_RESULT ? undefined : cachedValue
       } else {
-        const result = fn()
+        let result = fn()
+
+        if (result === undefined) {
+          result = UNDEFINED_RESULT
+        }
         this.singletonCache.set(key, result)
 
         return result
       }
     }
-    if (SCOPES.REQUEST === scope) {
+    if (SCOPE.REQUEST === scope) {
       const cachedValue = ctx.requestCache.get(key)
-      if (cachedValue) {
-        return cachedValue
+      if (cachedValue !== undefined) {
+        return cachedValue === UNDEFINED_RESULT ? undefined : cachedValue
       } else {
-        const result = fn()
+        let result = fn()
+
+        if (result === undefined) {
+          result = UNDEFINED_RESULT
+        }
         ctx.requestCache.set(key, result)
 
         return result
@@ -400,6 +457,7 @@ export class Pumpa {
 
     const result = fn()
 
+    //transient cache is only used for proxies
     ctx.transientCache.set(key, result)
 
     return result

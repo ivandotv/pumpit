@@ -1,4 +1,4 @@
-import { Pumpa, SCOPES } from '../../pumpa'
+import { Pumpa, SCOPE } from '../../pumpa'
 
 describe('Class instance with "transient" scope', () => {
   test('Default scope is "transient"', () => {
@@ -40,9 +40,7 @@ describe('Class instance with "transient" scope', () => {
       constructor(public testA: TestA, public testACopy: TestA) {}
     }
 
-    pumpa
-      .addClass(key, TestA, { scope: SCOPES.TRANSIENT })
-      .addClass(keyB, TestB)
+    pumpa.addClass(key, TestA, { scope: SCOPE.TRANSIENT }).addClass(keyB, TestB)
 
     const instance = pumpa.resolve<TestB>(keyB)
 

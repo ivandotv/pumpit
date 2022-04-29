@@ -1,4 +1,4 @@
-import { Pumpa, SCOPES } from '../../pumpa'
+import { Pumpa, SCOPE } from '../../pumpa'
 
 describe('Factory with "request" scope', () => {
   test('Return the same factory for a single resolve call', () => {
@@ -39,7 +39,7 @@ describe('Factory with "request" scope', () => {
     }
 
     pumpa
-      .addFactory(request_key, factory, { scope: SCOPES.REQUEST })
+      .addFactory(request_key, factory, { scope: SCOPE.REQUEST })
       .addClass(keyA, TestA)
       .addClass(keyB, TestB)
       .addClass(keyC, TestC)
@@ -67,7 +67,7 @@ describe('Factory with "request" scope', () => {
       }
     }
 
-    pumpa.addFactory(key, factory, { scope: SCOPES.REQUEST })
+    pumpa.addFactory(key, factory, { scope: SCOPE.REQUEST })
 
     const instanceA = pumpa.resolve<Fn>(key)
     const instanceB = pumpa.resolve<Fn>(key)

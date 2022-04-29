@@ -1,5 +1,5 @@
 import { PROXY_TARGET } from '../proxy'
-import { Pumpa, SCOPES } from '../pumpa'
+import { Pumpa, SCOPE } from '../pumpa'
 import { get, getArray } from '../utils'
 
 describe('Circular dependency', () => {
@@ -120,8 +120,8 @@ describe('Circular dependency', () => {
       }
 
       pumpa
-        .addClass(keyA, TestA, { scope: SCOPES.SINGLETON })
-        .addClass(keyB, TestB, { scope: SCOPES.SINGLETON })
+        .addClass(keyA, TestA, { scope: SCOPE.SINGLETON })
+        .addClass(keyB, TestB, { scope: SCOPE.SINGLETON })
         .addClass(keyC, TestC)
 
       const instance = pumpa.resolve<TestB>(keyB)

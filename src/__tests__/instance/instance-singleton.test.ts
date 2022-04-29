@@ -1,4 +1,4 @@
-import { Pumpa, SCOPES } from '../../pumpa'
+import { Pumpa, SCOPE } from '../../pumpa'
 
 describe('Class singleton', () => {
   test('Same class instance is always returned', () => {
@@ -6,7 +6,7 @@ describe('Class singleton', () => {
     const key = 'some_key'
     class TestA {}
 
-    pumpa.addClass(key, TestA, { scope: SCOPES.SINGLETON })
+    pumpa.addClass(key, TestA, { scope: SCOPE.SINGLETON })
 
     const instanceA = pumpa.resolve(key)
     const instanceB = pumpa.resolve(key)
@@ -30,7 +30,7 @@ describe('Class singleton', () => {
     class TestC {}
 
     pumpa
-      .addClass(key, TestA, { scope: SCOPES.SINGLETON })
+      .addClass(key, TestA, { scope: SCOPE.SINGLETON })
       .addClass(keyB, TestB)
       .addClass(keyC, TestC)
 
@@ -58,7 +58,7 @@ describe('Class singleton', () => {
     class TestC {}
 
     pumpa
-      .addClass(key, TestA, { scope: SCOPES.SINGLETON })
+      .addClass(key, TestA, { scope: SCOPE.SINGLETON })
       .addClass(keyB, TestB)
       .addClass(keyC, TestC)
 

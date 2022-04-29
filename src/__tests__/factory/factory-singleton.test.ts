@@ -1,4 +1,4 @@
-import { Pumpa, SCOPES } from '../../pumpa'
+import { Pumpa, SCOPE } from '../../pumpa'
 
 describe('Singleton factory', () => {
   test('Same factory is always returned', () => {
@@ -16,7 +16,7 @@ describe('Singleton factory', () => {
       }
     }
 
-    pumpa.addFactory(key, factory, { scope: SCOPES.SINGLETON })
+    pumpa.addFactory(key, factory, { scope: SCOPE.SINGLETON })
 
     const instanceA = pumpa.resolve<Fn>(key)
     const instanceB = pumpa.resolve<Fn>(key)
@@ -51,7 +51,7 @@ describe('Singleton factory', () => {
     factory.inject = [keyB, keyC]
 
     pumpa
-      .addFactory(key, factory, { scope: SCOPES.SINGLETON })
+      .addFactory(key, factory, { scope: SCOPE.SINGLETON })
       .addClass(keyB, TestB)
       .addClass(keyC, TestC)
 

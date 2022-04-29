@@ -1,4 +1,4 @@
-import { Pumpa, SCOPES } from '../../pumpa'
+import { Pumpa, SCOPE } from '../../pumpa'
 
 describe('Factory with "transient" scope', () => {
   test('Default scope is "transient"', () => {
@@ -68,7 +68,7 @@ describe('Factory with "transient" scope', () => {
     }
 
     pumpa
-      .addFactory(key, factory, { scope: SCOPES.TRANSIENT })
+      .addFactory(key, factory, { scope: SCOPE.TRANSIENT })
       .addClass(keyB, TestB)
       .addClass(keyC, TestC)
 

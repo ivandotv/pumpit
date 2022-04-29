@@ -1,6 +1,6 @@
-import { isProxy } from '../proxy'
-import { Pumpa } from '../pumpa'
-import { get, getArray, transform } from '../utils'
+import { isProxy } from '../../proxy'
+import { Pumpa } from '../../pumpa'
+import { get, getArray, transform } from '../../utils'
 
 describe('post transform dependencies', () => {
   describe('Class', () => {
@@ -11,9 +11,9 @@ describe('post transform dependencies', () => {
       const keyB = Symbol()
       const keyC = Symbol()
 
-      const valueA = {}
-      const valueB = {}
-      const valueC = {}
+      const valueA = { name: 'a' }
+      const valueB = { name: 'b' }
+      const valueC = { name: 'c' }
 
       const transformFn = jest.fn().mockReturnValue([valueA, valueB, valueC])
 

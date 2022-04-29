@@ -1,4 +1,4 @@
-import { Pumpa, SCOPES } from '../../pumpa'
+import { Pumpa, SCOPE } from '../../pumpa'
 
 describe('Class instance with "request" scope', () => {
   test('Return the same instance for a single resolve call', () => {
@@ -31,7 +31,7 @@ describe('Class instance with "request" scope', () => {
     }
 
     pumpa
-      .addClass(request_key, RequestTest, { scope: SCOPES.REQUEST })
+      .addClass(request_key, RequestTest, { scope: SCOPE.REQUEST })
       .addClass(keyA, TestA)
       .addClass(keyB, TestB)
       .addClass(keyC, TestC)
@@ -52,7 +52,7 @@ describe('Class instance with "request" scope', () => {
     const key = 'some_key'
     class TestA {}
 
-    pumpa.addClass(key, TestA, { scope: SCOPES.REQUEST })
+    pumpa.addClass(key, TestA, { scope: SCOPE.REQUEST })
 
     const instanceA = pumpa.resolve(key)
     const instanceB = pumpa.resolve(key)
@@ -75,7 +75,7 @@ describe('Class instance with "request" scope', () => {
     }
 
     pumpa
-      .addClass(request_key, RequestTest, { scope: SCOPES.REQUEST })
+      .addClass(request_key, RequestTest, { scope: SCOPE.REQUEST })
       .addClass(keyC, TestC)
 
     const instanceOne = pumpa.resolve<TestC>(keyC)
