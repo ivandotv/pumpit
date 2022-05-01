@@ -1,13 +1,13 @@
 import { createProxy } from './proxy'
-import type { AvailableScopes, AvailableTypes, ChildOptions } from './types'
-import {
+import type {
+  AvailableScopes,
+  AvailableTypes,
+  ChildOptions,
   ClassOptions,
-  ClassPoolData,
   FactoryOptions,
-  FactoryPoolData,
-  PoolData,
   RequestCtx
-} from './types-internal'
+} from './types'
+import { ClassPoolData, FactoryPoolData, PoolData } from './types-internal'
 import { Injection, InjectionData, parseInjectionData } from './utils'
 
 //track undefined values from factory
