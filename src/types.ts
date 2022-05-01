@@ -21,29 +21,41 @@ export type RequestCtx = {
 }
 
 export type ClassOptions<
-  T extends new (...args: any[]) => T = new (...args: any[]) => any
+  T extends new (...args: any[]) => any,
+  K extends AvailableScopes = 'TRANSIENT'
 > = {
   type: typeof TYPE.CLASS
-  scope: AvailableScopes
+  scope: K
   beforeResolve?: (data: {
     container: Pumpa
     value: new (...args: ConstructorParameters<T>) => T
     deps?: ConstructorParameters<T>
   }) => T
   afterResolve?: (data: { container: Pumpa; value: InstanceType<T> }) => void
+  unbind?: (data: {
+    container: Pumpa
+    dispose: boolean
+    value: K extends 'SINGLETON' ? InstanceType<T> : undefined
+  }) => void
 }
 
 export type FactoryOptions<
-  T extends (...args: any[]) => any = (...args: any[]) => any
+  T extends (...args: any[]) => any,
+  K extends AvailableScopes
 > = {
   type: typeof TYPE.FACTORY
-  scope: AvailableScopes
+  scope: K
   beforeResolve?: (data: {
     container: Pumpa
     value: T
     deps?: Parameters<T>
   }) => ReturnType<T>
   afterResolve?: (data: { container: Pumpa; value: ReturnType<T> }) => void
+  unbind?: (data: {
+    container: Pumpa
+    dispose: boolean
+    value: K extends 'SINGLETON' ? ReturnType<T> : undefined
+  }) => void
 }
 
 export type ValueOptions = {

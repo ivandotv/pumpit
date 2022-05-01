@@ -45,6 +45,56 @@ describe('Unbind', () => {
     expect(disposeCall).toHaveBeenCalled()
   })
 
+  test('unbind factory and call the "dispose" callback', () => {
+    const pumpa = new Pumpa()
+    const keyA = Symbol('key_a')
+
+    const factory = () => {
+      return {}
+    }
+
+    const unbindCallback = jest.fn()
+
+    pumpa.bindFactory(keyA, factory, {
+      scope: 'SINGLETON',
+      unbind: unbindCallback
+    })
+
+    const factoryValue = pumpa.resolve(keyA)
+
+    pumpa.unbind(keyA)
+
+    expect(unbindCallback).toHaveBeenCalledWith({
+      container: pumpa,
+      dispose: true,
+      value: factoryValue
+    })
+  })
+
+  test('dispose callback value is empty when the bound value is not a singleton', () => {
+    const pumpa = new Pumpa()
+    const keyA = Symbol('key_a')
+
+    const factory = () => {
+      return {}
+    }
+
+    const unbindCallback = jest.fn()
+
+    pumpa.bindFactory(keyA, factory, {
+      unbind: unbindCallback
+    })
+    pumpa.resolve(keyA)
+
+    pumpa.unbind(keyA)
+
+    expect(unbindCallback).toHaveBeenCalledWith({
+      container: pumpa,
+      dispose: true,
+      value: undefined
+    })
+  })
+
   test('unbind factory and do not call the "dispose" method', () => {
     const pumpa = new Pumpa()
     const keyA = Symbol('key_a')
@@ -104,6 +154,57 @@ describe('Unbind', () => {
     expect(pumpa.has(keyA)).toBe(false)
     expect(() => pumpa.resolve(keyA)).toThrowError('not found')
     expect(disposeCall).toHaveBeenCalled()
+  })
+
+  test('unbind class and call the "dispose" callback', () => {
+    const pumpa = new Pumpa()
+    const keyA = Symbol('key_a')
+
+    class TestA {}
+
+    const unbindCallback = jest.fn()
+
+    pumpa.bindClass(keyA, TestA, {
+      scope: 'SINGLETON',
+      unbind: unbindCallback
+    })
+
+    const instance = pumpa.resolve(keyA)
+
+    pumpa.unbind(keyA)
+
+    expect(unbindCallback).toHaveBeenCalledWith({
+      container: pumpa,
+      dispose: true,
+      value: instance
+    })
+  })
+
+  test('dispose callback value is empty when the bound class is not a singleton', () => {
+    const pumpa = new Pumpa()
+    const keyA = Symbol('key_a')
+
+    class TestA {
+      hello() {
+        return 'hello'
+      }
+    }
+
+    const unbindCallback = jest.fn()
+
+    pumpa.bindClass(keyA, TestA, {
+      scope: 'TRANSIENT',
+      unbind: unbindCallback
+    })
+
+    pumpa.resolve(keyA)
+    pumpa.unbind(keyA)
+
+    expect(unbindCallback).toHaveBeenCalledWith({
+      container: pumpa,
+      dispose: true,
+      value: undefined
+    })
   })
 
   test('unbind class and do not call the "dispose" method', () => {

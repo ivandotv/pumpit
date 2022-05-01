@@ -45,17 +45,23 @@ export class Pumpa {
     this.pool.set(key, { ...info, value })
   }
 
-  unbind(key: string | symbol, callDispose = true): void {
-    const found = this.pool.get(key)
+  unbind(key: string | symbol, dispose = true): void {
+    // @ts-expect-error -unbind does not exist on ValueOptions
+    const { value, unbind } = this.pool.get(key) ?? {}
+    const singleton = this.singletonCache.get(key)
+    const payload = {
+      dispose,
+      container: this,
+      value: singleton
+    }
 
-    if (found) {
+    if (value) {
       this.pool.delete(key)
-      const value = this.singletonCache.get(key)
-      if (value) {
-        this.singletonCache.delete(key)
-        if (callDispose) {
-          this.callDispose(value)
-        }
+      this.singletonCache.delete(key)
+
+      unbind && unbind(payload)
+      if (singleton && dispose) {
+        this.callDispose(singleton)
       }
 
       return
@@ -106,12 +112,15 @@ export class Pumpa {
     return this
   }
 
-  bindFactory<T extends (...args: any[]) => any>(
+  bindFactory<
+    T extends (...args: any[]) => any = (...args: any[]) => any,
+    K extends AvailableScopes = 'TRANSIENT'
+  >(
     key: string | symbol,
     value: T,
-    options?: Omit<Partial<FactoryOptions<T>>, 'type'>
+    options?: Omit<Partial<FactoryOptions<T, K>>, 'type'>
   ): this {
-    // @ts-expect-error generic constraint mismatch
+    // @ts-expect-error generic constraint problem
     this.add(key, value, {
       ...options,
       type: TYPE.FACTORY,
@@ -122,13 +131,15 @@ export class Pumpa {
     return this
   }
 
-  // T extends new (...args: any[]) => T = new (...args: any[]) => any
-  bindClass<T extends new (...args: any[]) => any>(
+  bindClass<
+    T extends new (...args: any[]) => any = new (...args: any[]) => any,
+    K extends AvailableScopes = 'TRANSIENT'
+  >(
     key: string | symbol,
     value: T,
-    options?: Omit<Partial<ClassOptions<T>>, 'type'>
+    options?: Omit<Partial<ClassOptions<T, K>>, 'type'>
   ): this {
-    // @ts-expect-error generic constraint mismatch
+    // @ts-expect-error generic constraint problem
     this.add(key, value, {
       ...options,
       type: TYPE.CLASS,
