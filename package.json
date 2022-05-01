@@ -6,12 +6,14 @@
   "private": true,
   "author": "Ivan Vlatkovic",
   "license": "MIT",
-  "main": "./dist/prod/pumpa.js",
-  "module": "./dist/prod/pumpa.modern.mjs",
+  "type": "module",
+  "main": "./dist/prod/index.cjs",
+  "module": "./dist/prod/index.modern.js",
+  "umd:main": "./dist/prod/index.umd.js",
   "exports": {
-    "require": "./dist/prod/pumpa.js",
-    "development": "./dist/dev/pumpa.modern.mjs",
-    "default": "./dist/prod/pumpa.modern.mjs"
+    "require": "./dist/prod/index.cjs",
+    "development": "./dist/dev/index.modern.js",
+    "default": "./dist/prod/index.modern.js"
   },
   "types": "./dist/types/index.d.ts",
   "files": [
@@ -25,10 +27,10 @@
     "test": "jest --verbose --coverage",
     "test:watch": "jest --watch",
     "test:ci": "jest --runInBand --ci --coverage --coverageDirectory=coverage",
-    "build:prod": "cross-env NODE_ENV=production microbundle --tsconfig ./tsconfig.json  --format modern,cjs  --output dist/prod",
-    "build:dev": "cross-env NODE_ENV=development microbundle --define process.env.NODE_ENV=development --tsconfig ./tsconfig.json --generateTypes false --format modern --output dist/dev",
+    "build:prod": "cross-env NODE_ENV=production microbundle --tsconfig ./tsconfig.json  --format modern,cjs  --output dist/prod/index.js",
+    "build:dev": "cross-env NODE_ENV=development microbundle --define process.env.NODE_ENV=development --tsconfig ./tsconfig.json --generateTypes false --format modern --output dist/dev/index.js",
     "build": "rm -rf ./dist && pnpm build:dev && pnpm build:prod",
-    "gen:docs": "rm -rf ./docs/api && typedoc",
+    "gen:docs": "rm -rf ./docs/api && typedoc --options typedoc.cjs",
     "prepublishOnly": "pnpm build",
     "prepare": "husky install",
     "release": "pnpm run prepublishOnly && pnpm changeset publish"
