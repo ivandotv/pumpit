@@ -168,6 +168,41 @@ describe('Unbind', () => {
       expect(factoryDisposeCall).toHaveBeenCalledTimes(1)
       expect(classDisposeCall).not.toHaveBeenCalled()
     })
+
+    test('do not call the dispose method', () => {
+      const pumpa = new Pumpa()
+      const factoryKey = Symbol('a')
+      const classKey = Symbol('b')
+      const valueKey = Symbol('c')
+
+      const classDisposeCall = jest.fn()
+      class TestA {
+        dispose() {
+          classDisposeCall()
+        }
+      }
+
+      const factoryDisposeCall = jest.fn()
+      const factory = () => {
+        const functionToReturn = () => {}
+
+        functionToReturn.dispose = factoryDisposeCall
+
+        return functionToReturn
+      }
+
+      const value = { name: 'ivan' }
+
+      pumpa.bindFactory(factoryKey, factory, { scope: 'SINGLETON' })
+      pumpa.bindClass(classKey, TestA, { scope: 'SINGLETON' })
+      pumpa.bindValue(valueKey, value)
+
+      pumpa.resolve(factoryKey)
+      pumpa.unbindAll(false)
+
+      expect(factoryDisposeCall).not.toHaveBeenCalled()
+      expect(classDisposeCall).not.toHaveBeenCalled()
+    })
   })
 
   test('when singleton instances are cleared, singletons are created again', () => {
