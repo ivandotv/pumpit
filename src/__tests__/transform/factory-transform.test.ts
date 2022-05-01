@@ -15,7 +15,7 @@ describe('Resolve transform factory', () => {
 
       pumpa.bindValue(keyB, valueB)
       pumpa.bindFactory(keyA, factoryValue, {
-        beforeResolve: ({ ctx: injector, value: factory, deps }) => {
+        beforeResolve: ({ container: injector, value: factory, deps }) => {
           expect(injector).toBe(pumpa)
           expect(factory).toBe(factory)
           expect(deps).toEqual([valueB])
@@ -178,7 +178,10 @@ describe('Resolve transform factory', () => {
 
       pumpa.resolve(keyA)
 
-      expect(afterResolve).toHaveBeenCalledWith({ value: factoryReturnValue })
+      expect(afterResolve).toHaveBeenCalledWith({
+        container: pumpa,
+        value: factoryReturnValue
+      })
     })
 
     test('runs once when the scope is "singleton"', () => {

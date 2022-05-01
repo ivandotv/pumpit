@@ -26,11 +26,11 @@ export type ClassOptions<
   type: typeof TYPE.CLASS
   scope: AvailableScopes
   beforeResolve?: (data: {
-    ctx: Pumpa
+    container: Pumpa
     value: new (...args: ConstructorParameters<T>) => T
     deps?: ConstructorParameters<T>
   }) => T
-  afterResolve?: (data: { value: InstanceType<T> }) => void
+  afterResolve?: (data: { container: Pumpa; value: InstanceType<T> }) => void
 }
 
 export type FactoryOptions<
@@ -39,11 +39,11 @@ export type FactoryOptions<
   type: typeof TYPE.FACTORY
   scope: AvailableScopes
   beforeResolve?: (data: {
-    ctx: Pumpa
+    container: Pumpa
     value: T
     deps?: Parameters<T>
   }) => ReturnType<T>
-  afterResolve?: (value: ReturnType<T>) => void
+  afterResolve?: (data: { container: Pumpa; value: ReturnType<T> }) => void
 }
 
 export type ValueOptions = {

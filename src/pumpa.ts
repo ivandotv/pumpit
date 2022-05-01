@@ -368,14 +368,14 @@ export class Pumpa {
 
     const result = beforeResolve
       ? beforeResolve({
-          ctx: this,
+          container: this,
           // @ts-expect-error type narrow between factory and class value
           value,
           deps: resolvedDeps
         })
       : create(value, resolvedDeps)
 
-    afterResolve ? afterResolve({ value: result }) : null
+    afterResolve ? afterResolve({ container: this, value: result }) : null
 
     ctx.requestedKeys.get(key)!.constructed = true
 

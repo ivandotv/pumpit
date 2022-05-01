@@ -17,7 +17,7 @@ describe('Class transform', () => {
 
       pumpa.bindValue(keyB, valueB)
       pumpa.bindClass(keyA, TestA, {
-        beforeResolve: ({ ctx: injector, value: constructor, deps }) => {
+        beforeResolve: ({ container: injector, value: constructor, deps }) => {
           expect(injector).toBe(pumpa)
           expect(constructor).toBe(TestA)
           expect(deps).toEqual([valueB])
@@ -49,7 +49,7 @@ describe('Class transform', () => {
 
       pumpa.bindValue(keyB, valueB)
       pumpa.bindClass(keyA, TestA, {
-        beforeResolve: ({ ctx: injector, value: constructor, deps }) => {
+        beforeResolve: ({ container: injector, value: constructor, deps }) => {
           expect(injector).toBe(pumpa)
           expect(constructor).toBe(TestA)
           expect(deps).toEqual([transformedValue])
@@ -252,7 +252,10 @@ describe('Class transform', () => {
 
       const instance = pumpa.resolve<TestA>(keyA)
 
-      expect(afterResolve).toHaveBeenCalledWith({ value: instance })
+      expect(afterResolve).toHaveBeenCalledWith({
+        container: pumpa,
+        value: instance
+      })
     })
 
     test('Runs once when the scope is "singleton"', () => {
