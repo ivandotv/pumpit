@@ -6,13 +6,15 @@ export type ChildOptions = {
   shareSingletons?: boolean
 }
 
+export type BindKey = string | symbol | Record<string, any>
+
 export type RequestCtx = {
-  singletonCache: Map<string | symbol, any>
-  requestCache: Map<string | symbol, any>
-  transientCache: Map<string | symbol, any>
-  requestedKeys: Map<string | symbol, { constructed: boolean; value: any }>
+  singletonCache: Map<BindKey, any>
+  requestCache: Map<BindKey, any>
+  transientCache: Map<BindKey, any>
+  requestedKeys: Map<BindKey, { constructed: boolean; value: any }>
   delayed: Map<
-    string | symbol,
+    BindKey,
     {
       proxy: Record<string, any>
       proxyTarget: Record<string, { current: any }> | { (): any; current: any }

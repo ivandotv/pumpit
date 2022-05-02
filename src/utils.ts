@@ -1,10 +1,16 @@
-export const TRANSFORM_DEPS = Symbol()
 import { IS_PROXY } from './proxy'
+import { BindKey } from './types'
+
+//detect transfom action function
+export const TRANSFORM_DEPS = Symbol()
+
+//detect injection function
+const INJECTION_FN = Symbol()
 
 export type ParsedInjectionData =
-  | { key: string | symbol; options: { optional?: boolean; lazy?: boolean } } //get
+  | { key: BindKey; options: { optional?: boolean; lazy?: boolean } } //get
   | {
-      key: { key: string | symbol; options: { optional?: boolean } }[] //getArray
+      key: { key: BindKey; options: { optional?: boolean } }[] //getArray
       options: {
         optional?: boolean
         removeUndefined?: boolean
@@ -13,8 +19,7 @@ export type ParsedInjectionData =
     }
 
 export type Injection =
-  | string
-  | symbol
+  | BindKey
   | ReturnType<typeof get>
   | ReturnType<typeof getArray>
 
@@ -23,28 +28,33 @@ export type InjectionData =
   | { action: symbol; fn: (...args: any) => any; deps: Injection[] }
 
 export function get(
-  key: string | symbol,
+  key: BindKey,
   options?: {
     optional?: boolean
     lazy?: boolean
   }
 ) {
-  return () => {
+  const getCall = () => {
     return {
       key,
       options: { ...options }
     }
   }
+
+  // @ts-expect-error -  using symbol as index type
+  getCall[INJECTION_FN] = INJECTION_FN
+
+  return getCall
 }
 
 export function getArray(
-  deps: (string | symbol | ReturnType<typeof get>)[],
+  deps: (BindKey | ReturnType<typeof get>)[],
   options?: {
     removeUndefined?: boolean
     setToUndefinedIfEmpty?: boolean
   }
 ) {
-  return () => {
+  const getArrayCall = () => {
     const result = []
     for (const dep of deps) {
       result.push(parseInjectionData(dep))
@@ -58,14 +68,24 @@ export function getArray(
       }
     }
   }
+
+  // @ts-expect-error -  using symbol as index type
+  getArrayCall[INJECTION_FN] = INJECTION_FN
+
+  return getArrayCall
+}
+
+function isInjectionFn(
+  value: any
+): value is ReturnType<typeof get> | ReturnType<typeof getArray> {
+  return Boolean(value[INJECTION_FN])
 }
 
 export function parseInjectionData(key: Injection): ParsedInjectionData {
-  if (typeof key === 'function') {
+  if (isInjectionFn(key)) {
     const ex = key()
 
     return {
-      // @ts-expect-error type missmatch
       key: ex.key,
       options: ex.options || {}
     }
@@ -85,4 +105,9 @@ export function transform(deps: any[], fn: (...args: any[]) => any[]) {
 export function isProxy(target: Record<string, any>) {
   // @ts-expect-error - using symbol as index signature for object
   return !!target[IS_PROXY]
+}
+
+export function keyToString(key: BindKey) {
+  // @ts-expect-error name does not exist on string or symbol
+  return String(key.name || key)
 }

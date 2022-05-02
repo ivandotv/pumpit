@@ -6,7 +6,7 @@ describe('Inject array of values as a single dependency', () => {
     const pumpa = new Pumpa()
     const keyOne = 'key_one'
     const valueOne = 'hello'
-    const keyTwo = 'key_two'
+    const keyTwo = Symbol('key_two')
     const valueTwo = 2
 
     class TestA {

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import { Pumpa } from '../pumpa'
-import { get } from '../utils'
+import { get, getArray } from '../utils'
 
 describe('Optional injection', () => {
   test('injection does not throw', () => {
@@ -149,5 +149,59 @@ describe('Optional injection', () => {
     expect(resolvedClass).toBeInstanceOf(TestA)
     expect(resolvedFactory()).toBe(factoryReturnValue)
     expect(resolvedValue).toBe(value)
+  })
+
+  test('values can be bound via any object', () => {
+    const pumpa = new Pumpa()
+    class TestA {}
+
+    const objectKey = {}
+    const classKey = TestA
+    const functionKey = () => {}
+
+    pumpa.bindClass(objectKey, TestA)
+    pumpa.bindClass(classKey, TestA)
+    pumpa.bindClass(functionKey, TestA)
+
+    const objectKeyInstance = pumpa.resolve(objectKey)
+    const classKeyInstance = pumpa.resolve(classKey)
+    const functionKeyInstance = pumpa.resolve(functionKey)
+
+    expect(objectKeyInstance).toBeInstanceOf(TestA)
+    expect(classKeyInstance).toBeInstanceOf(TestA)
+    expect(functionKeyInstance).toBeInstanceOf(TestA)
+  })
+
+  test('injection values can be any object', () => {
+    const pumpa = new Pumpa()
+
+    class TestA {}
+    class TestB {}
+    class TestC {}
+
+    const classKeyA = TestA
+    const objectKeyB = {}
+    const functionKeyC = () => {}
+    const keyD = Symbol()
+
+    class TestD {
+      constructor(public a: TestA, public bc: [TestB, TestC]) {}
+
+      static inject = [
+        get(classKeyA),
+        getArray([get(objectKeyB), functionKeyC])
+      ]
+    }
+
+    pumpa.bindClass(classKeyA, TestA)
+    pumpa.bindClass(objectKeyB, TestB)
+    pumpa.bindClass(functionKeyC, TestC)
+    pumpa.bindClass(keyD, TestD)
+
+    const instance = pumpa.resolve<TestD>(keyD)
+
+    expect(instance.a).toBeInstanceOf(TestA)
+    expect(instance.bc[0]).toBeInstanceOf(TestB)
+    expect(instance.bc[1]).toBeInstanceOf(TestC)
   })
 })

@@ -5,10 +5,16 @@ import type {
   ChildOptions,
   ClassOptions,
   FactoryOptions,
-  RequestCtx
+  RequestCtx,
+  BindKey
 } from './types'
 import { ClassPoolData, FactoryPoolData, PoolData } from './types-internal'
-import { Injection, InjectionData, parseInjectionData } from './utils'
+import {
+  Injection,
+  InjectionData,
+  parseInjectionData,
+  keyToString
+} from './utils'
 
 //track undefined values from factory
 const UNDEFINED_RESULT = Symbol()
@@ -28,24 +34,24 @@ export const SCOPE = {
 } as const
 
 export class Pumpa {
-  protected pool: Map<string | symbol, PoolData> = new Map()
+  protected pool: Map<BindKey, PoolData> = new Map()
 
-  protected singletonCache: Map<string | symbol, any> = new Map()
+  protected singletonCache: Map<BindKey, any> = new Map()
 
   protected parent: this | undefined
 
   protected options: ChildOptions = { shareSingletons: false }
 
-  protected add(key: string | symbol, value: any, info: PoolData): void {
+  protected add(key: BindKey, value: any, info: PoolData): void {
     const dataHit = this.pool.get(key)
 
     if (dataHit) {
-      throw new Error(`Key: ${String(key)} already exists`)
+      throw new Error(`Key: ${keyToString(key)} already exists`)
     }
     this.pool.set(key, { ...info, value })
   }
 
-  unbind(key: string | symbol, dispose = true): void {
+  unbind(key: BindKey, dispose = true): void {
     // @ts-expect-error -unbind does not exist on ValueOptions
     const { value, unbind } = this.pool.get(key) ?? {}
     const singleton = this.singletonCache.get(key)
@@ -66,7 +72,7 @@ export class Pumpa {
 
       return
     }
-    throw new Error(`Key: ${String(key)} not found`)
+    throw new Error(`Key: ${keyToString(key)} not found`)
   }
 
   unbindAll(callDispose = true) {
@@ -94,7 +100,7 @@ export class Pumpa {
     }
   }
 
-  has(key: string | symbol, searchParent = true): boolean {
+  has(key: BindKey, searchParent = true): boolean {
     if (searchParent && this.parent) {
       return this.getInjectable(key) ? true : false
     }
@@ -102,7 +108,7 @@ export class Pumpa {
     return this.pool.has(key)
   }
 
-  bindValue(key: string | symbol, value: any): this {
+  bindValue(key: BindKey, value: any): this {
     this.add(key, value, {
       type: TYPE.VALUE,
       scope: SCOPE.SINGLETON,
@@ -116,7 +122,7 @@ export class Pumpa {
     T extends (...args: any[]) => any = (...args: any[]) => any,
     K extends AvailableScopes = 'TRANSIENT'
   >(
-    key: string | symbol,
+    key: BindKey,
     value: T,
     options?: Omit<Partial<FactoryOptions<T, K>>, 'type'>
   ): this {
@@ -135,7 +141,7 @@ export class Pumpa {
     T extends new (...args: any[]) => any = new (...args: any[]) => any,
     K extends AvailableScopes = 'TRANSIENT'
   >(
-    key: string | symbol,
+    key: BindKey,
     value: T,
     options?: Omit<Partial<ClassOptions<T, K>>, 'type'>
   ): this {
@@ -163,7 +169,7 @@ export class Pumpa {
   }
 
   protected getInjectable(
-    key: string | symbol
+    key: BindKey
   ): { value: PoolData; fromParent: boolean } | undefined {
     const value = this.pool.get(key)!
     if (value) return { value, fromParent: false }
@@ -179,7 +185,7 @@ export class Pumpa {
     return undefined
   }
 
-  resolve<T>(key: string | symbol): T {
+  resolve<T>(key: BindKey): T {
     const ctx: RequestCtx = {
       singletonCache: this.singletonCache,
       transientCache: new Map(),
@@ -202,14 +208,14 @@ export class Pumpa {
         return
       }
 
-      throw new Error(`Can't resolve lazy key: ${String(key)}`)
+      throw new Error(`Can't resolve lazy key: ${keyToString(key)}`)
     })
 
     return result
   }
 
   _resolve(
-    key: string | symbol,
+    key: BindKey,
     options: { optional?: boolean; lazy?: boolean },
     ctx: RequestCtx
   ): any {
@@ -220,7 +226,7 @@ export class Pumpa {
     }
 
     if (!data) {
-      throw new Error(`Key: ${String(key)} not found`)
+      throw new Error(`Key: ${keyToString(key)} not found`)
     }
 
     const {
@@ -250,7 +256,7 @@ export class Pumpa {
               : ''
 
             throw new Error(
-              `Circular reference detected: ${path} -> [ ${String(key)}: ${
+              `Circular reference detected: ${path} -> [ ${keyToString(key)}: ${
                 value.name
               } ]`
             )
@@ -309,11 +315,7 @@ export class Pumpa {
     return finalDeps
   }
 
-  protected createLazy(
-    key: string | symbol,
-    type: AvailableTypes,
-    ctx: RequestCtx
-  ) {
+  protected createLazy(key: BindKey, type: AvailableTypes, ctx: RequestCtx) {
     const cachedProxy = ctx.delayed.get(key)
     if (cachedProxy) {
       return cachedProxy.proxy
@@ -333,7 +335,7 @@ export class Pumpa {
 
   protected createInstance<
     T extends { new (...args: any[]): any; inject: InjectionData }
-  >(key: string | symbol, data: ClassPoolData, ctx: RequestCtx): T {
+  >(key: BindKey, data: ClassPoolData, ctx: RequestCtx): T {
     return this.create(
       key,
       data,
@@ -346,7 +348,7 @@ export class Pumpa {
 
   protected createFactory<
     T extends { (...args: any[]): any; inject: InjectionData }
-  >(key: string | symbol, data: FactoryPoolData, ctx: RequestCtx): T {
+  >(key: BindKey, data: FactoryPoolData, ctx: RequestCtx): T {
     return this.create(key, data, ctx, (value, deps) =>
       // @ts-expect-error - todo narrow the type to FactoryPoolData['value']
       value(...deps)
@@ -354,7 +356,7 @@ export class Pumpa {
   }
 
   protected create(
-    key: string | symbol,
+    key: BindKey,
     data: FactoryPoolData | ClassPoolData,
     ctx: RequestCtx,
     create: (
@@ -395,7 +397,7 @@ export class Pumpa {
 
   protected run(
     scope: AvailableScopes,
-    key: string | symbol,
+    key: BindKey,
     fn: (...args: any[]) => any,
     ctx: RequestCtx
   ) {

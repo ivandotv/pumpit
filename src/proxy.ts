@@ -1,12 +1,10 @@
+import { BindKey } from './types'
+
 export const PROXY_TARGET = Symbol()
 export const IS_PROXY = Symbol()
 
 /* istanbul ignore next: not all proxy methods can be easily covered */
-export function createProxy(
-  proxyTarget: any,
-  isClass: boolean,
-  key: string | symbol
-) {
+export function createProxy(proxyTarget: any, isClass: boolean, key: BindKey) {
   function checkCurrent() {
     if (!proxyTarget.current) {
       throw new Error(`Lazy target for key:${String(key)} not yet set`)
