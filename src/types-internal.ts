@@ -1,5 +1,6 @@
 import type {
   AvailableScopes,
+  BindKey,
   ClassOptions,
   FactoryOptions,
   ValueOptions
@@ -23,3 +24,17 @@ export type FactoryPoolData = FactoryOptions<
 }
 
 export type PoolData = ValuePoolData | ClassPoolData | FactoryPoolData
+
+export type RequestCtx = {
+  singletonCache: Map<BindKey, any>
+  requestCache: Map<BindKey, any>
+  transientCache: Map<BindKey, any>
+  requestedKeys: Map<BindKey, { constructed: boolean; value: any }>
+  delayed: Map<
+    BindKey,
+    {
+      proxy: Record<string, any>
+      proxyTarget: Record<string, { current: any }> | { (): any; current: any }
+    }
+  >
+}

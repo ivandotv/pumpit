@@ -5,9 +5,9 @@ import type {
   ChildOptions,
   ClassOptions,
   FactoryOptions,
-  RequestCtx,
   BindKey
 } from './types'
+import type { RequestCtx } from './types-internal'
 import { ClassPoolData, FactoryPoolData, PoolData } from './types-internal'
 import {
   Injection,

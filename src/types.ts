@@ -1,26 +1,15 @@
 import type { Pumpa } from './pumpa'
 import { SCOPE, TYPE } from './pumpa'
+
 export type AvailableTypes = keyof typeof TYPE
+
 export type AvailableScopes = keyof typeof SCOPE
+
 export type ChildOptions = {
   shareSingletons?: boolean
 }
 
 export type BindKey = string | symbol | Record<string, any>
-
-export type RequestCtx = {
-  singletonCache: Map<BindKey, any>
-  requestCache: Map<BindKey, any>
-  transientCache: Map<BindKey, any>
-  requestedKeys: Map<BindKey, { constructed: boolean; value: any }>
-  delayed: Map<
-    BindKey,
-    {
-      proxy: Record<string, any>
-      proxyTarget: Record<string, { current: any }> | { (): any; current: any }
-    }
-  >
-}
 
 export type ClassOptions<
   T extends new (...args: any[]) => any,
