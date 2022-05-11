@@ -40,6 +40,8 @@ export class Pumpa {
 
   protected parent: this | undefined
 
+  protected currentCtx: RequestCtx | null = null
+
   protected options: ChildOptions = { shareSingletons: false }
 
   protected add(key: BindKey, value: any, info: PoolData): void {
@@ -186,7 +188,7 @@ export class Pumpa {
   }
 
   resolve<T>(key: BindKey): T {
-    const ctx: RequestCtx = {
+    const ctx: RequestCtx = this.currentCtx || {
       singletonCache: this.singletonCache,
       transientCache: new Map(),
       requestCache: new Map(),
@@ -210,6 +212,8 @@ export class Pumpa {
 
       throw new Error(`Can't resolve lazy key: ${keyToString(key)}`)
     })
+
+    this.currentCtx = null
 
     return result
   }
