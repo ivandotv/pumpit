@@ -21,8 +21,13 @@ export type ClassOptions<
     container: Pumpa
     value: new (...args: ConstructorParameters<T>) => T
     deps?: ConstructorParameters<T>
+    resolveData?: Record<string, any>
   }) => T
-  afterResolve?: (data: { container: Pumpa; value: InstanceType<T> }) => void
+  afterResolve?: (data: {
+    container: Pumpa
+    value: InstanceType<T>
+    resolveData?: Record<string, any>
+  }) => void
   unbind?: (data: {
     container: Pumpa
     dispose: boolean
@@ -40,8 +45,13 @@ export type FactoryOptions<
     container: Pumpa
     value: T
     deps?: Parameters<T>
+    resolveData?: Record<string, any>
   }) => ReturnType<T>
-  afterResolve?: (data: { container: Pumpa; value: ReturnType<T> }) => void
+  afterResolve?: (data: {
+    container: Pumpa
+    value: ReturnType<T>
+    resolveData?: Record<string, any>
+  }) => void
   unbind?: (data: {
     container: Pumpa
     dispose: boolean

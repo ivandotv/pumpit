@@ -37,4 +37,6 @@ export type RequestCtx = {
       proxyTarget: Record<string, { current: any }> | { (): any; current: any }
     }
   >
+  resolveKey: BindKey
+  resolveData?: Record<string, any>
 }

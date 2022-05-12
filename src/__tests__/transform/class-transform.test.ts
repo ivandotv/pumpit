@@ -8,6 +8,7 @@ describe('Class transform', () => {
       const keyA = 'key_a'
       const keyB = Symbol()
       const valueB = { name: 'Ivan' }
+      const resolveCallbackData = { foo: 'bar' }
 
       class TestA {
         static inject = [keyB]
@@ -16,20 +17,64 @@ describe('Class transform', () => {
       }
 
       pumpa.bindValue(keyB, valueB)
+
       pumpa.bindClass(keyA, TestA, {
-        beforeResolve: ({ container: injector, value: constructor, deps }) => {
+        beforeResolve: ({
+          container: injector,
+          value: constructor,
+          deps,
+          resolveData
+        }) => {
           expect(injector).toBe(pumpa)
           expect(constructor).toBe(TestA)
           expect(deps).toEqual([valueB])
+          expect(resolveData).toBe(resolveCallbackData)
 
           return new constructor(...deps)
         }
       })
 
-      const instance = pumpa.resolve<TestA>(keyA)
+      const instance = pumpa.resolve<TestA>(keyA, {
+        resolveData: resolveCallbackData
+      })
 
-      expect.assertions(4)
+      expect.assertions(5)
       expect(instance.keyB).toBe(valueB)
+    })
+
+    test('resolve data is only passed to the resolve key', () => {
+      const pumpa = new Pumpa()
+      const keyA = 'key_a'
+      const keyB = Symbol()
+      const resolveCallbackData = { foo: 'bar' }
+
+      class TestA {
+        static inject = [keyB]
+
+        constructor(public keyB: TestB) {}
+      }
+
+      class TestB {}
+
+      pumpa
+        .bindClass(keyB, TestB, {
+          beforeResolve: ({ resolveData, value, deps }) => {
+            expect(resolveData).toBeUndefined()
+
+            return new value(...deps)
+          }
+        })
+        .bindClass(keyA, TestA, {
+          beforeResolve: ({ value, deps, resolveData }) => {
+            expect(resolveData).toBe(resolveCallbackData)
+
+            return new value(...deps)
+          }
+        })
+
+      pumpa.resolve<TestA>(keyA, { resolveData: resolveCallbackData })
+
+      expect.assertions(2)
     })
 
     test('receives correct parameters after injection transformation', () => {
@@ -236,6 +281,7 @@ describe('Class transform', () => {
       const keyA = 'key_a'
       const keyB = Symbol()
       const valueB = { name: 'Ivan' }
+      const resolveCallbackData = { foo: 'bar' }
 
       class TestA {
         static inject = [keyB]
@@ -250,14 +296,47 @@ describe('Class transform', () => {
         afterResolve
       })
 
-      const instance = pumpa.resolve<TestA>(keyA)
+      const instance = pumpa.resolve<TestA>(keyA, {
+        resolveData: resolveCallbackData
+      })
 
       expect(afterResolve).toHaveBeenCalledWith({
         container: pumpa,
-        value: instance
+        value: instance,
+        resolveData: resolveCallbackData
       })
     })
 
+    test('resolve data is only passed to the resolve key', () => {
+      const pumpa = new Pumpa()
+      const keyA = 'key_a'
+      const keyB = Symbol()
+      const resolveCallbackData = { foo: 'bar' }
+
+      class TestA {
+        static inject = [keyB]
+
+        constructor(public keyB: TestB) {}
+      }
+
+      class TestB {}
+
+      pumpa
+        .bindClass(keyB, TestB, {
+          afterResolve: ({ resolveData }) => {
+            expect(resolveData).toBeUndefined()
+          }
+        })
+        .bindClass(keyA, TestA, {
+          afterResolve: ({ resolveData }) => {
+            expect(resolveData).toBe(resolveCallbackData)
+          }
+        })
+
+      pumpa.resolve<TestA>(keyA, { resolveData: resolveCallbackData })
+
+      expect.assertions(2)
+    })
     test('Runs once when the scope is "singleton"', () => {
       const pumpa = new Pumpa()
       const keyA = 'key_a'
