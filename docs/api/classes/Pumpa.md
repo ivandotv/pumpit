@@ -1,4 +1,4 @@
-[pumpa](../README.md) / Pumpa
+[pumpit](../README.md) / Pumpa
 
 # Class: Pumpa
 
@@ -56,7 +56,7 @@ depends on the scope used.
 
 #### Defined in
 
-[pumpa.ts:170](https://github.com/ivandotv/pumpa/blob/07a378d/src/pumpa.ts#L170)
+[pumpa.ts:170](https://github.com/ivandotv/pumpa/blob/e80963d/src/pumpa.ts#L170)
 
 ___
 
@@ -87,7 +87,7 @@ Number of executions dependes on the scope used.
 
 #### Defined in
 
-[pumpa.ts:146](https://github.com/ivandotv/pumpa/blob/07a378d/src/pumpa.ts#L146)
+[pumpa.ts:146](https://github.com/ivandotv/pumpa/blob/e80963d/src/pumpa.ts#L146)
 
 ___
 
@@ -112,7 +112,7 @@ current pumpa instance
 
 #### Defined in
 
-[pumpa.ts:128](https://github.com/ivandotv/pumpa/blob/07a378d/src/pumpa.ts#L128)
+[pumpa.ts:128](https://github.com/ivandotv/pumpa/blob/e80963d/src/pumpa.ts#L128)
 
 ___
 
@@ -135,7 +135,7 @@ parent singleton values.
 
 #### Defined in
 
-[pumpa.ts:233](https://github.com/ivandotv/pumpa/blob/07a378d/src/pumpa.ts#L233)
+[pumpa.ts:233](https://github.com/ivandotv/pumpa/blob/e80963d/src/pumpa.ts#L233)
 
 ___
 
@@ -149,7 +149,7 @@ ___
 
 #### Defined in
 
-[pumpa.ts:96](https://github.com/ivandotv/pumpa/blob/07a378d/src/pumpa.ts#L96)
+[pumpa.ts:96](https://github.com/ivandotv/pumpa/blob/e80963d/src/pumpa.ts#L96)
 
 ___
 
@@ -165,7 +165,7 @@ Gets parent injector instance
 
 #### Defined in
 
-[pumpa.ts:244](https://github.com/ivandotv/pumpa/blob/07a378d/src/pumpa.ts#L244)
+[pumpa.ts:244](https://github.com/ivandotv/pumpa/blob/e80963d/src/pumpa.ts#L244)
 
 ___
 
@@ -186,7 +186,7 @@ ___
 
 #### Defined in
 
-[pumpa.ts:113](https://github.com/ivandotv/pumpa/blob/07a378d/src/pumpa.ts#L113)
+[pumpa.ts:113](https://github.com/ivandotv/pumpa/blob/e80963d/src/pumpa.ts#L113)
 
 ___
 
@@ -215,7 +215,7 @@ Resolve value that has previously been binded.
 
 #### Defined in
 
-[pumpa.ts:195](https://github.com/ivandotv/pumpa/blob/07a378d/src/pumpa.ts#L195)
+[pumpa.ts:195](https://github.com/ivandotv/pumpa/blob/e80963d/src/pumpa.ts#L195)
 
 ___
 
@@ -236,7 +236,7 @@ ___
 
 #### Defined in
 
-[pumpa.ts:62](https://github.com/ivandotv/pumpa/blob/07a378d/src/pumpa.ts#L62)
+[pumpa.ts:62](https://github.com/ivandotv/pumpa/blob/e80963d/src/pumpa.ts#L62)
 
 ___
 
@@ -256,4 +256,4 @@ ___
 
 #### Defined in
 
-[pumpa.ts:88](https://github.com/ivandotv/pumpa/blob/07a378d/src/pumpa.ts#L88)
+[pumpa.ts:88](https://github.com/ivandotv/pumpa/blob/e80963d/src/pumpa.ts#L88)

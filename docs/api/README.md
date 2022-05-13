@@ -1,6 +1,6 @@
-pumpa
+pumpit
 
-# pumpa
+# pumpit
 
 ## Table of contents
 
@@ -40,7 +40,7 @@ Available scopes that can be used
 
 #### Defined in
 
-[types.ts:8](https://github.com/ivandotv/pumpa/blob/07a378d/src/types.ts#L8)
+[types.ts:8](https://github.com/ivandotv/pumpa/blob/e80963d/src/types.ts#L8)
 
 ___
 
@@ -52,7 +52,7 @@ Available types that can be binded
 
 #### Defined in
 
-[types.ts:5](https://github.com/ivandotv/pumpa/blob/07a378d/src/types.ts#L5)
+[types.ts:5](https://github.com/ivandotv/pumpa/blob/e80963d/src/types.ts#L5)
 
 ___
 
@@ -64,7 +64,7 @@ Type of values that can be used for the bind key
 
 #### Defined in
 
-[types.ts:23](https://github.com/ivandotv/pumpa/blob/07a378d/src/types.ts#L23)
+[types.ts:23](https://github.com/ivandotv/pumpa/blob/e80963d/src/types.ts#L23)
 
 ___
 
@@ -82,7 +82,7 @@ Child injector options
 
 #### Defined in
 
-[types.ts:17](https://github.com/ivandotv/pumpa/blob/07a378d/src/types.ts#L17)
+[types.ts:17](https://github.com/ivandotv/pumpa/blob/e80963d/src/types.ts#L17)
 
 ___
 
@@ -111,7 +111,7 @@ Class bind options
 
 #### Defined in
 
-[types.ts:26](https://github.com/ivandotv/pumpa/blob/07a378d/src/types.ts#L26)
+[types.ts:26](https://github.com/ivandotv/pumpa/blob/e80963d/src/types.ts#L26)
 
 ___
 
@@ -138,7 +138,7 @@ ___
 
 #### Defined in
 
-[types.ts:65](https://github.com/ivandotv/pumpa/blob/07a378d/src/types.ts#L65)
+[types.ts:65](https://github.com/ivandotv/pumpa/blob/e80963d/src/types.ts#L65)
 
 ___
 
@@ -156,7 +156,7 @@ Resolve context that is used per request and passed to the callbacks
 
 #### Defined in
 
-[types.ts:11](https://github.com/ivandotv/pumpa/blob/07a378d/src/types.ts#L11)
+[types.ts:11](https://github.com/ivandotv/pumpa/blob/e80963d/src/types.ts#L11)
 
 ## Variables
 
@@ -179,7 +179,7 @@ REQUEST - value is resolved once per request [Pumpa.resolve()](classes/Pumpa.md#
 
 #### Defined in
 
-[pumpa.ts:36](https://github.com/ivandotv/pumpa/blob/07a378d/src/pumpa.ts#L36)
+[pumpa.ts:36](https://github.com/ivandotv/pumpa/blob/e80963d/src/pumpa.ts#L36)
 
 ___
 
@@ -199,7 +199,7 @@ Constants that represent the type of values that can be binded
 
 #### Defined in
 
-[pumpa.ts:25](https://github.com/ivandotv/pumpa/blob/07a378d/src/pumpa.ts#L25)
+[pumpa.ts:25](https://github.com/ivandotv/pumpa/blob/e80963d/src/pumpa.ts#L25)
 
 ## Functions
 
@@ -207,14 +207,16 @@ Constants that represent the type of values that can be binded
 
 ▸ **get**(`key`, `options?`): () => { `key`: [`BindKey`](README.md#bindkey) ; `options`: { `lazy?`: `boolean` ; `optional?`: `boolean`  }  }
 
+get dependency by key
+
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `key` | [`BindKey`](README.md#bindkey) |
-| `options?` | `Object` |
-| `options.lazy?` | `boolean` |
-| `options.optional?` | `boolean` |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `key` | [`BindKey`](README.md#bindkey) | dependency [BindKey](README.md#bindkey) |
+| `options?` | `Object` | options for the resove process |
+| `options.lazy?` | `boolean` | in case of circular dependency proxy object will be used |
+| `options.optional?` | `boolean` | if the dependency cannot be resolved *undefined* will be used |
 
 #### Returns
 
@@ -235,7 +237,7 @@ Constants that represent the type of values that can be binded
 
 #### Defined in
 
-[utils.ts:30](https://github.com/ivandotv/pumpa/blob/07a378d/src/utils.ts#L30)
+[utils.ts:35](https://github.com/ivandotv/pumpa/blob/e80963d/src/utils.ts#L35)
 
 ___
 
@@ -243,14 +245,16 @@ ___
 
 ▸ **getArray**(`deps`, `options?`): () => { `key`: ({ `key`: [`BindKey`](README.md#bindkey) ; `options`: { `lazy?`: `boolean` ; `optional?`: `boolean`  }  } \| { `key`: { `key`: [`BindKey`](README.md#bindkey) ; `options`: { `optional?`: `boolean`  }  }[] ; `options`: { `optional?`: `boolean` ; `removeUndefined?`: `boolean` ; `setToUndefinedIfEmpty?`: `boolean`  }  })[] = result; `options`: { `optional`: `boolean` = true; `removeUndefined?`: `boolean` ; `setToUndefinedIfEmpty?`: `boolean`  }  }
 
+Get an array of dependencies
+
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `deps` | ([`BindKey`](README.md#bindkey) \| () => { `key`: [`BindKey`](README.md#bindkey) ; `options`: { `lazy?`: `boolean` ; `optional?`: `boolean`  }  })[] |
-| `options?` | `Object` |
-| `options.removeUndefined?` | `boolean` |
-| `options.setToUndefinedIfEmpty?` | `boolean` |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `deps` | ([`BindKey`](README.md#bindkey) \| () => { `key`: [`BindKey`](README.md#bindkey) ; `options`: { `lazy?`: `boolean` ; `optional?`: `boolean`  }  })[] | dependencies to be injected see: [BindKey](README.md#bindkey) [get()](README.md#get) |
+| `options?` | `Object` | - |
+| `options.removeUndefined?` | `boolean` | if dependency in the array cannot be resolved, nothing will be added to the array in it's place |
+| `options.setToUndefinedIfEmpty?` | `boolean` | if the whole array is empty it will be set to **undefined**, otherwise an empty array will be injected |
 
 #### Returns
 
@@ -272,13 +276,15 @@ ___
 
 #### Defined in
 
-[utils.ts:50](https://github.com/ivandotv/pumpa/blob/07a378d/src/utils.ts#L50)
+[utils.ts:60](https://github.com/ivandotv/pumpa/blob/e80963d/src/utils.ts#L60)
 
 ___
 
 ### isProxy
 
 ▸ **isProxy**(`target`): `boolean`
+
+Helper function to detect if the object passed in is wrapped in injection proxy
 
 #### Parameters
 
@@ -292,7 +298,7 @@ ___
 
 #### Defined in
 
-[utils.ts:105](https://github.com/ivandotv/pumpa/blob/07a378d/src/utils.ts#L105)
+[utils.ts:129](https://github.com/ivandotv/pumpa/blob/e80963d/src/utils.ts#L129)
 
 ___
 
@@ -300,12 +306,15 @@ ___
 
 ▸ **transform**(`deps`, `fn`): `Object`
 
+Wrapper function for registering dependencies that can be manipulated before being injected
+It gets an array of dependeciens in injection order, and it should return an array
+
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `deps` | `any`[] |
-| `fn` | (...`args`: `any`[]) => `any`[] |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `deps` | ((`key`: [`BindKey`](README.md#bindkey), `options?`: { `lazy?`: `boolean` ; `optional?`: `boolean`  }) => () => { `key`: [`BindKey`](README.md#bindkey) ; `options`: { `lazy?`: `boolean` ; `optional?`: `boolean`  }  } \| [`BindKey`](README.md#bindkey) \| (`deps`: ([`BindKey`](README.md#bindkey) \| () => { `key`: [`BindKey`](README.md#bindkey) ; `options`: { `lazy?`: `boolean` ; `optional?`: `boolean`  }  })[], `options?`: { `removeUndefined?`: `boolean` ; `setToUndefinedIfEmpty?`: `boolean`  }) => () => { `key`: ({ `key`: [`BindKey`](README.md#bindkey) ; `options`: { `lazy?`: `boolean` ; `optional?`: `boolean`  }  } \| { `key`: { `key`: [`BindKey`](README.md#bindkey) ; `options`: { `optional?`: `boolean`  }  }[] ; `options`: { `optional?`: `boolean` ; `removeUndefined?`: `boolean` ; `setToUndefinedIfEmpty?`: `boolean`  }  })[] = result; `options`: { `optional`: `boolean` = true; `removeUndefined?`: `boolean` ; `setToUndefinedIfEmpty?`: `boolean`  }  })[] | array of dependencies that need to be satisfied see: [BindKey](README.md#bindkey) [get()](README.md#get) [getArray()](README.md#getarray) |
+| `fn` | (...`args`: `any`[]) => `any`[] | function that will be called with the resolved dependencies |
 
 #### Returns
 
@@ -314,9 +323,9 @@ ___
 | Name | Type |
 | :------ | :------ |
 | `action` | `symbol` |
-| `deps` | `any`[] |
+| `deps` | ((`key`: [`BindKey`](README.md#bindkey), `options?`: { `lazy?`: `boolean` ; `optional?`: `boolean`  }) => () => { `key`: [`BindKey`](README.md#bindkey) ; `options`: { `lazy?`: `boolean` ; `optional?`: `boolean`  }  } \| [`BindKey`](README.md#bindkey) \| (`deps`: ([`BindKey`](README.md#bindkey) \| () => { `key`: [`BindKey`](README.md#bindkey) ; `options`: { `lazy?`: `boolean` ; `optional?`: `boolean`  }  })[], `options?`: { `removeUndefined?`: `boolean` ; `setToUndefinedIfEmpty?`: `boolean`  }) => () => { `key`: ({ `key`: [`BindKey`](README.md#bindkey) ; `options`: { `lazy?`: `boolean` ; `optional?`: `boolean`  }  } \| { `key`: { `key`: [`BindKey`](README.md#bindkey) ; `options`: { `optional?`: `boolean`  }  }[] ; `options`: { `optional?`: `boolean` ; `removeUndefined?`: `boolean` ; `setToUndefinedIfEmpty?`: `boolean`  }  })[] = result; `options`: { `optional`: `boolean` = true; `removeUndefined?`: `boolean` ; `setToUndefinedIfEmpty?`: `boolean`  }  })[] |
 | `fn` | (...`args`: `any`[]) => `any`[] |
 
 #### Defined in
 
-[utils.ts:97](https://github.com/ivandotv/pumpa/blob/07a378d/src/utils.ts#L97)
+[utils.ts:115](https://github.com/ivandotv/pumpa/blob/e80963d/src/utils.ts#L115)
