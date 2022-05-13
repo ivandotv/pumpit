@@ -2,31 +2,37 @@ import { createProxy } from './proxy'
 import type {
   AvailableScopes,
   AvailableTypes,
+  BindKey,
   ChildOptions,
   ClassOptions,
   FactoryOptions,
-  BindKey
+  ResolveCtx
 } from './types'
 import type { RequestCtx } from './types-internal'
 import { ClassPoolData, FactoryPoolData, PoolData } from './types-internal'
 import {
   Injection,
   InjectionData,
-  parseInjectionData,
-  keyToString
+  keyToString,
+  parseInjectionData
 } from './utils'
 
 //track undefined values from factory
 const UNDEFINED_RESULT = Symbol()
 
 const DISPOSE_PROP = 'dispose'
-
+/** Constants that represent the type of values that can be binded*/
 export const TYPE = {
   VALUE: 'VALUE',
   CLASS: 'CLASS',
   FACTORY: 'FACTORY'
 } as const
 
+/** Constants that represent the type of scopes that can be used
+ * SINGLETON - value is resolved only once
+ * TRANSIENT - value is resolved everytime it is requested
+ * REQUEST - value is resolved once per request {@link Pumpa.resolve | Pumpa.resolve()}
+ */
 export const SCOPE = {
   SINGLETON: 'SINGLETON',
   TRANSIENT: 'TRANSIENT',
@@ -67,7 +73,9 @@ export class Pumpa {
       this.pool.delete(key)
       this.singletonCache.delete(key)
 
+      //call unbind callback
       unbind && unbind(payload)
+
       if (singleton && dispose) {
         this.callDispose(singleton)
       }
@@ -110,6 +118,13 @@ export class Pumpa {
     return this.pool.has(key)
   }
 
+  /**
+   * Binds value. Value is treated as a singleton and ti will always resolve to the same data (value)
+   *
+   * @param key - key to resolve binded value {@link BindKey}
+   * @param value - value to bind
+   * @returns current pumpa instance
+   */
   bindValue(key: BindKey, value: any): this {
     this.add(key, value, {
       type: TYPE.VALUE,
@@ -120,13 +135,18 @@ export class Pumpa {
     return this
   }
 
-  bindFactory<
-    T extends (...args: any[]) => any = (...args: any[]) => any,
-    K extends AvailableScopes = 'TRANSIENT'
-  >(
+  /**
+   * Binds a factory function. Function that is binded will be executed when resolved and the value will be returned.
+   * Number of executions dependes on the scope used.
+   *
+   * @param key - key to resolve binded value {@link BindKey | BindKey}
+   * @param value - factory function to bind
+   * @param options - bind options {@link FactoryOptions | FactoryOptions}
+   */
+  bindFactory<T extends (...args: any[]) => any = (...args: any[]) => any>(
     key: BindKey,
     value: T,
-    options?: Omit<Partial<FactoryOptions<T, K>>, 'type'>
+    options?: Omit<Partial<FactoryOptions<T, AvailableScopes>>, 'type'>
   ): this {
     // @ts-expect-error generic constraint problem
     this.add(key, value, {
@@ -139,13 +159,20 @@ export class Pumpa {
     return this
   }
 
+  /**
+   * Binds class. Class constructor that is binded will be executed with the "new" call when resolved. Number of executions
+   * depends on the scope used.
+   *
+   * @param key - key to resolve binded value {@link BindKey}
+   * @param value - class to bind
+   * @param options - bind options for factory {@link ClassOptions | ClassOptions}
+   */
   bindClass<
-    T extends new (...args: any[]) => any = new (...args: any[]) => any,
-    K extends AvailableScopes = 'TRANSIENT'
+    T extends new (...args: any[]) => any = new (...args: any[]) => any
   >(
     key: BindKey,
     value: T,
-    options?: Omit<Partial<ClassOptions<T, K>>, 'type'>
+    options?: Omit<Partial<ClassOptions<T, AvailableScopes>>, 'type'>
   ): this {
     // @ts-expect-error generic constraint problem
     this.add(key, value, {
@@ -158,36 +185,14 @@ export class Pumpa {
     return this
   }
 
-  child(options: ChildOptions = { shareSingletons: false }): this {
-    const child = new (this.constructor as new () => this)()
-    child.parent = this
-    child.options = options
-
-    return child
-  }
-
-  getParent(): Pumpa | undefined {
-    return this.parent
-  }
-
-  protected getInjectable(
-    key: BindKey
-  ): { value: PoolData; fromParent: boolean } | undefined {
-    const value = this.pool.get(key)!
-    if (value) return { value, fromParent: false }
-
-    const parentValue = this.parent?.getInjectable(key)
-    if (parentValue) {
-      return {
-        value: parentValue.value,
-        fromParent: true
-      }
-    }
-
-    return undefined
-  }
-
-  resolve<T>(key: BindKey, opts?: { data?: Record<string, any> }): T {
+  /**
+   * Resolve value that has previously been binded.
+   *
+   * @typeParam T - value that is going to be resolved
+   * @param key - key to search for {@link BindKey | BindKey}
+   * @param opts - options for the current resolve request {@link ResolveCtx | ResolveCtx}
+   */
+  resolve<T>(key: BindKey, opts?: ResolveCtx): T {
     const ctx: RequestCtx = this.currentCtx || {
       singletonCache: this.singletonCache,
       transientCache: new Map(),
@@ -219,7 +224,45 @@ export class Pumpa {
     return result
   }
 
-  _resolve(
+  /**
+   * Creates child Pumpa instance. Child injection instance is connected to the parent instance and it can use
+   * parent singleton values.
+   *
+   * @param options - child injector options {@link ChildOptions | ChildOptions}
+   */
+  child(options: ChildOptions = { shareSingletons: false }): this {
+    const child = new (this.constructor as new () => this)()
+    child.parent = this
+    child.options = options
+
+    return child
+  }
+
+  /**
+   * Gets parent injector instance
+   */
+  getParent(): Pumpa | undefined {
+    return this.parent
+  }
+
+  protected getInjectable(
+    key: BindKey
+  ): { value: PoolData; fromParent: boolean } | undefined {
+    const value = this.pool.get(key)!
+    if (value) return { value, fromParent: false }
+
+    const parentValue = this.parent?.getInjectable(key)
+    if (parentValue) {
+      return {
+        value: parentValue.value,
+        fromParent: true
+      }
+    }
+
+    return undefined
+  }
+
+  protected _resolve(
     key: BindKey,
     options: { optional?: boolean; lazy?: boolean },
     ctx: RequestCtx

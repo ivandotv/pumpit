@@ -1,18 +1,29 @@
+import { SCOPE, TYPE } from './pumpa'
 import type {
   AvailableScopes,
   BindKey,
   ClassOptions,
-  FactoryOptions,
-  ResolveCtx,
-  ValueOptions
+  FactoryOptions
 } from './types'
 import { InjectionData } from './utils'
+
+type InternalResolveCtx = {
+  data?: Record<string, any>
+}
 
 export type ClassPoolData = ClassOptions<
   new (...args: any[]) => any,
   AvailableScopes
 > & {
   value: { new (...args: any[]): any; inject?: InjectionData }
+}
+
+/** Availalbes types and scopes for simple values.
+ * Values that are binded with {@link Pumpa.bindValue | Pumpa.bindValue}
+ */
+export type ValueOptions = {
+  type: typeof TYPE.VALUE
+  scope: typeof SCOPE.SINGLETON
 }
 
 export type ValuePoolData = ValueOptions & { value: any }
@@ -38,5 +49,5 @@ export type RequestCtx = {
       proxyTarget: Record<string, { current: any }> | { (): any; current: any }
     }
   >
-  ctx?: ResolveCtx
+  ctx?: InternalResolveCtx
 }

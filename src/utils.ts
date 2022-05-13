@@ -27,10 +27,17 @@ export type InjectionData =
   | Injection[]
   | { action: symbol; fn: (...args: any) => any; deps: Injection[] }
 
+/**
+ * get dependency by key
+ * @param key - dependency {@link BindKey | BindKey}
+ * @param options - options for the resove process
+ */
 export function get(
   key: BindKey,
   options?: {
+    /** if the dependency cannot be resolved *undefined* will be used */
     optional?: boolean
+    /** in case of circular dependency proxy object will be used*/
     lazy?: boolean
   }
 ) {
@@ -46,11 +53,16 @@ export function get(
 
   return getCall
 }
-
+/**
+ * Get an array of dependencies
+ * @param deps  - dependencies to be injected see: {@link BindKey | BindKey} {@link get | get()}
+ */
 export function getArray(
   deps: (BindKey | ReturnType<typeof get>)[],
   options?: {
+    /** if dependency in the array cannot be resolved, nothing will be added to the array in it's place*/
     removeUndefined?: boolean
+    /** if the whole array is empty it will be set to **undefined**, otherwise an empty array will be injected*/
     setToUndefinedIfEmpty?: boolean
   }
 ) {
@@ -94,7 +106,16 @@ export function parseInjectionData(key: Injection): ParsedInjectionData {
   return { key, options: { optional: false } }
 }
 
-export function transform(deps: any[], fn: (...args: any[]) => any[]) {
+/**
+ * Wrapper function for registering dependencies that can be manipulated before being injected
+ * It gets an array of dependeciens in injection order, and it should return an array
+ * @param deps - array of dependencies that need to be satisfied see: {@link BindKey | BindKey} {@link get | get()} {@link getArray | getArray()}
+ * @param fn - function that will be called with the resolved dependencies
+ */
+export function transform(
+  deps: (BindKey | typeof get | typeof getArray)[],
+  fn: (...args: any[]) => any[]
+) {
   return {
     action: TRANSFORM_DEPS,
     fn: fn,
@@ -102,6 +123,9 @@ export function transform(deps: any[], fn: (...args: any[]) => any[]) {
   }
 }
 
+/**
+ * Helper function to detect if the object passed in is wrapped in injection proxy
+ */
 export function isProxy(target: Record<string, any>) {
   // @ts-expect-error - using symbol as index signature for object
   return !!target[IS_PROXY]
