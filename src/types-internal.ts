@@ -1,4 +1,4 @@
-import { SCOPE, TYPE } from './pumpa'
+import { SCOPE, TYPE } from './pumpit'
 import type {
   AvailableScopes,
   BindKey,
@@ -19,7 +19,7 @@ export type ClassPoolData = ClassOptions<
 }
 
 /** Availalbes types and scopes for simple values.
- * Values that are binded with {@link Pumpa.bindValue | Pumpa.bindValue}
+ * Values that are binded with {@link PumpIt.bindValue | PumpIt.bindValue}
  */
 export type ValueOptions = {
   type: typeof TYPE.VALUE

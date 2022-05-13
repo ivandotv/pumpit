@@ -1,22 +1,22 @@
-import { Pumpa, SCOPE } from '../../pumpa'
+import { PumpIt, SCOPE } from '../../pumpit'
 
 describe('Class with scope: singleton', () => {
   test('same class instance is always returned', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
     const key = 'some_key'
     class TestA {}
 
-    pumpa.bindClass(key, TestA, { scope: SCOPE.SINGLETON })
+    pumpIt.bindClass(key, TestA, { scope: SCOPE.SINGLETON })
 
-    const instanceA = pumpa.resolve(key)
-    const instanceB = pumpa.resolve(key)
+    const instanceA = pumpIt.resolve(key)
+    const instanceB = pumpIt.resolve(key)
 
     expect(instanceA).toBeInstanceOf(TestA)
     expect(instanceA).toBe(instanceB)
   })
 
   test('can register singleton with dependencies', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
     const key = 'some_key'
     const keyB = 'key_b'
     const keyC = 'key_c'
@@ -29,13 +29,13 @@ describe('Class with scope: singleton', () => {
     class TestB {}
     class TestC {}
 
-    pumpa
+    pumpIt
       .bindClass(key, TestA, { scope: SCOPE.SINGLETON })
       .bindClass(keyB, TestB)
       .bindClass(keyC, TestC)
 
-    const instanceOne = pumpa.resolve<TestA>(key)
-    const instanceTwo = pumpa.resolve<TestA>(key)
+    const instanceOne = pumpIt.resolve<TestA>(key)
+    const instanceTwo = pumpIt.resolve<TestA>(key)
 
     expect(instanceOne).toBeInstanceOf(TestA)
     expect(instanceOne).toBe(instanceTwo)
@@ -44,7 +44,7 @@ describe('Class with scope: singleton', () => {
   })
 
   test('singleton dependencies are cached', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
     const key = 'some_key'
     const keyB = 'key_b'
     const keyC = 'key_c'
@@ -57,13 +57,13 @@ describe('Class with scope: singleton', () => {
     class TestB {}
     class TestC {}
 
-    pumpa
+    pumpIt
       .bindClass(key, TestA, { scope: SCOPE.SINGLETON })
       .bindClass(keyB, TestB)
       .bindClass(keyC, TestC)
 
-    const instanceOne = pumpa.resolve<TestA>(key)
-    const instanceTwo = pumpa.resolve<TestA>(key)
+    const instanceOne = pumpIt.resolve<TestA>(key)
+    const instanceTwo = pumpIt.resolve<TestA>(key)
 
     expect(instanceOne.keyB).toBeInstanceOf(TestB)
     expect(instanceOne.keyC).toBeInstanceOf(TestC)

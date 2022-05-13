@@ -1,18 +1,18 @@
-import { Pumpa } from '../pumpa'
+import { PumpIt } from '../pumpit'
 import { get } from '../utils'
 
 describe('Child injector', () => {
   test('Create child injector', () => {
-    const parent = new Pumpa()
+    const parent = new PumpIt()
     const child = parent.child()
 
-    expect(child).toBeInstanceOf(Pumpa)
+    expect(child).toBeInstanceOf(PumpIt)
     expect(child).not.toBe(parent)
     expect(child.getParent()).toBe(parent)
   })
 
   test('Child injector inherits parent values', () => {
-    const parent = new Pumpa()
+    const parent = new PumpIt()
     const child = parent.child()
     const classKey = Symbol()
     const factoryKey = Symbol()
@@ -35,7 +35,7 @@ describe('Child injector', () => {
   })
 
   test('Child injector keys shadow parent keys', () => {
-    const parent = new Pumpa()
+    const parent = new PumpIt()
     const child = parent.child()
     const classKey = Symbol()
 
@@ -51,7 +51,7 @@ describe('Child injector', () => {
   })
 
   test('removing the value from child injector does not remove it from the parent', () => {
-    const parent = new Pumpa()
+    const parent = new PumpIt()
     const child = parent.child()
     const classKey = Symbol()
     class ParentClass {}
@@ -69,7 +69,7 @@ describe('Child injector', () => {
   describe('Singletons', () => {
     describe('Shared', () => {
       test('when the key is on the parent, singleton is created on the parent', () => {
-        const parent = new Pumpa()
+        const parent = new PumpIt()
         const child = parent.child({ shareSingletons: true })
         const key = Symbol('key')
 
@@ -90,7 +90,7 @@ describe('Child injector', () => {
       })
 
       test('when the key is on the child, singleton is created on the child', () => {
-        const parent = new Pumpa()
+        const parent = new PumpIt()
         const child = parent.child({ shareSingletons: true })
         const key = Symbol('key')
 
@@ -113,7 +113,7 @@ describe('Child injector', () => {
     })
     describe('Not shared', () => {
       test('when the the key is on the parent, singleton is created on the child', () => {
-        const parent = new Pumpa()
+        const parent = new PumpIt()
         const child = parent.child({ shareSingletons: false })
         const key = Symbol('key')
 
@@ -134,7 +134,7 @@ describe('Child injector', () => {
       })
 
       test('when the key is on the child, singleton is created on the child', () => {
-        const parent = new Pumpa()
+        const parent = new PumpIt()
         const child = parent.child({ shareSingletons: false })
         const key = Symbol('key')
 
@@ -157,7 +157,7 @@ describe('Child injector', () => {
 
       describe('Inject from parent', () => {
         test('shared', () => {
-          const parent = new Pumpa()
+          const parent = new PumpIt()
           const child = parent.child({ shareSingletons: true })
           const keyA = Symbol('keyA')
           const keyB = Symbol('keyB')
@@ -191,7 +191,7 @@ describe('Child injector', () => {
           expect(childB.keyA).toBe(parentA)
         })
         test('not shared', () => {
-          const parent = new Pumpa()
+          const parent = new PumpIt()
           const child = parent.child({ shareSingletons: false })
           const keyA = Symbol('keyA')
           const keyB = Symbol('keyB')
@@ -229,7 +229,7 @@ describe('Child injector', () => {
 
       describe('Circular injection', () => {
         test('shared', () => {
-          const parent = new Pumpa()
+          const parent = new PumpIt()
           const child = parent.child({ shareSingletons: true })
           const keyA = Symbol('keyA')
           const keyB = Symbol('keyB')
@@ -282,7 +282,7 @@ describe('Child injector', () => {
         })
 
         test('shared three levels', () => {
-          const grandParent = new Pumpa()
+          const grandParent = new PumpIt()
           const parent = grandParent.child({ shareSingletons: true })
           const child = parent.child({ shareSingletons: true })
           const keyA = Symbol('keyA')
@@ -339,7 +339,7 @@ describe('Child injector', () => {
         })
 
         test('not shared', () => {
-          const parent = new Pumpa()
+          const parent = new PumpIt()
           const child = parent.child({ shareSingletons: false })
           const keyA = Symbol('keyA')
           const keyB = Symbol('keyB')

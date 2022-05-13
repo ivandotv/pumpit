@@ -1,4 +1,4 @@
-export * from './pumpa'
+export * from './pumpit'
 export * from './types'
 
 import { get, getArray, isProxy, transform } from './utils'

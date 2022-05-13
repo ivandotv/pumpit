@@ -1,8 +1,8 @@
-import { Pumpa, SCOPE } from '../../pumpa'
+import { PumpIt, SCOPE } from '../../pumpit'
 
 describe('Class with scope: transient', () => {
   test('default scope is "transient"', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
     const key = 'some_key'
     const keyB = 'key_b'
     const keyC = 'key_c'
@@ -19,9 +19,9 @@ describe('Class with scope: transient', () => {
       constructor(public testA: TestA, public testACopy: TestA) {}
     }
 
-    pumpa.bindClass(key, TestA).bindClass(keyB, TestB).bindClass(keyC, TestC)
+    pumpIt.bindClass(key, TestA).bindClass(keyB, TestB).bindClass(keyC, TestC)
 
-    const instance = pumpa.resolve<TestC>(keyC)
+    const instance = pumpIt.resolve<TestC>(keyC)
 
     expect(instance.testA).toBeInstanceOf(TestA)
     expect(instance.testACopy).toBeInstanceOf(TestA)
@@ -29,7 +29,7 @@ describe('Class with scope: transient', () => {
   })
 
   test('explicitly pass "transient" scope', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
     const key = 'some_key'
     const keyB = 'key_c'
 
@@ -40,11 +40,11 @@ describe('Class with scope: transient', () => {
       constructor(public testA: TestA, public testACopy: TestA) {}
     }
 
-    pumpa
+    pumpIt
       .bindClass(key, TestA, { scope: SCOPE.TRANSIENT })
       .bindClass(keyB, TestB)
 
-    const instance = pumpa.resolve<TestB>(keyB)
+    const instance = pumpIt.resolve<TestB>(keyB)
 
     expect(instance.testA).toBeInstanceOf(TestA)
     expect(instance.testACopy).toBeInstanceOf(TestA)

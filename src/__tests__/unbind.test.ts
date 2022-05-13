@@ -1,29 +1,29 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { Pumpa } from '../pumpa'
+import { PumpIt } from '../pumpit'
 
 describe('Unbind', () => {
   test('throw if the key is not found', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
 
-    expect(() => pumpa.unbind('does_not_exist')).toThrowError('not found')
+    expect(() => pumpIt.unbind('does_not_exist')).toThrowError('not found')
   })
 
   test('unbind factory', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
     const keyA = Symbol('key_a')
 
     const factoryReturnValue = 'hello'
     const factory = () => () => factoryReturnValue
     factory.dispose = jest.fn()
 
-    pumpa.bindFactory(keyA, factory)
-    pumpa.unbind(keyA)
+    pumpIt.bindFactory(keyA, factory)
+    pumpIt.unbind(keyA)
 
-    expect(pumpa.has(keyA)).toBe(false)
+    expect(pumpIt.has(keyA)).toBe(false)
   })
 
   test('unbind factory and call the "dispose" method', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
     const keyA = Symbol('key_a')
 
     const disposeCall = jest.fn()
@@ -35,18 +35,18 @@ describe('Unbind', () => {
       return functionToReturn
     }
 
-    pumpa.bindFactory(keyA, factory, { scope: 'SINGLETON' })
-    pumpa.resolve(keyA)
+    pumpIt.bindFactory(keyA, factory, { scope: 'SINGLETON' })
+    pumpIt.resolve(keyA)
 
-    pumpa.unbind(keyA)
+    pumpIt.unbind(keyA)
 
-    expect(pumpa.has(keyA)).toBe(false)
-    expect(() => pumpa.resolve(keyA)).toThrowError('not found')
+    expect(pumpIt.has(keyA)).toBe(false)
+    expect(() => pumpIt.resolve(keyA)).toThrowError('not found')
     expect(disposeCall).toHaveBeenCalled()
   })
 
   test('unbind factory and call the "dispose" callback', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
     const keyA = Symbol('key_a')
 
     const factory = () => {
@@ -55,24 +55,24 @@ describe('Unbind', () => {
 
     const unbindCallback = jest.fn()
 
-    pumpa.bindFactory(keyA, factory, {
+    pumpIt.bindFactory(keyA, factory, {
       scope: 'SINGLETON',
       unbind: unbindCallback
     })
 
-    const factoryValue = pumpa.resolve(keyA)
+    const factoryValue = pumpIt.resolve(keyA)
 
-    pumpa.unbind(keyA)
+    pumpIt.unbind(keyA)
 
     expect(unbindCallback).toHaveBeenCalledWith({
-      container: pumpa,
+      container: pumpIt,
       dispose: true,
       value: factoryValue
     })
   })
 
   test('dispose callback value is empty when the bound value is not a singleton', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
     const keyA = Symbol('key_a')
 
     const factory = () => {
@@ -81,22 +81,22 @@ describe('Unbind', () => {
 
     const unbindCallback = jest.fn()
 
-    pumpa.bindFactory(keyA, factory, {
+    pumpIt.bindFactory(keyA, factory, {
       unbind: unbindCallback
     })
-    pumpa.resolve(keyA)
+    pumpIt.resolve(keyA)
 
-    pumpa.unbind(keyA)
+    pumpIt.unbind(keyA)
 
     expect(unbindCallback).toHaveBeenCalledWith({
-      container: pumpa,
+      container: pumpIt,
       dispose: true,
       value: undefined
     })
   })
 
   test('unbind factory and do not call the "dispose" method', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
     const keyA = Symbol('key_a')
 
     const disposeCall = jest.fn()
@@ -108,18 +108,18 @@ describe('Unbind', () => {
       return functionToReturn
     }
 
-    pumpa.bindFactory(keyA, factory, { scope: 'SINGLETON' })
-    pumpa.resolve(keyA)
+    pumpIt.bindFactory(keyA, factory, { scope: 'SINGLETON' })
+    pumpIt.resolve(keyA)
 
-    pumpa.unbind(keyA, false)
+    pumpIt.unbind(keyA, false)
 
-    expect(pumpa.has(keyA)).toBe(false)
-    expect(() => pumpa.resolve(keyA)).toThrowError('not found')
+    expect(pumpIt.has(keyA)).toBe(false)
+    expect(() => pumpIt.resolve(keyA)).toThrowError('not found')
     expect(disposeCall).not.toHaveBeenCalled()
   })
 
   test('unbind class', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
     const keyA = Symbol('key_a')
 
     const disposeCall = jest.fn()
@@ -129,14 +129,14 @@ describe('Unbind', () => {
       }
     }
 
-    pumpa.bindClass(keyA, TestA)
-    pumpa.unbind(keyA)
+    pumpIt.bindClass(keyA, TestA)
+    pumpIt.unbind(keyA)
 
-    expect(pumpa.has(keyA)).toBe(false)
+    expect(pumpIt.has(keyA)).toBe(false)
   })
 
   test('unbind class and call the "dispose" method', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
     const keyA = Symbol('key_a')
 
     const disposeCall = jest.fn()
@@ -146,42 +146,42 @@ describe('Unbind', () => {
       }
     }
 
-    pumpa.bindClass(keyA, TestA, { scope: 'SINGLETON' })
-    pumpa.resolve(keyA)
+    pumpIt.bindClass(keyA, TestA, { scope: 'SINGLETON' })
+    pumpIt.resolve(keyA)
 
-    pumpa.unbind(keyA)
+    pumpIt.unbind(keyA)
 
-    expect(pumpa.has(keyA)).toBe(false)
-    expect(() => pumpa.resolve(keyA)).toThrowError('not found')
+    expect(pumpIt.has(keyA)).toBe(false)
+    expect(() => pumpIt.resolve(keyA)).toThrowError('not found')
     expect(disposeCall).toHaveBeenCalled()
   })
 
   test('unbind class and call the "dispose" callback', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
     const keyA = Symbol('key_a')
 
     class TestA {}
 
     const unbindCallback = jest.fn()
 
-    pumpa.bindClass(keyA, TestA, {
+    pumpIt.bindClass(keyA, TestA, {
       scope: 'SINGLETON',
       unbind: unbindCallback
     })
 
-    const instance = pumpa.resolve(keyA)
+    const instance = pumpIt.resolve(keyA)
 
-    pumpa.unbind(keyA)
+    pumpIt.unbind(keyA)
 
     expect(unbindCallback).toHaveBeenCalledWith({
-      container: pumpa,
+      container: pumpIt,
       dispose: true,
       value: instance
     })
   })
 
   test('dispose callback value is empty when the bound class is not a singleton', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
     const keyA = Symbol('key_a')
 
     class TestA {
@@ -192,23 +192,23 @@ describe('Unbind', () => {
 
     const unbindCallback = jest.fn()
 
-    pumpa.bindClass(keyA, TestA, {
+    pumpIt.bindClass(keyA, TestA, {
       scope: 'TRANSIENT',
       unbind: unbindCallback
     })
 
-    pumpa.resolve(keyA)
-    pumpa.unbind(keyA)
+    pumpIt.resolve(keyA)
+    pumpIt.unbind(keyA)
 
     expect(unbindCallback).toHaveBeenCalledWith({
-      container: pumpa,
+      container: pumpIt,
       dispose: true,
       value: undefined
     })
   })
 
   test('unbind class and do not call the "dispose" method', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
     const keyA = Symbol('key_a')
 
     const disposeCall = jest.fn()
@@ -218,19 +218,19 @@ describe('Unbind', () => {
       }
     }
 
-    pumpa.bindClass(keyA, TestA, { scope: 'SINGLETON' })
-    pumpa.resolve(keyA)
+    pumpIt.bindClass(keyA, TestA, { scope: 'SINGLETON' })
+    pumpIt.resolve(keyA)
 
-    pumpa.unbind(keyA)
+    pumpIt.unbind(keyA)
 
-    expect(pumpa.has(keyA)).toBe(false)
-    expect(() => pumpa.resolve(keyA)).toThrowError('not found')
+    expect(pumpIt.has(keyA)).toBe(false)
+    expect(() => pumpIt.resolve(keyA)).toThrowError('not found')
     expect(disposeCall).toHaveBeenCalled()
   })
 
   describe('Unbind all', () => {
     test('after removing all the keys, no keys can be retrieved', () => {
-      const pumpa = new Pumpa()
+      const pumpIt = new PumpIt()
       const factoryKey = Symbol('a')
       const classKey = Symbol('b')
       const valueKey = Symbol('c')
@@ -253,25 +253,25 @@ describe('Unbind', () => {
 
       const value = { name: 'ivan' }
 
-      pumpa.bindFactory(factoryKey, factory, { scope: 'SINGLETON' })
-      pumpa.bindClass(classKey, TestA)
-      pumpa.bindValue(valueKey, value)
+      pumpIt.bindFactory(factoryKey, factory, { scope: 'SINGLETON' })
+      pumpIt.bindClass(classKey, TestA)
+      pumpIt.bindValue(valueKey, value)
 
-      pumpa.resolve(factoryKey)
-      pumpa.unbindAll()
+      pumpIt.resolve(factoryKey)
+      pumpIt.unbindAll()
 
-      expect(pumpa.has(factoryKey)).toBe(false)
-      expect(pumpa.has(classKey)).toBe(false)
-      expect(pumpa.has(valueKey)).toBe(false)
-      expect(() => pumpa.resolve(factoryKey)).toThrowError('not found')
-      expect(() => pumpa.resolve(classKey)).toThrowError('not found')
-      expect(() => pumpa.resolve(classKey)).toThrowError('not found')
+      expect(pumpIt.has(factoryKey)).toBe(false)
+      expect(pumpIt.has(classKey)).toBe(false)
+      expect(pumpIt.has(valueKey)).toBe(false)
+      expect(() => pumpIt.resolve(factoryKey)).toThrowError('not found')
+      expect(() => pumpIt.resolve(classKey)).toThrowError('not found')
+      expect(() => pumpIt.resolve(classKey)).toThrowError('not found')
       expect(factoryDisposeCall).toHaveBeenCalledTimes(1)
       expect(classDisposeCall).not.toHaveBeenCalled()
     })
 
     test('do not call the dispose method', () => {
-      const pumpa = new Pumpa()
+      const pumpIt = new PumpIt()
       const factoryKey = Symbol('a')
       const classKey = Symbol('b')
       const valueKey = Symbol('c')
@@ -294,12 +294,12 @@ describe('Unbind', () => {
 
       const value = { name: 'ivan' }
 
-      pumpa.bindFactory(factoryKey, factory, { scope: 'SINGLETON' })
-      pumpa.bindClass(classKey, TestA, { scope: 'SINGLETON' })
-      pumpa.bindValue(valueKey, value)
+      pumpIt.bindFactory(factoryKey, factory, { scope: 'SINGLETON' })
+      pumpIt.bindClass(classKey, TestA, { scope: 'SINGLETON' })
+      pumpIt.bindValue(valueKey, value)
 
-      pumpa.resolve(factoryKey)
-      pumpa.unbindAll(false)
+      pumpIt.resolve(factoryKey)
+      pumpIt.unbindAll(false)
 
       expect(factoryDisposeCall).not.toHaveBeenCalled()
       expect(classDisposeCall).not.toHaveBeenCalled()
@@ -307,7 +307,7 @@ describe('Unbind', () => {
   })
 
   test('when singleton instances are cleared, singletons are created again', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
     const keyA = Symbol('key_a')
 
     const disposeCall = jest.fn()
@@ -325,7 +325,7 @@ describe('Unbind', () => {
 
     const afterResolve = jest.fn()
     let beforeResolveCount = 0
-    pumpa.bindClass(keyA, TestA, {
+    pumpIt.bindClass(keyA, TestA, {
       scope: 'SINGLETON',
       beforeResolve: ({ value, deps }) => {
         beforeResolveCount++
@@ -334,10 +334,10 @@ describe('Unbind', () => {
       },
       afterResolve
     })
-    const instanceOne = pumpa.resolve(keyA)
+    const instanceOne = pumpIt.resolve(keyA)
 
-    pumpa.clearInstances()
-    const instanceTwo = pumpa.resolve(keyA)
+    pumpIt.clearInstances()
+    const instanceTwo = pumpIt.resolve(keyA)
 
     expect(instanceOne).not.toBe(instanceTwo)
     expect(TestA.count).toBe(2)

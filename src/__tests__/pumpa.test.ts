@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { Pumpa } from '../pumpa'
+import { PumpIt } from '../pumpit'
 import { get, getArray } from '../utils'
 
 describe('Optional injection', () => {
   test('injection does not throw', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
 
     class TestA {
       static inject = [get('key_a', { optional: true })]
@@ -12,13 +12,13 @@ describe('Optional injection', () => {
       constructor(public optionalProp?: string) {}
     }
 
-    pumpa.bindClass('class_a', TestA)
+    pumpIt.bindClass('class_a', TestA)
 
-    expect(() => pumpa.resolve<TestA>('class_a')).not.toThrow()
+    expect(() => pumpIt.resolve<TestA>('class_a')).not.toThrow()
   })
 
   test('injection resolves to undefined', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
 
     class TestA {
       static inject = [get('key_a', { optional: true })]
@@ -26,14 +26,14 @@ describe('Optional injection', () => {
       constructor(public optionalProp?: string) {}
     }
 
-    pumpa.bindClass('class_a', TestA)
-    const instance = pumpa.resolve<TestA>('class_a')
+    pumpIt.bindClass('class_a', TestA)
+    const instance = pumpIt.resolve<TestA>('class_a')
 
     expect(instance.optionalProp).toBeUndefined()
   })
 
   test('injection can be at the last position', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
 
     const keyOne = 'key_one'
     const valueOne = 1
@@ -50,17 +50,17 @@ describe('Optional injection', () => {
       ) {}
     }
 
-    pumpa.bindValue(keyOne, valueOne)
-    pumpa.bindClass('class_a', TestA)
+    pumpIt.bindValue(keyOne, valueOne)
+    pumpIt.bindClass('class_a', TestA)
 
-    const instance = pumpa.resolve<TestA>('class_a')
+    const instance = pumpIt.resolve<TestA>('class_a')
 
     expect(instance.keyOne).toBe(valueOne)
     expect(instance.optionalProp).toBeUndefined()
   })
 
   test('injection can be at in any position', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
 
     const keyOne = 'key_one'
     const valueOne = 1
@@ -79,11 +79,11 @@ describe('Optional injection', () => {
       ) {}
     }
 
-    pumpa.bindValue(keyOne, valueOne)
-    pumpa.bindValue(keyThree, valueThree)
-    pumpa.bindClass('class_a', TestA)
+    pumpIt.bindValue(keyOne, valueOne)
+    pumpIt.bindValue(keyThree, valueThree)
+    pumpIt.bindClass('class_a', TestA)
 
-    const instance = pumpa.resolve<TestA>('class_a')
+    const instance = pumpIt.resolve<TestA>('class_a')
 
     expect(instance.keyOne).toBe(valueOne)
     expect(instance.optionalProp).toBeUndefined()
@@ -91,43 +91,43 @@ describe('Optional injection', () => {
   })
 
   test('class - empty injection does not throw', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
     const key = 'some_key'
 
     class TestA {
       static inject = []
     }
 
-    pumpa.bindClass(key, TestA)
+    pumpIt.bindClass(key, TestA)
 
-    expect(() => pumpa.resolve(key)).not.toThrow()
+    expect(() => pumpIt.resolve(key)).not.toThrow()
   })
 
   test('factory - empty injection does not throw', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
     const key = 'some_key'
 
     const factory = () => {}
     factory.inject = []
 
-    pumpa.bindFactory(key, factory)
+    pumpIt.bindFactory(key, factory)
 
-    expect(() => pumpa.resolve(key)).not.toThrow()
+    expect(() => pumpIt.resolve(key)).not.toThrow()
   })
 
   test('".bind" methods are chainable', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
 
-    const ref = pumpa
+    const ref = pumpIt
       .bindClass('a', class {})
       .bindFactory('b', () => () => {})
       .bindValue('c', true)
 
-    expect(ref).toBe(pumpa)
+    expect(ref).toBe(pumpIt)
   })
 
   test('values can be retrieved via symbols', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
     const keyA = Symbol('key_a')
     const keyB = Symbol('key_b')
     const keyC = Symbol()
@@ -138,13 +138,13 @@ describe('Optional injection', () => {
     const factoryReturnValue = 'hello'
     const factory = () => () => factoryReturnValue
 
-    pumpa.bindClass(keyA, TestA)
-    pumpa.bindValue(keyB, value)
-    pumpa.bindFactory(keyC, factory)
+    pumpIt.bindClass(keyA, TestA)
+    pumpIt.bindValue(keyB, value)
+    pumpIt.bindFactory(keyC, factory)
 
-    const resolvedClass = pumpa.resolve<TestA>(keyA)
-    const resolvedValue = pumpa.resolve<typeof value>(keyB)
-    const resolvedFactory = pumpa.resolve<ReturnType<typeof factory>>(keyC)
+    const resolvedClass = pumpIt.resolve<TestA>(keyA)
+    const resolvedValue = pumpIt.resolve<typeof value>(keyB)
+    const resolvedFactory = pumpIt.resolve<ReturnType<typeof factory>>(keyC)
 
     expect(resolvedClass).toBeInstanceOf(TestA)
     expect(resolvedFactory()).toBe(factoryReturnValue)
@@ -152,20 +152,20 @@ describe('Optional injection', () => {
   })
 
   test('values can be bound via any object', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
     class TestA {}
 
     const objectKey = {}
     const classKey = TestA
     const functionKey = () => {}
 
-    pumpa.bindClass(objectKey, TestA)
-    pumpa.bindClass(classKey, TestA)
-    pumpa.bindClass(functionKey, TestA)
+    pumpIt.bindClass(objectKey, TestA)
+    pumpIt.bindClass(classKey, TestA)
+    pumpIt.bindClass(functionKey, TestA)
 
-    const objectKeyInstance = pumpa.resolve(objectKey)
-    const classKeyInstance = pumpa.resolve(classKey)
-    const functionKeyInstance = pumpa.resolve(functionKey)
+    const objectKeyInstance = pumpIt.resolve(objectKey)
+    const classKeyInstance = pumpIt.resolve(classKey)
+    const functionKeyInstance = pumpIt.resolve(functionKey)
 
     expect(objectKeyInstance).toBeInstanceOf(TestA)
     expect(classKeyInstance).toBeInstanceOf(TestA)
@@ -173,7 +173,7 @@ describe('Optional injection', () => {
   })
 
   test('injection values can be any object', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
 
     class TestA {}
     class TestB {}
@@ -193,12 +193,12 @@ describe('Optional injection', () => {
       ]
     }
 
-    pumpa.bindClass(classKeyA, TestA)
-    pumpa.bindClass(objectKeyB, TestB)
-    pumpa.bindClass(functionKeyC, TestC)
-    pumpa.bindClass(keyD, TestD)
+    pumpIt.bindClass(classKeyA, TestA)
+    pumpIt.bindClass(objectKeyB, TestB)
+    pumpIt.bindClass(functionKeyC, TestC)
+    pumpIt.bindClass(keyD, TestD)
 
-    const instance = pumpa.resolve<TestD>(keyD)
+    const instance = pumpIt.resolve<TestD>(keyD)
 
     expect(instance.a).toBeInstanceOf(TestA)
     expect(instance.bc[0]).toBeInstanceOf(TestB)

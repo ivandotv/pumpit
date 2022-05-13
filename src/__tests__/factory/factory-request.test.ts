@@ -1,8 +1,8 @@
-import { Pumpa, SCOPE } from '../../pumpa'
+import { PumpIt, SCOPE } from '../../pumpit'
 
 describe('Factory with the scope: request', () => {
   test('return the same factory for a single resolve call', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
 
     const keyA = 'key_a'
     const keyB = 'key_b'
@@ -38,13 +38,13 @@ describe('Factory with the scope: request', () => {
       constructor(public keyA: TestA, public keyB: TestB, public request: Fn) {}
     }
 
-    pumpa
+    pumpIt
       .bindFactory(request_key, factory, { scope: SCOPE.REQUEST })
       .bindClass(keyA, TestA)
       .bindClass(keyB, TestB)
       .bindClass(keyC, TestC)
 
-    const instance = pumpa.resolve<TestC>(keyC)
+    const instance = pumpIt.resolve<TestC>(keyC)
 
     expect(count).toBe(1)
     expect(instance.request).toBe(instance.keyA.request)
@@ -53,7 +53,7 @@ describe('Factory with the scope: request', () => {
   })
 
   test('multiple resolve calls return different factories', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
     const key = 'some_key'
 
     let count = 0
@@ -67,10 +67,10 @@ describe('Factory with the scope: request', () => {
       }
     }
 
-    pumpa.bindFactory(key, factory, { scope: SCOPE.REQUEST })
+    pumpIt.bindFactory(key, factory, { scope: SCOPE.REQUEST })
 
-    const instanceA = pumpa.resolve<Fn>(key)
-    const instanceB = pumpa.resolve<Fn>(key)
+    const instanceA = pumpIt.resolve<Fn>(key)
+    const instanceB = pumpIt.resolve<Fn>(key)
 
     expect(instanceA).not.toBe(instanceB)
     expect(count).toBe(2)

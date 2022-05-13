@@ -1,8 +1,8 @@
-import { Pumpa, SCOPE } from '../../pumpa'
+import { PumpIt, SCOPE } from '../../pumpit'
 
 describe('Factory with scope: transient', () => {
   test('default scope is "transient"', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
     const key = 'some_key'
     const keyB = 'key_b'
     const keyC = 'key_c'
@@ -30,19 +30,19 @@ describe('Factory with scope: transient', () => {
       constructor(public fn: Fn, public fnCopy: Fn, public b: TestB) {}
     }
 
-    pumpa
+    pumpIt
       .bindFactory(key, factory)
       .bindClass(keyB, TestB)
       .bindClass(keyC, TestC)
 
-    const instance = pumpa.resolve<TestC>(keyC)
+    const instance = pumpIt.resolve<TestC>(keyC)
 
     expect(instance.fn).not.toBe(instance.fnCopy)
     expect(count).toBe(3)
   })
 
   test('explicitly pass "transient" scope', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
     const key = 'some_key'
     const keyB = 'key_b'
     const keyC = 'key_c'
@@ -70,12 +70,12 @@ describe('Factory with scope: transient', () => {
       constructor(public fn: Fn, public fnCopy: Fn, public b: TestB) {}
     }
 
-    pumpa
+    pumpIt
       .bindFactory(key, factory, { scope: SCOPE.TRANSIENT })
       .bindClass(keyB, TestB)
       .bindClass(keyC, TestC)
 
-    const instance = pumpa.resolve<TestC>(keyC)
+    const instance = pumpIt.resolve<TestC>(keyC)
 
     expect(instance.fn).not.toBe(instance.fnCopy)
     expect(count).toBe(3)

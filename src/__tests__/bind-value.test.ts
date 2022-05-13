@@ -1,31 +1,31 @@
-import { Pumpa } from '../pumpa'
+import { PumpIt } from '../pumpit'
 
 describe('Bind values', () => {
   test('resolve value', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
     const key = 'name'
     const nameValue = 'ivan'
 
-    pumpa.bindValue(key, nameValue)
-    const result = pumpa.resolve(key)
+    pumpIt.bindValue(key, nameValue)
+    const result = pumpIt.resolve(key)
 
     expect(result).toBe(nameValue)
   })
 
   test('throw if the key is already registered', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
     const key = 'name'
     const nameValue = 'ivan'
 
-    pumpa.bindValue(key, nameValue)
+    pumpIt.bindValue(key, nameValue)
 
-    expect(() => pumpa.bindValue(key, nameValue)).toThrowError(`${key}`)
+    expect(() => pumpIt.bindValue(key, nameValue)).toThrowError(`${key}`)
   })
 
   test('throw if the key to be resolved cannot be found', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
     const key = 'name'
 
-    expect(() => pumpa.resolve(key)).toThrowError(`${key}`)
+    expect(() => pumpIt.resolve(key)).toThrowError(`${key}`)
   })
 })

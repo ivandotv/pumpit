@@ -1,10 +1,10 @@
-import { Pumpa } from '../../pumpa'
+import { PumpIt } from '../../pumpit'
 import { get, getArray, isProxy, transform } from '../../utils'
 
 describe('Transform dependencies', () => {
   describe('Class', () => {
     test('transform function receives resolved dependencies', () => {
-      const pumpa = new Pumpa()
+      const pumpIt = new PumpIt()
       const classKey = Symbol()
       const keyA = Symbol()
       const keyB = Symbol()
@@ -20,7 +20,7 @@ describe('Transform dependencies', () => {
         static inject = transform([keyA, keyB, keyC], transformFn)
       }
 
-      pumpa
+      pumpIt
         .bindClass(classKey, TestA)
         .bindValue(keyA, valueA)
         .bindValue(keyB, valueB)
@@ -28,7 +28,7 @@ describe('Transform dependencies', () => {
         .resolve<TestA>(classKey)
 
       expect(transformFn).toHaveBeenCalledWith(
-        pumpa,
+        pumpIt,
         valueA,
         valueB,
         valueC,
@@ -37,7 +37,7 @@ describe('Transform dependencies', () => {
     })
 
     test('transform function receives resolved dependency as an array', () => {
-      const pumpa = new Pumpa()
+      const pumpIt = new PumpIt()
       const classKey = Symbol()
       const keyA = Symbol()
       const keyB = Symbol()
@@ -53,7 +53,7 @@ describe('Transform dependencies', () => {
         static inject = transform([getArray([keyA, keyB, keyC])], transformFn)
       }
 
-      pumpa
+      pumpIt
         .bindClass(classKey, TestA)
         .bindValue(keyA, valueA)
         .bindValue(keyB, valueB)
@@ -61,14 +61,14 @@ describe('Transform dependencies', () => {
         .resolve<TestA>(classKey)
 
       expect(transformFn).toHaveBeenCalledWith(
-        pumpa,
+        pumpIt,
         [valueA, valueB, valueC],
         undefined
       )
     })
 
     test('transform function receives proxy dependency', () => {
-      const pumpa = new Pumpa()
+      const pumpIt = new PumpIt()
       const keyA = Symbol('keyA')
       const keyB = Symbol('keyB')
 
@@ -79,7 +79,7 @@ describe('Transform dependencies', () => {
       class TestB {
         static inject = transform(
           [get(keyA, { lazy: true })],
-          (_injector: Pumpa, keyA: TestA) => {
+          (_injector: PumpIt, keyA: TestA) => {
             expect(isProxy(keyA)).toBe(true)
 
             return [keyA]
@@ -87,13 +87,13 @@ describe('Transform dependencies', () => {
         )
       }
 
-      pumpa.bindClass(keyA, TestA).bindClass(keyB, TestB).resolve<TestA>(keyA)
+      pumpIt.bindClass(keyA, TestA).bindClass(keyB, TestB).resolve<TestA>(keyA)
 
       expect.assertions(1)
     })
 
     test('transform function can replace dependencies', () => {
-      const pumpa = new Pumpa()
+      const pumpIt = new PumpIt()
       const classKey = Symbol()
       const keyA = Symbol()
       const keyB = Symbol()
@@ -117,16 +117,16 @@ describe('Transform dependencies', () => {
         constructor(public keyA: any, public keyB: any, public keyC: any) {}
       }
 
-      pumpa
+      pumpIt
         .bindClass(classKey, TestA)
         .bindValue(keyA, valueA)
         .bindValue(keyB, valueB)
         .bindValue(keyC, valueC)
 
-      const instance = pumpa.resolve<TestA>(classKey)
+      const instance = pumpIt.resolve<TestA>(classKey)
 
       expect(injectTransform).toHaveBeenCalledWith(
-        pumpa,
+        pumpIt,
         valueA,
         valueB,
         valueC,
@@ -140,7 +140,7 @@ describe('Transform dependencies', () => {
 
   describe('Factory', () => {
     test('transform function receives resolved dependencies', () => {
-      const pumpa = new Pumpa()
+      const pumpIt = new PumpIt()
       const factoryKey = Symbol()
       const keyA = Symbol()
       const keyB = Symbol()
@@ -159,7 +159,7 @@ describe('Transform dependencies', () => {
       const factory = () => {}
       factory.inject = transform([keyA, keyB, keyC], injectTransform)
 
-      pumpa
+      pumpIt
         .bindFactory(factoryKey, factory)
         .bindValue(keyA, valueA)
         .bindValue(keyB, valueB)
@@ -167,7 +167,7 @@ describe('Transform dependencies', () => {
         .resolve<ReturnType<typeof factory>>(factoryKey, { data: requestData })
 
       expect(injectTransform).toHaveBeenCalledWith(
-        pumpa,
+        pumpIt,
         valueA,
         valueB,
         valueC,
@@ -178,7 +178,7 @@ describe('Transform dependencies', () => {
     })
 
     test('transform function can replace dependencies', () => {
-      const pumpa = new Pumpa()
+      const pumpIt = new PumpIt()
       const factoryKey = Symbol()
       const keyA = Symbol()
       const keyB = Symbol()
@@ -200,7 +200,7 @@ describe('Transform dependencies', () => {
         transformedC
       ])
 
-      pumpa
+      pumpIt
         .bindFactory(factoryKey, factory)
         .bindValue(keyA, valueA)
         .bindValue(keyB, valueB)

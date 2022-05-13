@@ -1,37 +1,37 @@
-[pumpit](../README.md) / Pumpa
+[pumpit](../README.md) / PumpIt
 
-# Class: Pumpa
+# Class: PumpIt
 
 ## Table of contents
 
 ### Constructors
 
-- [constructor](Pumpa.md#constructor)
+- [constructor](PumpIt.md#constructor)
 
 ### Methods
 
-- [bindClass](Pumpa.md#bindclass)
-- [bindFactory](Pumpa.md#bindfactory)
-- [bindValue](Pumpa.md#bindvalue)
-- [child](Pumpa.md#child)
-- [clearInstances](Pumpa.md#clearinstances)
-- [getParent](Pumpa.md#getparent)
-- [has](Pumpa.md#has)
-- [resolve](Pumpa.md#resolve)
-- [unbind](Pumpa.md#unbind)
-- [unbindAll](Pumpa.md#unbindall)
+- [bindClass](PumpIt.md#bindclass)
+- [bindFactory](PumpIt.md#bindfactory)
+- [bindValue](PumpIt.md#bindvalue)
+- [child](PumpIt.md#child)
+- [clearInstances](PumpIt.md#clearinstances)
+- [getParent](PumpIt.md#getparent)
+- [has](PumpIt.md#has)
+- [resolve](PumpIt.md#resolve)
+- [unbind](PumpIt.md#unbind)
+- [unbindAll](PumpIt.md#unbindall)
 
 ## Constructors
 
 ### constructor
 
-• **new Pumpa**()
+• **new PumpIt**()
 
 ## Methods
 
 ### bindClass
 
-▸ **bindClass**<`T`\>(`key`, `value`, `options?`): [`Pumpa`](Pumpa.md)
+▸ **bindClass**<`T`\>(`key`, `value`, `options?`): [`PumpIt`](PumpIt.md)
 
 Binds class. Class constructor that is binded will be executed with the "new" call when resolved. Number of executions
 depends on the scope used.
@@ -52,17 +52,17 @@ depends on the scope used.
 
 #### Returns
 
-[`Pumpa`](Pumpa.md)
+[`PumpIt`](PumpIt.md)
 
 #### Defined in
 
-[pumpa.ts:170](https://github.com/ivandotv/pumpa/blob/e80963d/src/pumpa.ts#L170)
+pumpit.ts:170
 
 ___
 
 ### bindFactory
 
-▸ **bindFactory**<`T`\>(`key`, `value`, `options?`): [`Pumpa`](Pumpa.md)
+▸ **bindFactory**<`T`\>(`key`, `value`, `options?`): [`PumpIt`](PumpIt.md)
 
 Binds a factory function. Function that is binded will be executed when resolved and the value will be returned.
 Number of executions dependes on the scope used.
@@ -83,17 +83,17 @@ Number of executions dependes on the scope used.
 
 #### Returns
 
-[`Pumpa`](Pumpa.md)
+[`PumpIt`](PumpIt.md)
 
 #### Defined in
 
-[pumpa.ts:146](https://github.com/ivandotv/pumpa/blob/e80963d/src/pumpa.ts#L146)
+pumpit.ts:146
 
 ___
 
 ### bindValue
 
-▸ **bindValue**(`key`, `value`): [`Pumpa`](Pumpa.md)
+▸ **bindValue**(`key`, `value`): [`PumpIt`](PumpIt.md)
 
 Binds value. Value is treated as a singleton and ti will always resolve to the same data (value)
 
@@ -106,21 +106,21 @@ Binds value. Value is treated as a singleton and ti will always resolve to the s
 
 #### Returns
 
-[`Pumpa`](Pumpa.md)
+[`PumpIt`](PumpIt.md)
 
-current pumpa instance
+current pumpIt instance
 
 #### Defined in
 
-[pumpa.ts:128](https://github.com/ivandotv/pumpa/blob/e80963d/src/pumpa.ts#L128)
+pumpit.ts:128
 
 ___
 
 ### child
 
-▸ **child**(`options?`): [`Pumpa`](Pumpa.md)
+▸ **child**(`options?`): [`PumpIt`](PumpIt.md)
 
-Creates child Pumpa instance. Child injection instance is connected to the parent instance and it can use
+Creates child PumpIt instance. Child injection instance is connected to the parent instance and it can use
 parent singleton values.
 
 #### Parameters
@@ -131,11 +131,11 @@ parent singleton values.
 
 #### Returns
 
-[`Pumpa`](Pumpa.md)
+[`PumpIt`](PumpIt.md)
 
 #### Defined in
 
-[pumpa.ts:233](https://github.com/ivandotv/pumpa/blob/e80963d/src/pumpa.ts#L233)
+pumpit.ts:233
 
 ___
 
@@ -149,23 +149,23 @@ ___
 
 #### Defined in
 
-[pumpa.ts:96](https://github.com/ivandotv/pumpa/blob/e80963d/src/pumpa.ts#L96)
+pumpit.ts:96
 
 ___
 
 ### getParent
 
-▸ **getParent**(): `undefined` \| [`Pumpa`](Pumpa.md)
+▸ **getParent**(): `undefined` \| [`PumpIt`](PumpIt.md)
 
 Gets parent injector instance
 
 #### Returns
 
-`undefined` \| [`Pumpa`](Pumpa.md)
+`undefined` \| [`PumpIt`](PumpIt.md)
 
 #### Defined in
 
-[pumpa.ts:244](https://github.com/ivandotv/pumpa/blob/e80963d/src/pumpa.ts#L244)
+pumpit.ts:244
 
 ___
 
@@ -186,7 +186,7 @@ ___
 
 #### Defined in
 
-[pumpa.ts:113](https://github.com/ivandotv/pumpa/blob/e80963d/src/pumpa.ts#L113)
+pumpit.ts:113
 
 ___
 
@@ -215,7 +215,7 @@ Resolve value that has previously been binded.
 
 #### Defined in
 
-[pumpa.ts:195](https://github.com/ivandotv/pumpa/blob/e80963d/src/pumpa.ts#L195)
+pumpit.ts:195
 
 ___
 
@@ -236,7 +236,7 @@ ___
 
 #### Defined in
 
-[pumpa.ts:62](https://github.com/ivandotv/pumpa/blob/e80963d/src/pumpa.ts#L62)
+pumpit.ts:62
 
 ___
 
@@ -256,4 +256,4 @@ ___
 
 #### Defined in
 
-[pumpa.ts:88](https://github.com/ivandotv/pumpa/blob/e80963d/src/pumpa.ts#L88)
+pumpit.ts:88

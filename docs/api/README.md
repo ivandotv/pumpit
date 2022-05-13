@@ -6,7 +6,7 @@ pumpit
 
 ### Classes
 
-- [Pumpa](classes/Pumpa.md)
+- [PumpIt](classes/PumpIt.md)
 
 ### Type aliases
 
@@ -40,7 +40,7 @@ Available scopes that can be used
 
 #### Defined in
 
-[types.ts:8](https://github.com/ivandotv/pumpa/blob/e80963d/src/types.ts#L8)
+[types.ts:8](https://github.com/ivandotv/pumpa/blob/b6eab95/src/types.ts#L8)
 
 ___
 
@@ -52,7 +52,7 @@ Available types that can be binded
 
 #### Defined in
 
-[types.ts:5](https://github.com/ivandotv/pumpa/blob/e80963d/src/types.ts#L5)
+[types.ts:5](https://github.com/ivandotv/pumpa/blob/b6eab95/src/types.ts#L5)
 
 ___
 
@@ -64,7 +64,7 @@ Type of values that can be used for the bind key
 
 #### Defined in
 
-[types.ts:23](https://github.com/ivandotv/pumpa/blob/e80963d/src/types.ts#L23)
+[types.ts:23](https://github.com/ivandotv/pumpa/blob/b6eab95/src/types.ts#L23)
 
 ___
 
@@ -82,7 +82,7 @@ Child injector options
 
 #### Defined in
 
-[types.ts:17](https://github.com/ivandotv/pumpa/blob/e80963d/src/types.ts#L17)
+[types.ts:17](https://github.com/ivandotv/pumpa/blob/b6eab95/src/types.ts#L17)
 
 ___
 
@@ -105,13 +105,13 @@ Class bind options
 | :------ | :------ | :------ |
 | `scope` | `K` | Scope that is going to be used [AvailableScopes](README.md#availablescopes) |
 | `type` | typeof [`CLASS`](README.md#class) | Class constant type [AvailableTypes](README.md#availabletypes) |
-| `afterResolve?` | (`data`: { `container`: [`Pumpa`](classes/Pumpa.md) ; `ctx?`: [`ResolveCtx`](README.md#resolvectx) ; `value`: `InstanceType`<`T`\>  }) => `void` | callback that is called after the value is resolved, number of calls depends on scope used when registering |
-| `beforeResolve?` | (`data`: { `container`: [`Pumpa`](classes/Pumpa.md) ; `ctx?`: [`ResolveCtx`](README.md#resolvectx) ; `deps?`: `ConstructorParameters`<`T`\> ; `value`: (...`args`: `ConstructorParameters`<`T`\>) => `T`  }) => `T` | callback that is called before the value is resolved, number of calls depends on scope used when registering |
-| `unbind?` | (`data`: { `container`: [`Pumpa`](classes/Pumpa.md) ; `dispose`: `boolean` ; `value`: `K` extends ``"SINGLETON"`` ? `InstanceType`<`T`\> : `undefined`  }) => `void` | callback that is called before the value is removed from the container. This is only executed for values that are SINGLETONS |
+| `afterResolve?` | (`data`: { `container`: [`PumpIt`](classes/PumpIt.md) ; `ctx?`: [`ResolveCtx`](README.md#resolvectx) ; `value`: `InstanceType`<`T`\>  }) => `void` | callback that is called after the value is resolved, number of calls depends on scope used when registering |
+| `beforeResolve?` | (`data`: { `container`: [`PumpIt`](classes/PumpIt.md) ; `ctx?`: [`ResolveCtx`](README.md#resolvectx) ; `deps?`: `ConstructorParameters`<`T`\> ; `value`: (...`args`: `ConstructorParameters`<`T`\>) => `T`  }) => `T` | callback that is called before the value is resolved, number of calls depends on scope used when registering |
+| `unbind?` | (`data`: { `container`: [`PumpIt`](classes/PumpIt.md) ; `dispose`: `boolean` ; `value`: `K` extends ``"SINGLETON"`` ? `InstanceType`<`T`\> : `undefined`  }) => `void` | callback that is called before the value is removed from the container. This is only executed for values that are SINGLETONS |
 
 #### Defined in
 
-[types.ts:26](https://github.com/ivandotv/pumpa/blob/e80963d/src/types.ts#L26)
+[types.ts:26](https://github.com/ivandotv/pumpa/blob/b6eab95/src/types.ts#L26)
 
 ___
 
@@ -132,13 +132,13 @@ ___
 | :------ | :------ | :------ |
 | `scope` | `K` | Scope that is going to be used [AvailableScopes](README.md#availablescopes) |
 | `type` | typeof [`FACTORY`](README.md#factory) | Factory constant type |
-| `afterResolve?` | (`data`: { `container`: [`Pumpa`](classes/Pumpa.md) ; `ctx?`: [`ResolveCtx`](README.md#resolvectx) ; `value`: `ReturnType`<`T`\>  }) => `void` | callback that is called after the value is resolved, number of calls depends on scope used when registering |
-| `beforeResolve?` | (`data`: { `container`: [`Pumpa`](classes/Pumpa.md) ; `ctx?`: [`ResolveCtx`](README.md#resolvectx) ; `deps?`: `Parameters`<`T`\> ; `value`: `T`  }) => `ReturnType`<`T`\> | callback that is called before the value is resolved, number of calls depends on scope used when registering |
-| `unbind?` | (`data`: { `container`: [`Pumpa`](classes/Pumpa.md) ; `dispose`: `boolean` ; `value`: `K` extends ``"SINGLETON"`` ? `ReturnType`<`T`\> : `undefined`  }) => `void` | callback that is called before the value is removed from the container. This is only executed for values that are SINGLETONS |
+| `afterResolve?` | (`data`: { `container`: [`PumpIt`](classes/PumpIt.md) ; `ctx?`: [`ResolveCtx`](README.md#resolvectx) ; `value`: `ReturnType`<`T`\>  }) => `void` | callback that is called after the value is resolved, number of calls depends on scope used when registering |
+| `beforeResolve?` | (`data`: { `container`: [`PumpIt`](classes/PumpIt.md) ; `ctx?`: [`ResolveCtx`](README.md#resolvectx) ; `deps?`: `Parameters`<`T`\> ; `value`: `T`  }) => `ReturnType`<`T`\> | callback that is called before the value is resolved, number of calls depends on scope used when registering |
+| `unbind?` | (`data`: { `container`: [`PumpIt`](classes/PumpIt.md) ; `dispose`: `boolean` ; `value`: `K` extends ``"SINGLETON"`` ? `ReturnType`<`T`\> : `undefined`  }) => `void` | callback that is called before the value is removed from the container. This is only executed for values that are SINGLETONS |
 
 #### Defined in
 
-[types.ts:65](https://github.com/ivandotv/pumpa/blob/e80963d/src/types.ts#L65)
+[types.ts:65](https://github.com/ivandotv/pumpa/blob/b6eab95/src/types.ts#L65)
 
 ___
 
@@ -156,7 +156,7 @@ Resolve context that is used per request and passed to the callbacks
 
 #### Defined in
 
-[types.ts:11](https://github.com/ivandotv/pumpa/blob/e80963d/src/types.ts#L11)
+[types.ts:11](https://github.com/ivandotv/pumpa/blob/b6eab95/src/types.ts#L11)
 
 ## Variables
 
@@ -167,7 +167,7 @@ Resolve context that is used per request and passed to the callbacks
 Constants that represent the type of scopes that can be used
 SINGLETON - value is resolved only once
 TRANSIENT - value is resolved everytime it is requested
-REQUEST - value is resolved once per request [Pumpa.resolve()](classes/Pumpa.md#resolve)
+REQUEST - value is resolved once per request [PumpIt.resolve()](classes/PumpIt.md#resolve)
 
 #### Type declaration
 
@@ -179,7 +179,7 @@ REQUEST - value is resolved once per request [Pumpa.resolve()](classes/Pumpa.md#
 
 #### Defined in
 
-[pumpa.ts:36](https://github.com/ivandotv/pumpa/blob/e80963d/src/pumpa.ts#L36)
+pumpit.ts:36
 
 ___
 
@@ -199,7 +199,7 @@ Constants that represent the type of values that can be binded
 
 #### Defined in
 
-[pumpa.ts:25](https://github.com/ivandotv/pumpa/blob/e80963d/src/pumpa.ts#L25)
+pumpit.ts:25
 
 ## Functions
 
@@ -237,7 +237,7 @@ get dependency by key
 
 #### Defined in
 
-[utils.ts:35](https://github.com/ivandotv/pumpa/blob/e80963d/src/utils.ts#L35)
+[utils.ts:35](https://github.com/ivandotv/pumpa/blob/b6eab95/src/utils.ts#L35)
 
 ___
 
@@ -276,7 +276,7 @@ Get an array of dependencies
 
 #### Defined in
 
-[utils.ts:60](https://github.com/ivandotv/pumpa/blob/e80963d/src/utils.ts#L60)
+[utils.ts:60](https://github.com/ivandotv/pumpa/blob/b6eab95/src/utils.ts#L60)
 
 ___
 
@@ -298,7 +298,7 @@ Helper function to detect if the object passed in is wrapped in injection proxy
 
 #### Defined in
 
-[utils.ts:129](https://github.com/ivandotv/pumpa/blob/e80963d/src/utils.ts#L129)
+[utils.ts:129](https://github.com/ivandotv/pumpa/blob/b6eab95/src/utils.ts#L129)
 
 ___
 
@@ -328,4 +328,4 @@ It gets an array of dependeciens in injection order, and it should return an arr
 
 #### Defined in
 
-[utils.ts:115](https://github.com/ivandotv/pumpa/blob/e80963d/src/utils.ts#L115)
+[utils.ts:115](https://github.com/ivandotv/pumpa/blob/b6eab95/src/utils.ts#L115)

@@ -1,7 +1,7 @@
 {
   "name": "pumpit",
   "version": "0.1.0",
-  "description": "Dependency injection container without using decorators, supports circular dependencies and arrays of dependencies.",
+  "description": "Dependency injection container without decorators, supports circular dependencies and arrays of dependencies.",
   "keywords": [
     "ioc",
     "di",
@@ -41,12 +41,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ivandotv/pumpa.git"
+    "url": "git+https://github.com/ivandotv/pumpit.git"
   },
   "bugs": {
-    "url": "https://github.com/ivandotv/pumpa/issues"
+    "url": "https://github.com/ivandotv/pumpit/issues"
   },
-  "homepage": "https://github.com/ivandotv/pumpa#readme",
+  "homepage": "https://github.com/ivandotv/pumpit#readme",
   "devDependencies": {
     "@babel/core": "^7.17.10",
     "@babel/preset-env": "^7.17.10",

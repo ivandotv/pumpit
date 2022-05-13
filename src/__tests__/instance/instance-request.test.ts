@@ -1,8 +1,8 @@
-import { Pumpa, SCOPE } from '../../pumpa'
+import { PumpIt, SCOPE } from '../../pumpit'
 
 describe('Class with scope: request', () => {
   test('return the same instance for a single resolve call', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
 
     const keyA = 'key_a'
     const keyB = 'key_b'
@@ -30,13 +30,13 @@ describe('Class with scope: request', () => {
       ) {}
     }
 
-    pumpa
+    pumpIt
       .bindClass(request_key, RequestTest, { scope: SCOPE.REQUEST })
       .bindClass(keyA, TestA)
       .bindClass(keyB, TestB)
       .bindClass(keyC, TestC)
 
-    const instanceC = pumpa.resolve<TestC>(keyC)
+    const instanceC = pumpIt.resolve<TestC>(keyC)
 
     expect(instanceC.keyB).toBeInstanceOf(TestB)
     expect(instanceC.keyA).toBeInstanceOf(TestA)
@@ -48,21 +48,21 @@ describe('Class with scope: request', () => {
   })
 
   test('multiple resolve calls return different instances', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
     const key = 'some_key'
     class TestA {}
 
-    pumpa.bindClass(key, TestA, { scope: SCOPE.REQUEST })
+    pumpIt.bindClass(key, TestA, { scope: SCOPE.REQUEST })
 
-    const instanceA = pumpa.resolve(key)
-    const instanceB = pumpa.resolve(key)
+    const instanceA = pumpIt.resolve(key)
+    const instanceB = pumpIt.resolve(key)
 
     expect(instanceA).toBeInstanceOf(TestA)
     expect(instanceA).not.toBe(instanceB)
   })
 
   test('multiple resolve calls return different injected instances', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
 
     const keyC = 'key_c'
     const request_key = 'request'
@@ -74,12 +74,12 @@ describe('Class with scope: request', () => {
       constructor(public request: RequestTest) {}
     }
 
-    pumpa
+    pumpIt
       .bindClass(request_key, RequestTest, { scope: SCOPE.REQUEST })
       .bindClass(keyC, TestC)
 
-    const instanceOne = pumpa.resolve<TestC>(keyC)
-    const instanceTwo = pumpa.resolve<TestC>(keyC)
+    const instanceOne = pumpIt.resolve<TestC>(keyC)
+    const instanceTwo = pumpIt.resolve<TestC>(keyC)
 
     expect(instanceOne.request).toBeInstanceOf(RequestTest)
     expect(instanceTwo.request).toBeInstanceOf(RequestTest)

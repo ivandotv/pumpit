@@ -1,9 +1,9 @@
-import { Pumpa } from '../pumpa'
+import { PumpIt } from '../pumpit'
 import { get, getArray } from '../utils'
 
 describe('Inject array of values as a single dependency', () => {
   test('inject  values', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
     const keyOne = 'key_one'
     const valueOne = 'hello'
     const keyTwo = Symbol('key_two')
@@ -15,18 +15,18 @@ describe('Inject array of values as a single dependency', () => {
       constructor(public props?: [string?, number?]) {}
     }
 
-    pumpa
+    pumpIt
       .bindValue(keyOne, valueOne)
       .bindValue(keyTwo, valueTwo)
       .bindClass('class_a', TestA)
 
-    const instance = pumpa.resolve<TestA>('class_a')
+    const instance = pumpIt.resolve<TestA>('class_a')
 
     expect(instance.props).toEqual([valueOne, valueTwo])
   })
 
   test('if the key is not found, set it to undefined', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
     const keyTwo = 'key_two'
     const valueTwo = 2
 
@@ -36,16 +36,16 @@ describe('Inject array of values as a single dependency', () => {
       constructor(public props?: [string, number?]) {}
     }
 
-    pumpa.bindValue(keyTwo, valueTwo)
-    pumpa.bindClass('class_a', TestA)
+    pumpIt.bindValue(keyTwo, valueTwo)
+    pumpIt.bindClass('class_a', TestA)
 
-    const instance = pumpa.resolve<TestA>('class_a')
+    const instance = pumpIt.resolve<TestA>('class_a')
 
     expect(instance.props).toEqual([undefined, valueTwo])
   })
 
   test('if the key is not found, do not add "undefined" value', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
     const classKey = 'key_class'
     const keyTwo = 'key_two'
     const valueTwo = 2
@@ -60,16 +60,16 @@ describe('Inject array of values as a single dependency', () => {
       constructor(public props?: [string, number?]) {}
     }
 
-    pumpa.bindValue(keyTwo, valueTwo)
-    pumpa.bindClass(classKey, TestA)
+    pumpIt.bindValue(keyTwo, valueTwo)
+    pumpIt.bindClass(classKey, TestA)
 
-    const instance = pumpa.resolve<TestA>(classKey)
+    const instance = pumpIt.resolve<TestA>(classKey)
 
     expect(instance.props).toEqual([valueTwo])
   })
 
   test('throw if all the keys in the array are not optional', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
     const keyTwo = 'key_two'
     const valueTwo = 2
 
@@ -83,14 +83,14 @@ describe('Inject array of values as a single dependency', () => {
       constructor(public props?: [string, number?]) {}
     }
 
-    pumpa.bindValue(keyTwo, valueTwo)
-    pumpa.bindClass('class_a', TestA)
+    pumpIt.bindValue(keyTwo, valueTwo)
+    pumpIt.bindClass('class_a', TestA)
 
-    expect(() => pumpa.resolve<TestA>('class_a')).toThrowError('not found')
+    expect(() => pumpIt.resolve<TestA>('class_a')).toThrowError('not found')
   })
 
   test('set the whole array to undefined if there are no resolved keys', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
     class TestA {
       static inject = [
         getArray(
@@ -108,9 +108,9 @@ describe('Inject array of values as a single dependency', () => {
       constructor(public props?: [string, number?]) {}
     }
 
-    pumpa.bindClass('class_a', TestA)
+    pumpIt.bindClass('class_a', TestA)
 
-    const instance = pumpa.resolve<TestA>('class_a')
+    const instance = pumpIt.resolve<TestA>('class_a')
 
     expect(instance.props).toBeUndefined()
   })

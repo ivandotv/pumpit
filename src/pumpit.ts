@@ -31,7 +31,7 @@ export const TYPE = {
 /** Constants that represent the type of scopes that can be used
  * SINGLETON - value is resolved only once
  * TRANSIENT - value is resolved everytime it is requested
- * REQUEST - value is resolved once per request {@link Pumpa.resolve | Pumpa.resolve()}
+ * REQUEST - value is resolved once per request {@link PumpIt.resolve | PumpIt.resolve()}
  */
 export const SCOPE = {
   SINGLETON: 'SINGLETON',
@@ -39,7 +39,7 @@ export const SCOPE = {
   REQUEST: 'REQUEST'
 } as const
 
-export class Pumpa {
+export class PumpIt {
   protected pool: Map<BindKey, PoolData> = new Map()
 
   protected singletonCache: Map<BindKey, any> = new Map()
@@ -123,7 +123,7 @@ export class Pumpa {
    *
    * @param key - key to resolve binded value {@link BindKey}
    * @param value - value to bind
-   * @returns current pumpa instance
+   * @returns current pumpIt instance
    */
   bindValue(key: BindKey, value: any): this {
     this.add(key, value, {
@@ -225,7 +225,7 @@ export class Pumpa {
   }
 
   /**
-   * Creates child Pumpa instance. Child injection instance is connected to the parent instance and it can use
+   * Creates child PumpIt instance. Child injection instance is connected to the parent instance and it can use
    * parent singleton values.
    *
    * @param options - child injector options {@link ChildOptions | ChildOptions}
@@ -241,7 +241,7 @@ export class Pumpa {
   /**
    * Gets parent injector instance
    */
-  getParent(): Pumpa | undefined {
+  getParent(): PumpIt | undefined {
     return this.parent
   }
 

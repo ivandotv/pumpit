@@ -1,10 +1,10 @@
 import { PROXY_TARGET } from '../proxy'
-import { Pumpa, SCOPE } from '../pumpa'
+import { PumpIt, SCOPE } from '../pumpit'
 import { get, getArray } from '../utils'
 
 describe('Circular dependency', () => {
   test('throw when circular reference is detected', () => {
-    const pumpa = new Pumpa()
+    const pumpIt = new PumpIt()
     const keyA = 'key_a'
     const keyB = Symbol('key_b')
     const keyC = 'key_c'
@@ -19,16 +19,16 @@ describe('Circular dependency', () => {
       static inject = [keyA]
     }
 
-    pumpa.bindClass(keyA, TestA).bindClass(keyB, TestB).bindClass(keyC, TestC)
+    pumpIt.bindClass(keyA, TestA).bindClass(keyB, TestB).bindClass(keyC, TestC)
 
-    expect(() => pumpa.resolve<TestA>(keyA)).toThrowError(
+    expect(() => pumpIt.resolve<TestA>(keyA)).toThrowError(
       'Circular reference detected'
     )
   })
 
   describe('Lazy injection', () => {
     test('inject on one side', () => {
-      const pumpa = new Pumpa()
+      const pumpIt = new PumpIt()
       const keyA = 'key_a'
       const keyB = Symbol('key_b')
 
@@ -48,9 +48,9 @@ describe('Circular dependency', () => {
         constructor(public keyA: TestA) {}
       }
 
-      pumpa.bindClass(keyA, TestA).bindClass(keyB, TestB)
+      pumpIt.bindClass(keyA, TestA).bindClass(keyB, TestB)
 
-      const instance = pumpa.resolve<TestA>(keyA)
+      const instance = pumpIt.resolve<TestA>(keyA)
 
       expect(instance).toBeInstanceOf(TestA)
       expect(instance.keyB).toBeInstanceOf(TestB)
@@ -63,7 +63,7 @@ describe('Circular dependency', () => {
     })
 
     test('inject on both sides', () => {
-      const pumpa = new Pumpa()
+      const pumpIt = new PumpIt()
       const keyA = 'key_a'
       const keyB = Symbol('key_b')
 
@@ -83,9 +83,9 @@ describe('Circular dependency', () => {
         constructor(public keyA: TestA) {}
       }
 
-      pumpa.bindClass(keyA, TestA).bindClass(keyB, TestB)
+      pumpIt.bindClass(keyA, TestA).bindClass(keyB, TestB)
 
-      const instance = pumpa.resolve<TestA>(keyA)
+      const instance = pumpIt.resolve<TestA>(keyA)
 
       expect(instance).toBeInstanceOf(TestA)
       expect(instance.keyB).toBeInstanceOf(TestB)
@@ -98,7 +98,7 @@ describe('Circular dependency', () => {
     })
 
     test('inject class singleton', () => {
-      const pumpa = new Pumpa()
+      const pumpIt = new PumpIt()
       const keyA = 'key_a'
       const keyB = Symbol('key_b')
       const keyC = 'key_c'
@@ -119,13 +119,13 @@ describe('Circular dependency', () => {
         constructor(public keyB: TestB) {}
       }
 
-      pumpa
+      pumpIt
         .bindClass(keyA, TestA, { scope: SCOPE.SINGLETON })
         .bindClass(keyB, TestB, { scope: SCOPE.SINGLETON })
         .bindClass(keyC, TestC)
 
-      const instance = pumpa.resolve<TestB>(keyB)
-      const instanceTwo = pumpa.resolve<TestB>(keyB)
+      const instance = pumpIt.resolve<TestB>(keyB)
+      const instanceTwo = pumpIt.resolve<TestB>(keyB)
 
       expect(instance).toBeInstanceOf(TestB)
       expect(instance.keyC).toBeInstanceOf(TestC)
@@ -141,7 +141,7 @@ describe('Circular dependency', () => {
     })
 
     test('inject in to factory', () => {
-      const pumpa = new Pumpa()
+      const pumpIt = new PumpIt()
       const keyA = 'key_a'
       const keyB = Symbol('key_b')
 
@@ -170,11 +170,11 @@ describe('Circular dependency', () => {
 
       factoryB.inject = [get(keyA, { lazy: true })]
 
-      pumpa.bindFactory(keyA, factoryA)
-      pumpa.bindFactory(keyB, factoryB)
+      pumpIt.bindFactory(keyA, factoryA)
+      pumpIt.bindFactory(keyB, factoryB)
 
       const resolvedFactoryA =
-        pumpa.resolve<() => { fn: () => any; result: string }>(keyA)
+        pumpIt.resolve<() => { fn: () => any; result: string }>(keyA)
 
       expect(resolvedFactoryA().result).toBe(resultA)
       expect(resolvedFactoryA().fn().result).toBe(resultB)
@@ -182,7 +182,7 @@ describe('Circular dependency', () => {
     })
 
     test('inject with arrays', () => {
-      const pumpa = new Pumpa()
+      const pumpIt = new PumpIt()
       const keyA = 'key_a'
       const keyB = Symbol('key_b')
       const keyC = 'key_c'
@@ -203,9 +203,12 @@ describe('Circular dependency', () => {
         constructor(public keyB: TestB) {}
       }
 
-      pumpa.bindClass(keyA, TestA).bindClass(keyB, TestB).bindClass(keyC, TestC)
+      pumpIt
+        .bindClass(keyA, TestA)
+        .bindClass(keyB, TestB)
+        .bindClass(keyC, TestC)
 
-      const instance = pumpa.resolve<TestB>(keyB)
+      const instance = pumpIt.resolve<TestB>(keyB)
 
       expect(instance).toBeInstanceOf(TestB)
       expect(instance.data[0]).toBeInstanceOf(TestC)
