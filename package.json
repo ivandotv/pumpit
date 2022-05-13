@@ -1,9 +1,16 @@
 {
   "name": "pumpa",
   "version": "0.0.0",
-  "description": "",
-  "keywords": [],
-  "private": true,
+  "description": "Dependency injection container without using decorators, supports circular dependencies and arrays of dependencies.",
+  "keywords": [
+    "ioc",
+    "di",
+    "dependency injection",
+    "dependency inversion",
+    "dependency injection container",
+    "inversion of control container"
+  ],
+  "private": false,
   "author": "Ivan Vlatkovic",
   "license": "MIT",
   "type": "module",
@@ -21,8 +28,7 @@
   ],
   "scripts": {
     "lint": "eslint --fix \"src/**/\"",
-    "lint:check": "eslint \"src/**/\"",
-    "lint:ci": "pnpm lint:check",
+    "lint:ci": "eslint \"src/**/\"",
     "test": "jest --verbose --coverage",
     "test:watch": "jest --watch",
     "test:ci": "jest --runInBand --ci --coverage --coverageDirectory=coverage",
@@ -35,12 +41,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/your-username/pumpa.git"
+    "url": "git+https://github.com/ivandotv/pumpa.git"
   },
   "bugs": {
-    "url": "https://github.com/your-username/pumpa/issues"
+    "url": "https://github.com/ivandotv/pumpa/issues"
   },
-  "homepage": "https://github.com/your-username/pumpa#readme",
+  "homepage": "https://github.com/ivandotv/pumpa#readme",
   "devDependencies": {
     "@babel/core": "^7.17.9",
     "@babel/preset-env": "^7.16.11",
