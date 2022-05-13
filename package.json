@@ -1,6 +1,6 @@
 {
   "name": "pumpa",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Dependency injection container without using decorators, supports circular dependencies and arrays of dependencies.",
   "keywords": [
     "ioc",
