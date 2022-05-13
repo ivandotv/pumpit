@@ -40,7 +40,7 @@ Available scopes that can be used
 
 #### Defined in
 
-[types.ts:8](https://github.com/ivandotv/pumpa/blob/b6eab95/src/types.ts#L8)
+[types.ts:8](https://github.com/ivandotv/pumpit/blob/75f835c/src/types.ts#L8)
 
 ___
 
@@ -52,7 +52,7 @@ Available types that can be binded
 
 #### Defined in
 
-[types.ts:5](https://github.com/ivandotv/pumpa/blob/b6eab95/src/types.ts#L5)
+[types.ts:5](https://github.com/ivandotv/pumpit/blob/75f835c/src/types.ts#L5)
 
 ___
 
@@ -64,7 +64,7 @@ Type of values that can be used for the bind key
 
 #### Defined in
 
-[types.ts:23](https://github.com/ivandotv/pumpa/blob/b6eab95/src/types.ts#L23)
+[types.ts:23](https://github.com/ivandotv/pumpit/blob/75f835c/src/types.ts#L23)
 
 ___
 
@@ -82,7 +82,7 @@ Child injector options
 
 #### Defined in
 
-[types.ts:17](https://github.com/ivandotv/pumpa/blob/b6eab95/src/types.ts#L17)
+[types.ts:17](https://github.com/ivandotv/pumpit/blob/75f835c/src/types.ts#L17)
 
 ___
 
@@ -111,7 +111,7 @@ Class bind options
 
 #### Defined in
 
-[types.ts:26](https://github.com/ivandotv/pumpa/blob/b6eab95/src/types.ts#L26)
+[types.ts:26](https://github.com/ivandotv/pumpit/blob/75f835c/src/types.ts#L26)
 
 ___
 
@@ -138,7 +138,7 @@ ___
 
 #### Defined in
 
-[types.ts:65](https://github.com/ivandotv/pumpa/blob/b6eab95/src/types.ts#L65)
+[types.ts:65](https://github.com/ivandotv/pumpit/blob/75f835c/src/types.ts#L65)
 
 ___
 
@@ -156,7 +156,7 @@ Resolve context that is used per request and passed to the callbacks
 
 #### Defined in
 
-[types.ts:11](https://github.com/ivandotv/pumpa/blob/b6eab95/src/types.ts#L11)
+[types.ts:11](https://github.com/ivandotv/pumpit/blob/75f835c/src/types.ts#L11)
 
 ## Variables
 
@@ -179,7 +179,7 @@ REQUEST - value is resolved once per request [PumpIt.resolve()](classes/PumpIt.m
 
 #### Defined in
 
-pumpit.ts:36
+[pumpit.ts:36](https://github.com/ivandotv/pumpit/blob/75f835c/src/pumpit.ts#L36)
 
 ___
 
@@ -199,7 +199,7 @@ Constants that represent the type of values that can be binded
 
 #### Defined in
 
-pumpit.ts:25
+[pumpit.ts:25](https://github.com/ivandotv/pumpit/blob/75f835c/src/pumpit.ts#L25)
 
 ## Functions
 
@@ -237,7 +237,7 @@ get dependency by key
 
 #### Defined in
 
-[utils.ts:35](https://github.com/ivandotv/pumpa/blob/b6eab95/src/utils.ts#L35)
+[utils.ts:35](https://github.com/ivandotv/pumpit/blob/75f835c/src/utils.ts#L35)
 
 ___
 
@@ -276,7 +276,7 @@ Get an array of dependencies
 
 #### Defined in
 
-[utils.ts:60](https://github.com/ivandotv/pumpa/blob/b6eab95/src/utils.ts#L60)
+[utils.ts:60](https://github.com/ivandotv/pumpit/blob/75f835c/src/utils.ts#L60)
 
 ___
 
@@ -298,7 +298,7 @@ Helper function to detect if the object passed in is wrapped in injection proxy
 
 #### Defined in
 
-[utils.ts:129](https://github.com/ivandotv/pumpa/blob/b6eab95/src/utils.ts#L129)
+[utils.ts:129](https://github.com/ivandotv/pumpit/blob/75f835c/src/utils.ts#L129)
 
 ___
 
@@ -328,4 +328,4 @@ It gets an array of dependeciens in injection order, and it should return an arr
 
 #### Defined in
 
-[utils.ts:115](https://github.com/ivandotv/pumpa/blob/b6eab95/src/utils.ts#L115)
+[utils.ts:115](https://github.com/ivandotv/pumpit/blob/75f835c/src/utils.ts#L115)

@@ -56,7 +56,7 @@ depends on the scope used.
 
 #### Defined in
 
-pumpit.ts:170
+[pumpit.ts:170](https://github.com/ivandotv/pumpit/blob/75f835c/src/pumpit.ts#L170)
 
 ___
 
@@ -87,7 +87,7 @@ Number of executions dependes on the scope used.
 
 #### Defined in
 
-pumpit.ts:146
+[pumpit.ts:146](https://github.com/ivandotv/pumpit/blob/75f835c/src/pumpit.ts#L146)
 
 ___
 
@@ -112,7 +112,7 @@ current pumpIt instance
 
 #### Defined in
 
-pumpit.ts:128
+[pumpit.ts:128](https://github.com/ivandotv/pumpit/blob/75f835c/src/pumpit.ts#L128)
 
 ___
 
@@ -135,7 +135,7 @@ parent singleton values.
 
 #### Defined in
 
-pumpit.ts:233
+[pumpit.ts:233](https://github.com/ivandotv/pumpit/blob/75f835c/src/pumpit.ts#L233)
 
 ___
 
@@ -149,7 +149,7 @@ ___
 
 #### Defined in
 
-pumpit.ts:96
+[pumpit.ts:96](https://github.com/ivandotv/pumpit/blob/75f835c/src/pumpit.ts#L96)
 
 ___
 
@@ -165,7 +165,7 @@ Gets parent injector instance
 
 #### Defined in
 
-pumpit.ts:244
+[pumpit.ts:244](https://github.com/ivandotv/pumpit/blob/75f835c/src/pumpit.ts#L244)
 
 ___
 
@@ -186,7 +186,7 @@ ___
 
 #### Defined in
 
-pumpit.ts:113
+[pumpit.ts:113](https://github.com/ivandotv/pumpit/blob/75f835c/src/pumpit.ts#L113)
 
 ___
 
@@ -215,7 +215,7 @@ Resolve value that has previously been binded.
 
 #### Defined in
 
-pumpit.ts:195
+[pumpit.ts:195](https://github.com/ivandotv/pumpit/blob/75f835c/src/pumpit.ts#L195)
 
 ___
 
@@ -236,7 +236,7 @@ ___
 
 #### Defined in
 
-pumpit.ts:62
+[pumpit.ts:62](https://github.com/ivandotv/pumpit/blob/75f835c/src/pumpit.ts#L62)
 
 ___
 
@@ -256,4 +256,4 @@ ___
 
 #### Defined in
 
-pumpit.ts:88
+[pumpit.ts:88](https://github.com/ivandotv/pumpit/blob/75f835c/src/pumpit.ts#L88)
