@@ -16,61 +16,22 @@ describe('Resolve transform factory', () => {
 
       pumpa.bindValue(keyB, valueB)
       pumpa.bindFactory(keyA, factoryValue, {
-        beforeResolve: ({
-          container: injector,
-          value: factory,
-          deps,
-          resolveData
-        }) => {
+        beforeResolve: ({ container: injector, value: factory, deps, ctx }) => {
           expect(injector).toBe(pumpa)
           expect(factory).toBe(factory)
           expect(deps).toEqual([valueB])
-          expect(resolveData).toBe(callbackResolveData)
+          expect(ctx.data).toBe(callbackResolveData)
 
           return factory(...deps)
         }
       })
 
       const resolved = pumpa.resolve<typeof factoryValue>(keyA, {
-        resolveData: callbackResolveData
+        data: callbackResolveData
       })
 
       expect.assertions(5)
       expect(resolved).toBe(valueB)
-    })
-
-    test('resolve data is only passed to the resolve key', () => {
-      const pumpa = new Pumpa()
-      const keyA = 'key_a'
-      const keyB = Symbol()
-      const callbackResolveData = { foo: 'bar' }
-
-      const factoryA = () => true
-      factoryA.inject = [keyB]
-
-      const factoryB = () => true
-
-      pumpa
-        .bindFactory(keyB, factoryB, {
-          beforeResolve: ({ resolveData, value, deps }) => {
-            expect(resolveData).toBeUndefined()
-
-            return value(...deps)
-          }
-        })
-        .bindFactory(keyA, factoryA, {
-          beforeResolve: ({ value: factory, deps, resolveData }) => {
-            expect(resolveData).toBe(callbackResolveData)
-
-            return factory(...deps)
-          }
-        })
-
-      pumpa.resolve<typeof factoryA>(keyA, {
-        resolveData: callbackResolveData
-      })
-
-      expect.assertions(2)
     })
 
     test('returns custom value', () => {
@@ -220,43 +181,15 @@ describe('Resolve transform factory', () => {
         afterResolve
       })
 
-      pumpa.resolve(keyA, { resolveData: resolveCallbackData })
+      pumpa.resolve(keyA, { data: resolveCallbackData })
 
       expect(afterResolve).toHaveBeenCalledWith({
         container: pumpa,
         value: factoryReturnValue,
-        resolveData: resolveCallbackData
+        ctx: {
+          data: resolveCallbackData
+        }
       })
-    })
-
-    test('resolve data is only passed to the resolve key', () => {
-      const pumpa = new Pumpa()
-      const keyA = 'key_a'
-      const keyB = Symbol()
-      const callbackResolveData = { foo: 'bar' }
-
-      const factoryA = () => true
-      factoryA.inject = [keyB]
-
-      const factoryB = () => true
-
-      pumpa
-        .bindFactory(keyB, factoryB, {
-          afterResolve: ({ resolveData }) => {
-            expect(resolveData).toBeUndefined()
-          }
-        })
-        .bindFactory(keyA, factoryA, {
-          afterResolve: ({ resolveData }) => {
-            expect(resolveData).toBe(callbackResolveData)
-          }
-        })
-
-      pumpa.resolve<typeof factoryA>(keyA, {
-        resolveData: callbackResolveData
-      })
-
-      expect.assertions(2)
     })
 
     test('runs once when the scope is "singleton"', () => {

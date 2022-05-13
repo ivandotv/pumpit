@@ -5,6 +5,10 @@ export type AvailableTypes = keyof typeof TYPE
 
 export type AvailableScopes = keyof typeof SCOPE
 
+export type ResolveCtx = {
+  data?: Record<string, any>
+}
+
 export type ChildOptions = {
   shareSingletons?: boolean
 }
@@ -21,12 +25,12 @@ export type ClassOptions<
     container: Pumpa
     value: new (...args: ConstructorParameters<T>) => T
     deps?: ConstructorParameters<T>
-    resolveData?: Record<string, any>
+    ctx?: ResolveCtx
   }) => T
   afterResolve?: (data: {
     container: Pumpa
     value: InstanceType<T>
-    resolveData?: Record<string, any>
+    ctx?: ResolveCtx
   }) => void
   unbind?: (data: {
     container: Pumpa
@@ -45,12 +49,12 @@ export type FactoryOptions<
     container: Pumpa
     value: T
     deps?: Parameters<T>
-    resolveData?: Record<string, any>
+    ctx?: ResolveCtx
   }) => ReturnType<T>
   afterResolve?: (data: {
     container: Pumpa
     value: ReturnType<T>
-    resolveData?: Record<string, any>
+    ctx?: ResolveCtx
   }) => void
   unbind?: (data: {
     container: Pumpa

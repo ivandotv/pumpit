@@ -3,6 +3,7 @@ import type {
   BindKey,
   ClassOptions,
   FactoryOptions,
+  ResolveCtx,
   ValueOptions
 } from './types'
 import { InjectionData } from './utils'
@@ -37,6 +38,5 @@ export type RequestCtx = {
       proxyTarget: Record<string, { current: any }> | { (): any; current: any }
     }
   >
-  resolveKey: BindKey
-  resolveData?: Record<string, any>
+  ctx?: ResolveCtx
 }

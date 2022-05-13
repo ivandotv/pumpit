@@ -187,15 +187,14 @@ export class Pumpa {
     return undefined
   }
 
-  resolve<T>(key: BindKey, opts?: { resolveData?: Record<string, any> }): T {
+  resolve<T>(key: BindKey, opts?: { data?: Record<string, any> }): T {
     const ctx: RequestCtx = this.currentCtx || {
       singletonCache: this.singletonCache,
       transientCache: new Map(),
       requestCache: new Map(),
       requestedKeys: new Map(),
       delayed: new Map(),
-      resolveKey: key,
-      resolveData: opts?.resolveData
+      ctx: opts
     }
 
     const result = this._resolve(key, { optional: false }, ctx)
@@ -380,12 +379,11 @@ export class Pumpa {
       } else {
         resolvedDeps = injectionData.fn(
           this,
-          ...this.resolveDeps(injectionData.deps, ctx)
+          ...this.resolveDeps(injectionData.deps, ctx),
+          ctx.ctx
         )
       }
     }
-
-    const resolveData = key === ctx.resolveKey ? ctx.resolveData : undefined
 
     const result = beforeResolve
       ? beforeResolve({
@@ -393,12 +391,12 @@ export class Pumpa {
           // @ts-expect-error type narrow between factory and class value
           value,
           deps: resolvedDeps,
-          resolveData
+          ctx: ctx.ctx
         })
       : create(value, resolvedDeps)
 
     afterResolve
-      ? afterResolve({ container: this, value: result, resolveData })
+      ? afterResolve({ container: this, value: result, ctx: ctx.ctx })
       : null
 
     ctx.requestedKeys.get(key)!.constructed = true

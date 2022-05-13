@@ -27,7 +27,13 @@ describe('Transform dependencies', () => {
         .bindValue(keyC, valueC)
         .resolve<TestA>(classKey)
 
-      expect(transformFn).toHaveBeenCalledWith(pumpa, valueA, valueB, valueC)
+      expect(transformFn).toHaveBeenCalledWith(
+        pumpa,
+        valueA,
+        valueB,
+        valueC,
+        undefined
+      )
     })
 
     test('transform function receives resolved dependency as an array', () => {
@@ -54,7 +60,11 @@ describe('Transform dependencies', () => {
         .bindValue(keyC, valueC)
         .resolve<TestA>(classKey)
 
-      expect(transformFn).toHaveBeenCalledWith(pumpa, [valueA, valueB, valueC])
+      expect(transformFn).toHaveBeenCalledWith(
+        pumpa,
+        [valueA, valueB, valueC],
+        undefined
+      )
     })
 
     test('transform function receives proxy dependency', () => {
@@ -119,7 +129,8 @@ describe('Transform dependencies', () => {
         pumpa,
         valueA,
         valueB,
-        valueC
+        valueC,
+        undefined
       )
       expect(instance.keyA).toBe(transformedA)
       expect(instance.keyB).toBe(transformedB)
@@ -134,6 +145,7 @@ describe('Transform dependencies', () => {
       const keyA = Symbol()
       const keyB = Symbol()
       const keyC = Symbol()
+      const requestData = { foo: 'bar' }
 
       const valueA = {}
       const valueB = {}
@@ -152,13 +164,16 @@ describe('Transform dependencies', () => {
         .bindValue(keyA, valueA)
         .bindValue(keyB, valueB)
         .bindValue(keyC, valueC)
-        .resolve<ReturnType<typeof factory>>(factoryKey)
+        .resolve<ReturnType<typeof factory>>(factoryKey, { data: requestData })
 
       expect(injectTransform).toHaveBeenCalledWith(
         pumpa,
         valueA,
         valueB,
-        valueC
+        valueC,
+        {
+          data: requestData
+        }
       )
     })
 
