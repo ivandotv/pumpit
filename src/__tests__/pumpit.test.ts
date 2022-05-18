@@ -7,14 +7,14 @@ describe('Optional injection', () => {
     const pumpIt = new PumpIt()
 
     class TestA {
-      static inject = [get('key_a', { optional: true })]
+      static inject = [get('does_not_exist', { optional: true })]
 
       constructor(public optionalProp?: string) {}
     }
 
-    pumpIt.bindClass('class_a', TestA)
+    pumpIt.bindClass(TestA, TestA)
 
-    expect(() => pumpIt.resolve<TestA>('class_a')).not.toThrow()
+    expect(() => pumpIt.resolve<TestA>(TestA)).not.toThrow()
   })
 
   test('injection resolves to undefined', () => {
