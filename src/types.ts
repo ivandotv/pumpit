@@ -41,7 +41,7 @@ export type ClassOptions<
     deps?: ConstructorParameters<T>
     /** {@link ResolveCtx | context} object that was passed in with the {@link PumpIt.resolve | PumpIt.resolve} call*/
     ctx?: ResolveCtx
-  }) => T
+  }) => any
   /** callback that is called after the value is resolved, number of calls depends on scope used when registering*/
   afterResolve?: (data: {
     /** injection container that holds the value*/
@@ -80,7 +80,7 @@ export type FactoryOptions<
     deps?: Parameters<T>
     /** {@link ResolveCtx | context} object that was passed in with the {@link PumpIt.resolve | PumpIt.resolve} call*/
     ctx?: ResolveCtx
-  }) => ReturnType<T>
+  }) => any
   /** callback that is called after the value is resolved, number of calls depends on scope used when registering*/
   afterResolve?: (data: {
     /** injection container that holds the value*/
