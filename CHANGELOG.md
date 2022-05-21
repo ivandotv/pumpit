@@ -1,5 +1,11 @@
 # pumpa
 
+## 2.0.0
+
+### Major Changes
+
+- 84c44d2: Implement object value registration for class and factory binding.
+
 ## 1.0.0
 
 ### Major Changes
