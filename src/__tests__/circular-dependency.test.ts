@@ -97,6 +97,41 @@ describe('Circular dependency', () => {
       expect(instance.keyB.keyA.constructor.hello()).toBe(staticResult)
     })
 
+    test('inject on both sides - object key - value', () => {
+      const pumpIt = new PumpIt()
+      const keyA = 'key_a'
+      const keyB = Symbol('key_b')
+
+      const staticResult = 'hello'
+      class TestA {
+        static inject = [get(keyB, { lazy: true })]
+
+        static hello() {
+          return staticResult
+        }
+
+        constructor(public keyB: TestB) {}
+      }
+      class TestB {
+        constructor(public keyA: TestA) {}
+      }
+
+      pumpIt
+        .bindClass(keyB, { value: TestB, inject: [get(keyA, { lazy: true })] })
+        .bindClass(keyA, { value: TestA, inject: [get(keyB, { lazy: true })] })
+
+      const instance = pumpIt.resolve<TestA>(keyA)
+
+      expect(instance).toBeInstanceOf(TestA)
+      expect(instance.keyB).toBeInstanceOf(TestB)
+      expect(instance.keyB.keyA).toBeInstanceOf(TestA)
+      // @ts-expect-error - call function constructor
+      expect(new instance.keyB.keyA.constructor()).toBeInstanceOf(TestA)
+      expect(instance.keyB.keyA[PROXY_TARGET]).toBe(instance)
+      // @ts-expect-error - call static via constructor
+      expect(instance.keyB.keyA.constructor.hello()).toBe(staticResult)
+    })
+
     test('inject class singleton', () => {
       const pumpIt = new PumpIt()
       const keyA = 'key_a'

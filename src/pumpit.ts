@@ -5,7 +5,9 @@ import type {
   BindKey,
   ChildOptions,
   ClassOptions,
+  ClassValue,
   FactoryOptions,
+  FactoryValue,
   ResolveCtx
 } from './types'
 import type { RequestCtx } from './types-internal'
@@ -137,19 +139,28 @@ export class PumpIt {
 
   /**
    * Binds a factory function. Function that is binded will be executed when resolved and the value will be returned.
-   * Number of executions dependes on the scope used.
+   * Number of executions depends on the scope used.
    *
    * @param key - key to resolve binded value {@link BindKey | BindKey}
    * @param value - factory function to bind
    * @param options - bind options {@link FactoryOptions | FactoryOptions}
    */
-  bindFactory<T extends (...args: any[]) => any = (...args: any[]) => any>(
+  bindFactory<T extends FactoryValue>(
     key: BindKey,
     value: T,
     options?: Omit<Partial<FactoryOptions<T, AvailableScopes>>, 'type'>
   ): this {
-    // @ts-expect-error generic constraint problem
-    this.add(key, value, {
+    const { exec, inject } = this.parseValue(value)
+
+    const resolve = function (...args: any[]) {
+      // @ts-expect-error - type narrow
+      return exec(...args)
+    }
+    resolve.inject = inject
+    resolve.original = exec
+
+    // @ts-expect-error - generic type mismatch
+    this.add(key, resolve, {
       ...options,
       type: TYPE.FACTORY,
       scope: options?.scope || SCOPE.TRANSIENT,
@@ -157,6 +168,28 @@ export class PumpIt {
     })
 
     return this
+  }
+
+  protected parseValue(value: ClassValue | FactoryValue) {
+    let exec: (new (...args: any) => any) | ((...args: any[]) => any)
+    let inject: InjectionData
+
+    if (typeof value !== 'function') {
+      if (!value.value || !value.inject) {
+        throw new Error('bind keys must be "value" and "inject"')
+      }
+      exec = value.value
+      inject = value.inject
+    } else {
+      exec = value
+      // @ts-expect-error type narrow
+      inject = value.inject
+    }
+
+    return {
+      exec,
+      inject
+    }
   }
 
   /**
@@ -167,15 +200,21 @@ export class PumpIt {
    * @param value - class to bind
    * @param options - bind options for factory {@link ClassOptions | ClassOptions}
    */
-  bindClass<
-    T extends new (...args: any[]) => any = new (...args: any[]) => any
-  >(
+  bindClass<T extends ClassValue>(
     key: BindKey,
     value: T,
     options?: Omit<Partial<ClassOptions<T, AvailableScopes>>, 'type'>
   ): this {
-    // @ts-expect-error generic constraint problem
-    this.add(key, value, {
+    const { exec, inject } = this.parseValue(value)
+    const resolve = function (...args: any[]) {
+      // @ts-expect-error type narrow
+      return new exec(...args)
+    }
+    resolve.inject = inject
+    resolve.original = exec
+
+    // @ts-expect-error generic type mismatch
+    this.add(key, resolve, {
       ...options,
       type: TYPE.CLASS,
       scope: options?.scope || SCOPE.TRANSIENT,
@@ -204,6 +243,7 @@ export class PumpIt {
 
     const result = this._resolve(key, { optional: false }, ctx)
 
+    //TODO - make a for loop
     ctx.delayed.forEach((value, key) => {
       const resolvedValue =
         ctx.singletonCache.get(key) ||
@@ -216,7 +256,7 @@ export class PumpIt {
         return
       }
 
-      throw new Error(`Can't resolve lazy key: ${keyToString(key)}`)
+      // throw new Error(`Can't resolve lazy key: ${keyToString(key)}`)
     })
 
     this.currentCtx = null
@@ -322,10 +362,9 @@ export class PumpIt {
     }
     if (useLazy) {
       fn = () => this.createLazy(key, type, ctx)
-    } else if (type === TYPE.CLASS) {
-      fn = () => this.createInstance(key, data.value as ClassPoolData, ctx)
     } else {
-      fn = () => this.createFactory(key, data.value as FactoryPoolData, ctx)
+      fn = () =>
+        this.create(key, data.value as ClassPoolData | FactoryPoolData, ctx)
     }
 
     return this.run(scope, key, fn, ctx)
@@ -381,38 +420,13 @@ export class PumpIt {
     return proxy
   }
 
-  protected createInstance<
-    T extends { new (...args: any[]): any; inject: InjectionData }
-  >(key: BindKey, data: ClassPoolData, ctx: RequestCtx): T {
-    return this.create(
-      key,
-      data,
-      ctx,
-      (value, deps) =>
-        // @ts-expect-error - todo narrow the type to ClassPoolData['value']
-        new value(...deps)
-    )
-  }
-
-  protected createFactory<
-    T extends { (...args: any[]): any; inject: InjectionData }
-  >(key: BindKey, data: FactoryPoolData, ctx: RequestCtx): T {
-    return this.create(key, data, ctx, (value, deps) =>
-      // @ts-expect-error - todo narrow the type to FactoryPoolData['value']
-      value(...deps)
-    )
-  }
-
   protected create(
     key: BindKey,
     data: FactoryPoolData | ClassPoolData,
-    ctx: RequestCtx,
-    create: (
-      value: FactoryPoolData['value'] | ClassPoolData['value'],
-      deps: any[]
-    ) => void
+    ctx: RequestCtx
   ) {
     const { beforeResolve, afterResolve, value } = data
+    // @ts-expect-error - inject
     const injectionData = value.inject
     let resolvedDeps = []
 
@@ -432,11 +446,12 @@ export class PumpIt {
       ? beforeResolve({
           container: this,
           // @ts-expect-error type narrow between factory and class value
-          value,
+          value: value.original,
           deps: resolvedDeps,
           ctx: ctx.ctx
         })
-      : create(value, resolvedDeps)
+      : // @ts-expect-error -type mismatch
+        value(...resolvedDeps)
 
     afterResolve
       ? afterResolve({ container: this, value: result, ctx: ctx.ctx })

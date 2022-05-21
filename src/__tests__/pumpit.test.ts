@@ -204,4 +204,51 @@ describe('Optional injection', () => {
     expect(instance.bc[0]).toBeInstanceOf(TestB)
     expect(instance.bc[1]).toBeInstanceOf(TestC)
   })
+
+  test('injection with object - key - value', () => {
+    const pumpIt = new PumpIt()
+    const classKeyA = 'a'
+    const objectKeyB = {}
+    const functionKeyC = () => {}
+    const keyD = Symbol()
+
+    class TestA {}
+    class TestB {}
+    class TestD {}
+
+    const factory = (a: TestA, bd: [TestB, TestD]) => {
+      return {
+        a,
+        bd
+      }
+    }
+
+    pumpIt
+      .bindClass(classKeyA, { value: TestA, inject: [] })
+      .bindClass(objectKeyB, TestB)
+      .bindFactory(functionKeyC, {
+        value: factory,
+        inject: [
+          get(classKeyA, { lazy: true }),
+          getArray([get(objectKeyB, { lazy: true }), get(keyD, { lazy: true })])
+        ]
+      })
+      .bindClass(keyD, TestD)
+
+    const instance = pumpIt.resolve<ReturnType<typeof factory>>(functionKeyC)
+
+    expect(instance.a).toBeInstanceOf(TestA)
+    expect(instance.bd[0]).toBeInstanceOf(TestB)
+    expect(instance.bd[1]).toBeInstanceOf(TestD)
+  })
+
+  test('throw if bind keys are incorrect', () => {
+    const pumpit = new PumpIt()
+    const factory = () => {}
+
+    // @ts-expect-error - deliberate wrong keys
+    expect(() => pumpit.bindFactory('a', { a: factory, b: [] })).toThrowError(
+      'bind keys must be "value" and "inject"'
+    )
+  })
 })

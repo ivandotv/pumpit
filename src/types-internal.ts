@@ -3,19 +3,17 @@ import type {
   AvailableScopes,
   BindKey,
   ClassOptions,
-  FactoryOptions
+  ClassValue,
+  FactoryOptions,
+  FactoryValue
 } from './types'
-import { InjectionData } from './utils'
 
 type InternalResolveCtx = {
   data?: Record<string, any>
 }
 
-export type ClassPoolData = ClassOptions<
-  new (...args: any[]) => any,
-  AvailableScopes
-> & {
-  value: { new (...args: any[]): any; inject?: InjectionData }
+export type ClassPoolData = ClassOptions<ClassValue, AvailableScopes> & {
+  value: ClassValue
 }
 
 /** Availalbes types and scopes for simple values.
@@ -28,11 +26,8 @@ export type ValueOptions = {
 
 export type ValuePoolData = ValueOptions & { value: any }
 
-export type FactoryPoolData = FactoryOptions<
-  (...args: any[]) => any,
-  AvailableScopes
-> & {
-  value: { (...args: any[]): any; inject?: InjectionData }
+export type FactoryPoolData = FactoryOptions<FactoryValue, AvailableScopes> & {
+  value: FactoryValue
 }
 
 export type PoolData = ValuePoolData | ClassPoolData | FactoryPoolData

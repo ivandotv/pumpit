@@ -1,5 +1,6 @@
 import type { PumpIt } from './pumpit'
 import { SCOPE, TYPE } from './pumpit'
+import { InjectionData } from './utils'
 
 /** Available types that can be binded*/
 export type AvailableTypes = keyof typeof TYPE
@@ -22,9 +23,17 @@ export type ChildOptions = {
 /** Type of values that can be used for the bind key*/
 export type BindKey = string | symbol | Record<string, any>
 
+export type FactoryValue =
+  | ((...args: any[]) => any)
+  | { value: (...args: any[]) => any; inject: InjectionData }
+
+export type ClassValue =
+  | (new (...args: any[]) => any)
+  | { value: new (...args: any[]) => any; inject: InjectionData }
+
 /** Class bind options*/
 export type ClassOptions<
-  T extends new (...args: any[]) => any,
+  T extends ClassValue,
   K extends AvailableScopes = 'TRANSIENT'
 > = {
   /** Class constant type {@link AvailableTypes} */
@@ -36,9 +45,15 @@ export type ClassOptions<
     /** injection container that holds the value*/
     container: PumpIt
     /** constructor that is going to be used */
-    value: new (...args: ConstructorParameters<T>) => T
+    value: T extends new (...args: any[]) => any
+      ? new (...args: ConstructorParameters<T>) => T
+      : // @ts-expect-error - index signature mismatch
+        new (...args: ConstructorParameters<T['value']>) => T['value']
     /** deps that are resolved and should be passed to the constructor*/
-    deps?: ConstructorParameters<T>
+    deps: T extends new (...args: any[]) => any
+      ? ConstructorParameters<T>
+      : // @ts-expect-error - index signature mismatch
+        ConstructorParameters<T['value']>
     /** {@link ResolveCtx | context} object that was passed in with the {@link PumpIt.resolve | PumpIt.resolve} call*/
     ctx?: ResolveCtx
   }) => any
@@ -47,7 +62,7 @@ export type ClassOptions<
     /** injection container that holds the value*/
     container: PumpIt
     /** value that has been constructed*/
-    value: InstanceType<T>
+    value: any
     /** {@link ResolveCtx | context} object that was passed in with the {@link PumpIt.resolve | PumpIt.resolve} call*/
     ctx?: ResolveCtx
   }) => void
@@ -58,12 +73,12 @@ export type ClassOptions<
     /** if dispose method will be called on the class instance*/
     dispose: boolean
     /** instance value that will be removed*/
-    value: K extends 'SINGLETON' ? InstanceType<T> : undefined
+    value: K extends 'SINGLETON' ? any : undefined
   }) => void
 }
 
 export type FactoryOptions<
-  T extends (...args: any[]) => any,
+  T extends FactoryValue,
   K extends AvailableScopes
 > = {
   /** Factory constant type */
@@ -75,9 +90,13 @@ export type FactoryOptions<
     /** injection container that holds the value*/
     container: PumpIt
     /** factory function that is going to be used */
-    value: T
+    // @ts-expect-error index type mismatch
+    value: T extends (...args: any[]) => any ? T : T['value']
     /** deps that are resolved and should be passed to the factory function*/
-    deps?: Parameters<T>
+    deps?: T extends (...args: any[]) => any
+      ? Parameters<T>
+      : // @ts-expect-error index type mismatch
+        Parameters<T['value']>
     /** {@link ResolveCtx | context} object that was passed in with the {@link PumpIt.resolve | PumpIt.resolve} call*/
     ctx?: ResolveCtx
   }) => any
@@ -86,7 +105,7 @@ export type FactoryOptions<
     /** injection container that holds the value*/
     container: PumpIt
     /** value that has been returned from the factory function call*/
-    value: ReturnType<T>
+    value: any
     /** {@link ResolveCtx | context} object that was passed in with the {@link PumpIt.resolve | PumpIt.resolve} call*/
     ctx?: ResolveCtx
   }) => void
@@ -96,7 +115,7 @@ export type FactoryOptions<
     container: PumpIt
     /** if dispose method will be called on the class instance*/
     dispose: boolean
-    /** value that was returned by the factory function and it is going to be removed.*/
-    value: K extends 'SINGLETON' ? ReturnType<T> : undefined
+    /** value that is going to be removed*/
+    value: K extends 'SINGLETON' ? any : undefined
   }) => void
 }
