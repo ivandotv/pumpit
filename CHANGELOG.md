@@ -1,5 +1,12 @@
 # pumpa
 
+## 3.0.0
+
+### Major Changes
+
+- 3e372cb: Change function signature for "beforeResolve function"
+- ec70e5a: Change function signature for "onBefore"
+
 ## 2.0.0
 
 ### Major Changes
