@@ -9,10 +9,7 @@ export type AvailableTypes = keyof typeof TYPE
 export type AvailableScopes = keyof typeof SCOPE
 
 /** Resolve context that is used per request and passed to the callbacks*/
-export type ResolveCtx = {
-  /** Arbitrary data that can be used*/
-  data?: Record<string, any>
-}
+export type ResolveCtx = Record<string, any>
 
 /** Child injector options*/
 export type ChildOptions = {

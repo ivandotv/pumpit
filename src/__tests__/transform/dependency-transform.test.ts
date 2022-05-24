@@ -10,6 +10,8 @@ describe('Transform dependencies', () => {
       const keyB = Symbol()
       const keyC = Symbol()
 
+      const resolveCtx = { hello: 'world' }
+
       const valueA = { name: 'a' }
       const valueB = { name: 'b' }
       const valueC = { name: 'c' }
@@ -25,14 +27,16 @@ describe('Transform dependencies', () => {
         .bindValue(keyA, valueA)
         .bindValue(keyB, valueB)
         .bindValue(keyC, valueC)
-        .resolve<TestA>(classKey)
+        .resolve<TestA>(classKey, resolveCtx)
 
       expect(transformFn).toHaveBeenCalledWith(
-        pumpIt,
+        {
+          container: pumpIt,
+          ctx: resolveCtx
+        },
         valueA,
         valueB,
-        valueC,
-        undefined
+        valueC
       )
     })
 
@@ -65,11 +69,13 @@ describe('Transform dependencies', () => {
       const instance = pumpIt.resolve<TestA>(classKey)
 
       expect(transformFn).toHaveBeenCalledWith(
-        pumpIt,
+        {
+          container: pumpIt,
+          ctx: undefined
+        },
         valueA,
         valueB,
-        valueC,
-        undefined
+        valueC
       )
 
       expect(instance.a).toBe(valueA)
@@ -84,9 +90,9 @@ describe('Transform dependencies', () => {
       const keyB = Symbol()
       const keyC = Symbol()
 
-      const valueA = {}
-      const valueB = {}
-      const valueC = {}
+      const valueA = { a: 'a' }
+      const valueB = { b: 'b' }
+      const valueC = { c: 'c' }
 
       const transformFn = jest.fn().mockReturnValue([valueA, valueB, valueC])
 
@@ -102,9 +108,8 @@ describe('Transform dependencies', () => {
         .resolve<TestA>(classKey)
 
       expect(transformFn).toHaveBeenCalledWith(
-        pumpIt,
-        [valueA, valueB, valueC],
-        undefined
+        { container: pumpIt, ctx: undefined },
+        [valueA, valueB, valueC]
       )
     })
 
@@ -120,7 +125,7 @@ describe('Transform dependencies', () => {
       class TestB {
         static inject = transform(
           [get(keyA, { lazy: true })],
-          (_injector: PumpIt, keyA: TestA) => {
+          (_, keyA: TestA) => {
             expect(isProxy(keyA)).toBe(true)
 
             return [keyA]
@@ -167,11 +172,13 @@ describe('Transform dependencies', () => {
       const instance = pumpIt.resolve<TestA>(classKey)
 
       expect(injectTransform).toHaveBeenCalledWith(
-        pumpIt,
+        {
+          container: pumpIt,
+          ctx: undefined
+        },
         valueA,
         valueB,
-        valueC,
-        undefined
+        valueC
       )
       expect(instance.keyA).toBe(transformedA)
       expect(instance.keyB).toBe(transformedB)
@@ -208,13 +215,15 @@ describe('Transform dependencies', () => {
         .resolve<ReturnType<typeof factory>>(factoryKey, { data: requestData })
 
       expect(injectTransform).toHaveBeenCalledWith(
-        pumpIt,
+        {
+          container: pumpIt,
+          ctx: {
+            data: requestData
+          }
+        },
         valueA,
         valueB,
-        valueC,
-        {
-          data: requestData
-        }
+        valueC
       )
     })
 

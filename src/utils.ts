@@ -1,5 +1,6 @@
 import { IS_PROXY } from './proxy'
-import { BindKey } from './types'
+import type { PumpIt } from './pumpit'
+import { BindKey, ResolveCtx } from './types'
 
 //detect transfom action function
 export const TRANSFORM_DEPS = Symbol()
@@ -114,7 +115,7 @@ export function parseInjectionData(key: Injection): ParsedInjectionData {
  */
 export function transform(
   deps: (BindKey | typeof get | typeof getArray)[],
-  fn: (...args: any[]) => any[]
+  fn: (data: { container: PumpIt; ctx: ResolveCtx }, ...deps: any[]) => any[]
 ) {
   return {
     action: TRANSFORM_DEPS,

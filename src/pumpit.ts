@@ -435,9 +435,11 @@ export class PumpIt {
         resolvedDeps = this.resolveDeps(injectionData, ctx)
       } else {
         resolvedDeps = injectionData.fn(
-          this,
-          ...this.resolveDeps(injectionData.deps, ctx),
-          ctx.ctx
+          {
+            container: this,
+            ctx: ctx.ctx
+          },
+          ...this.resolveDeps(injectionData.deps, ctx)
         )
       }
     }
