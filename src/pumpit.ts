@@ -428,7 +428,7 @@ export class PumpIt {
     const { beforeResolve, afterResolve, value } = data
     // @ts-expect-error - inject
     const injectionData = value.inject
-    let resolvedDeps = []
+    let resolvedDeps: any[] = []
 
     if (injectionData) {
       if (Array.isArray(injectionData)) {
@@ -445,13 +445,15 @@ export class PumpIt {
     }
 
     const result = beforeResolve
-      ? beforeResolve({
-          container: this,
-          // @ts-expect-error type narrow between factory and class value
-          value: value.original,
-          deps: resolvedDeps,
-          ctx: ctx.ctx
-        })
+      ? beforeResolve(
+          {
+            container: this,
+            // @ts-expect-error type narrow between factory and class value
+            value: value.original,
+            ctx: ctx.ctx
+          },
+          ...resolvedDeps
+        )
       : // @ts-expect-error -type mismatch
         value(...resolvedDeps)
 

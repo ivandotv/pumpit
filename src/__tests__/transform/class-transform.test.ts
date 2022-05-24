@@ -19,12 +19,10 @@ describe('Class transform', () => {
       pumpIt.bindValue(keyB, valueB)
 
       pumpIt.bindClass(keyA, TestA, {
-        beforeResolve: ({
-          container: injector,
-          value: constructor,
-          deps,
-          ctx
-        }) => {
+        beforeResolve: (
+          { container: injector, value: constructor, ctx },
+          ...deps
+        ) => {
           expect(injector).toBe(pumpIt)
           expect(constructor).toBe(TestA)
           expect(deps).toEqual([valueB])
@@ -59,7 +57,10 @@ describe('Class transform', () => {
 
       pumpIt.bindValue(keyB, valueB)
       pumpIt.bindClass(keyA, TestA, {
-        beforeResolve: ({ container: injector, value: constructor, deps }) => {
+        beforeResolve: (
+          { container: injector, value: constructor },
+          ...deps
+        ) => {
           expect(injector).toBe(pumpIt)
           expect(constructor).toBe(TestA)
           expect(deps).toEqual([transformedValue])

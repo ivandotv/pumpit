@@ -16,7 +16,10 @@ describe('Resolve transform factory', () => {
 
       pumpIt.bindValue(keyB, valueB)
       pumpIt.bindFactory(keyA, factoryValue, {
-        beforeResolve: ({ container: injector, value: factory, deps, ctx }) => {
+        beforeResolve: (
+          { container: injector, value: factory, ctx },
+          ...deps
+        ) => {
           expect(injector).toBe(pumpIt)
           expect(factory).toBe(factory)
           expect(deps).toEqual([valueB])

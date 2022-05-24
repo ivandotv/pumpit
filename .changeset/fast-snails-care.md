@@ -2,4 +2,4 @@
 'pumpit': major
 ---
 
-Change function signature for "transform dependencies function"
+Change function signature for "beforeResolve function"

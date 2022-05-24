@@ -327,7 +327,7 @@ describe('Unbind', () => {
     let beforeResolveCount = 0
     pumpIt.bindClass(keyA, TestA, {
       scope: 'SINGLETON',
-      beforeResolve: ({ value, deps }) => {
+      beforeResolve: ({ value }, ...deps) => {
         beforeResolveCount++
 
         return new value(...deps)

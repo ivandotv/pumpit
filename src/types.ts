@@ -38,22 +38,24 @@ export type ClassOptions<
   /** Scope that is going to be used {@link AvailableScopes}*/
   scope: K
   /** callback that is called before the value is resolved, number of calls depends on scope used when registering*/
-  beforeResolve?: (data: {
-    /** injection container that holds the value*/
-    container: PumpIt
-    /** constructor that is going to be used */
-    value: T extends new (...args: any[]) => any
-      ? new (...args: ConstructorParameters<T>) => T
-      : // @ts-expect-error - index signature mismatch
-        new (...args: ConstructorParameters<T['value']>) => T['value']
+  beforeResolve?: (
+    data: {
+      /** injection container that holds the value*/
+      container: PumpIt
+      /** constructor that is going to be used */
+      value: T extends new (...args: any[]) => any
+        ? new (...args: ConstructorParameters<T>) => T
+        : // @ts-expect-error - index signature mismatch
+          new (...args: ConstructorParameters<T['value']>) => T['value']
+      /** {@link ResolveCtx | context} object that was passed in with the {@link PumpIt.resolve | PumpIt.resolve} call*/
+      ctx?: ResolveCtx
+    },
     /** deps that are resolved and should be passed to the constructor*/
-    deps: T extends new (...args: any[]) => any
+    ...deps: T extends new (...args: any[]) => any
       ? ConstructorParameters<T>
       : // @ts-expect-error - index signature mismatch
         ConstructorParameters<T['value']>
-    /** {@link ResolveCtx | context} object that was passed in with the {@link PumpIt.resolve | PumpIt.resolve} call*/
-    ctx?: ResolveCtx
-  }) => any
+  ) => any
   /** callback that is called after the value is resolved, number of calls depends on scope used when registering*/
   afterResolve?: (data: {
     /** injection container that holds the value*/
@@ -83,20 +85,22 @@ export type FactoryOptions<
   /** Scope that is going to be used {@link AvailableScopes}*/
   scope: K
   /** callback that is called before the value is resolved, number of calls depends on scope used when registering*/
-  beforeResolve?: (data: {
-    /** injection container that holds the value*/
-    container: PumpIt
-    /** factory function that is going to be used */
-    // @ts-expect-error index type mismatch
-    value: T extends (...args: any[]) => any ? T : T['value']
+  beforeResolve?: (
+    data: {
+      /** injection container that holds the value*/
+      container: PumpIt
+      /** factory function that is going to be used */
+      // @ts-expect-error index type mismatch
+      value: T extends (...args: any[]) => any ? T : T['value']
+      /** {@link ResolveCtx | context} object that was passed in with the {@link PumpIt.resolve | PumpIt.resolve} call*/
+      ctx?: ResolveCtx
+    },
     /** deps that are resolved and should be passed to the factory function*/
-    deps?: T extends (...args: any[]) => any
+    ...deps: T extends (...args: any[]) => any
       ? Parameters<T>
       : // @ts-expect-error index type mismatch
         Parameters<T['value']>
-    /** {@link ResolveCtx | context} object that was passed in with the {@link PumpIt.resolve | PumpIt.resolve} call*/
-    ctx?: ResolveCtx
-  }) => any
+  ) => any
   /** callback that is called after the value is resolved, number of calls depends on scope used when registering*/
   afterResolve?: (data: {
     /** injection container that holds the value*/
