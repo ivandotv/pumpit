@@ -36,6 +36,47 @@ describe('Transform dependencies', () => {
       )
     })
 
+    test('transform function can be applied on object registration', () => {
+      const pumpIt = new PumpIt()
+      const classKey = Symbol()
+      const keyA = Symbol()
+      const keyB = Symbol()
+      const keyC = Symbol()
+
+      const valueA = { name: 'a' }
+      const valueB = { name: 'b' }
+      const valueC = { name: 'c' }
+
+      const transformFn = jest.fn().mockReturnValue([valueA, valueB, valueC])
+
+      class TestA {
+        constructor(public a: any, public b: any, public c: any) {}
+      }
+
+      pumpIt
+        .bindClass(classKey, {
+          value: TestA,
+          inject: transform([keyA, keyB, keyC], transformFn)
+        })
+        .bindValue(keyA, valueA)
+        .bindValue(keyB, valueB)
+        .bindValue(keyC, valueC)
+
+      const instance = pumpIt.resolve<TestA>(classKey)
+
+      expect(transformFn).toHaveBeenCalledWith(
+        pumpIt,
+        valueA,
+        valueB,
+        valueC,
+        undefined
+      )
+
+      expect(instance.a).toBe(valueA)
+      expect(instance.b).toBe(valueB)
+      expect(instance.c).toBe(valueC)
+    })
+
     test('transform function receives resolved dependency as an array', () => {
       const pumpIt = new PumpIt()
       const classKey = Symbol()

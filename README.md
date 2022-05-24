@@ -4,169 +4,292 @@ Opinionated template repository for creating Javascript libraries with Typescrip
 
 <!-- toc -->
 
-- [Motivation](#motivation)
-- [Getting Started](#getting-started)
-- [Compiling Typescript via Microbundle](#compiling-typescript-via-microbundle)
-- [Development code](#development-code)
-- [Testing via Jest](#testing-via-jest)
-- [Linting via ESLint](#linting-via-eslint)
-- [Formatting code via Prettier](#formatting-code-via-prettier)
-- [Continuous Integration](#continuous-integration)
-- [Git Hooks](#git-hooks)
-- [Debugging](#debugging)
-- [Managing versions via changesets](#managing-versions-via-changesets)
-- [Generating API documentation](#generating-api-documentation)
-- [Renovate Bot](#renovate-bot)
-- [Publishing to NPM](#publishing-to-npm)
-- [Package manager](#package-manager)
-
 <!-- tocstop -->
+
+## About
+
+`PumpIt` is a small (~2KB) dependency injection container, without decorators, sutable for front-end code. It supports circulary dependencies (via Proxy), injecting arrays, differen injection scopes, child injectors etc..
 
 ## Motivation
 
-Setting up a modern Typescript or Javascript development stack is a daunting task, there are a lot of moving parts, and sometimes the whole process seems like magic. I've maintained my babel configuration, and build process but it was getting tiresome to maintain, so I switched to [microbundle](https://github.com/developit/microbundle). While microbundle handles the compilation, there are a lot of other moving parts that need to be set up to start developing with Nodejs/Typescript (CI, test, etc).
-
-This repository is actively maintained and as new versions of tools are being released it is updated and modified accordingly.
+Dependency injection is a powerfull concept, and there are some execelen solutions like: [tsyringe](), [awilix]() and [inversivfy](), however they all use decorators (which are great, but not a standard), and there filezize is not sutable for front-end. So I've decided to create an implementation of dependency injection container theat is small, and doesn't use decorators.
 
 ## Getting Started
 
-You can immediately create your repo by clicking on the `Use this template button` in the Github page UI. Or you can use [deGit](https://github.com/Rich-Harris/degit) which is a very convenient tool to quickly download the repository (without git clone) `degit https://github.com/ivandotv/microbundle-template`
+Since `PumpIt` does not rely on decorators the injection is done via the `injection` prop. When used with `classes`, `inject` will be a static property on the class, and it will hold an array of registered injection `tokens` that will be injected in to the constructor in the same order when the class instance is created.
 
-## Compiling Typescript via Microbundle
+### Registering classes
 
-Typescript files are compiled via [Microbundle](https://github.com/developit/microbundle), there are two scripts (`build:dev` and `build:prod`)
-Microbundle creates three bundles, `modern (es6)` `cjs` and `umd`. Also in the `exports` field in the package.json there are three keys:
+```ts
+import { PumpIt } from 'pumpit'
 
-- `development` - used by bundlers while developing
-- `import` - es6 (module) build of the library
-- `require` - Commonjs build of the library
+class TestA {
+  static inject = [B]
 
-## Development code
+  constructor(b: B) {}
+}
 
-While in the development you have access to a few expressions, that will later be transformed via microbundle.
+class TestB {}
 
-`__DEV__` expression: Write code that will be stripped out from the production build.
+//`bind`(register)  classes to the injection container.
+pumpIt.bindClass(TestA, TestA)
+pumpIt.bindClass(TestB, TestB)
 
-this code:
+//resolve TestA class
+const instanceA = pumpIt.resolve<TestA>(TestA)
 
-```js
-if (__DEV__) {
-  //dev only code
+instanceA.b // injected B instance
+```
+
+### Injection tokens
+
+Injection tokens are the values by which the injection container knows how to resolve injections. They can be `string`,`Symbol` or any object.
+
+```ts
+const container = new PumpIt()
+const symbolToken = Symbol('my symbol')
+
+class A {}
+
+//bind to container
+container.bindClass('my_token', A)
+container.bindClass(symbolToken, A)
+container.bindClass(A, A)
+
+//resolve
+container.resolve<A>('my_token')
+container.resolve<A>(symbolToken)
+container.resolve<A>(A)
+
+//inject tokens
+class B {
+  static inject = [symbolToken, 'my_token', A]
+  constructor(aOne: A, aTwo: A, aThree: A) {}
 }
 ```
 
-will generate:
+As you can see using the same object for token and for value to be resolved it the easiest way.
 
-```js
-if (process.env.NODE_ENV !== 'production') {
-  //dev only code
-}
+```ts
+container.bindClass(A, A)
 ```
 
-Which will later (in `production` mode) be resolved to:
+### Registering factories
 
-```js
-if (false) {
-  //dev only code
-}
+When registering factories, `function` needs to be provided as the value, and when that `factory` is resolved, the function will be executed, and returned result will be the value that will be injected where it s requested.
+
+```ts
+const myFactory = () => 'hello world'
+
+const container = new PumpIt()
+
+container.bindFactory(myFactory, myFactory)
+
+const value: string = container.resolve(myFactory) //hello world
 ```
 
-And it will be removed from your `production` build.
+Factories can also have dependencies injected.
 
-There are also some other expressions that you can use:
+```ts
+const container = new PumpIt()
+class A {
+  hello() {
+    return 'hello from A'
+  }
+}
 
-- `__VERSION__` is replaced with the environment variable `PKG_VERSION` or with `package.json` `version` field.
-- `__COMMIT_SHA__` is replaced with the short version of the git commit SHA from the HEAD.
-- `__BUILD_DATE__` is replaced with the date of the commit from the HEAD.
+const myFactory = (a: A) => {
+  return a.hello()
+}
+myFactory.inject = [A]
 
-## Testing via Jest
+container.bindClass(A, A)
+container.bindFactory(myFactory, myFactory)
 
-Jest is used for testing. You can write your tests in Typescript and they will be compiled via babel targeting the nodejs version that is running the tests. The testing environment is set to `node` you might want to change that if you need access to `DOM` in your tests (use `jsdom`).
-I think there is no faster way to run typescript tests in jest. :)
+const value: string = container.resolve(myFactory) //hello from A
+```
 
-The coverage threshold is set to `80%` globally.
+I encourage you to experiment with factories because they enable you return all kinds of things when they are resolved e.g higher order functions.
 
-One plugin is added to jest:
+### Registering values
 
-- `jest-watch-typeahead` (for filtering tests by file name or test name)
+```ts
+const container = new PumpIt()
 
-There are three tasks for running tests:
+const myConfig = { foo: 'bar' }
 
-- `test` run all test and report code coverage
-- `test:ci` is the same as `test` only optimized for CI (will not run in parallel)
-- `test:watch` continuously run tests by watching some or all files
+container.bindValue('app_config', myConfig)
 
-## Linting via ESLint
+container.resolve('app_config') // myConfig
+```
 
--ESLint is set up with a few plugins:
+## Injection scopes
 
-- `@typescript-eslint/eslint-plugin` for linting Typescript.
-- `eslint-plugin-jest` for linting Jest test files
-- `eslint-plugin-prettier` for prettier integration
-- `eslint-plugin-promise` for linting promises
-- `eslint-plugin-tsdoc` for linting TypeScript doc comments conform to the TSDoc specification.
-- There are a few overrides that I think are common sense. You can see the overrides inside the [.eslintrc.js](.eslintrc.js) file.
+There are three types of injection scopes:
 
-You can also remove all the plugins that you don't need.
+- `singleton` - once the value is resolved the value will not be changed as long as the same container is used.
 
-You can run ESLint via `lint` and `lint:check` scripts.
+```ts
+import { PumpIt, SCOPE } from 'pumpit'
+container = new PumpIt()
 
-## Formatting code via Prettier
+class A {
+  static inject = [C, B]
+  constructor(public c: C, public b: B) {}
+}
+class B {
+  static inject = [C]
+  constructor(public c: C) {}
+}
 
-Prettier is set up not to conflict with `eslint`. You can run prettier via `format` and `format:check` scripts.
+class C {}
 
-## Continuous Integration
+container.bindClass(A, A)
+container.bindClass(B, B)
+container.bindClass(C, C, { scope: SCOPE.SINGLETON })
 
-Github actions are used for continuous integration and testing.
-Github action name is `Test` and this is what it does:
+const instanceA = container.resolve(A)
 
-- run on `push` to all branches
-- run on `pull request` to `main` and `develop` branches
-- run tests on node versions 12,14,16
-- lint source
-- build source
-- run tests
-- generate code coverage
-- consume changesets
-  - bump package versions
-  - generate changelog
-  - publish to npm
-- generate API docs (from source code, only if the package is published)
-- make a commit with new API docs.
+//A and B share the same instance C
+instanceA.c === instanceA.b.c
+```
 
-## Git Hooks
+- `transient` - This is the **default scope**. Every time the value is requested, new value will be returned (resolved). In case of `classes` it will be a new instance, in case of factories, factory function will be executed every time.
 
-There is one git hook setup via [husky](https://www.npmjs.com/package/husky) package in combination with [lint-staged](https://www.npmjs.com/package/lint-staged). Before committing the files all staged files will be run through ESLint and Prettier.
+```ts
+import { PumpIt, SCOPE } from 'pumpit'
+container = new PumpIt()
 
-## Debugging
+class A {
+  static inject = [C, B]
+  constructor(public c: C, public b: B) {}
+}
+class B {
+  static inject = [C]
+  constructor(public c: C) {}
+}
 
-If you are using VS Code as your editor,
-there are three debug configurations:
+class C {}
 
-- `Main` debug the application by running the compiled `index.js` file.
-- `Current test file` debug currently focused test file inside the editor.
+container.bindClass(A, A)
+container.bindClass(B, B)
+container.bindClass(C, C, { scope: SCOPE.TRANSIENT })
 
-## Managing versions via changesets
+const instanceA = container.resolve(A)
 
-For maintaining package versions I'm using [changesets](https://github.com/changesets/changesets)
+//C instance is created two times
+//A and B have different instance of C
+instanceA.c !== instanceA.b.c //C
+```
 
-## Generating API documentation
+-`request` - this is similar to `singleton` scope except the value is resolved **once** per resolve request. Every new call to `container.resolve()` will have a new value.
 
-You can generate API documentation from your source files via [typedoc](https://typedoc.org)(`pnpm gen:docs`).
-Currently, documentation will be generated into `docs/api` directory and it is generated in markdown so it can be displayed on Github.
+> Injection scopes are not applicable to binded values.
 
-- Private class members are excluded.
-- Declarations with `@internal` are excluded.
-- Only exported properties are documented.
+```ts
+//singleton example
+import { PumpIt, SCOPE } from 'pumpit'
+container = new PumpIt()
 
-## Renovate Bot
+class A {
+  static inject = [C, B]
+  constructor(public c: C, public b: B) {}
+}
+class B {
+  static inject = [C]
+  constructor(public c: C) {}
+}
 
-There is a renovate bot configuration file for automatically updating dependencies. Make sure to active `renovate bot` first via [github marketplace.](https://github.com/marketplace/renovate)
+class C {}
 
-## Publishing to NPM
+container.bindClass(A, A)
+container.bindClass(B, B)
+container.bindClass(C, C, { scope: SCOPE.REQUEST })
 
-Manual publishing is done via `pnpm release` this task will go through regular NPM publish steps and will call [`prepublishOnly` life cycle script](https://docs.npmjs.com/cli/v7/using-npm/scripts#life-cycle-scripts).
+const firstA = container.resolve(A) // new C
+const secondA = container.resolve(A) // new C
 
-## Package manager
+firstA.c === firstA.b.c
+secondA.c === secondA.b.c
 
-[pnpm](https://pnpm.io) is my package manager of choice. You can use something else, just make sure to update the scripts in package.json and change any references to pnpm.
+secondA.c !== firstA.c
+```
+
+## Optional injections
+
+Whenever the injection container can't resolve the dependency, anyhwere in the chain it will immediately throw. But you can make the dependency optional, and if it cant be resolved, the container will not throw, and `undefined` will be injected in place of dependency.
+
+```ts
+import { PumpIt, get } from 'pumpit'
+
+const container = new PumpIt()
+
+class A {
+  static inject = [get(B, { optional: true })]
+  constructor(public b: B) {}
+}
+class B {}
+
+//NOTE: B is NOT binded to the container
+container.bindClass(A, A)
+
+const instanceA = container.resolve(A)
+
+instanceA.b // undefined
+```
+
+## Circular dependencies
+
+PumpIt supports circular dependencies, the solution is built with [`Proxy`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy)
+
+For example: In case of circular dependency: `A -> B -> A`
+`B` will be given a `proxy` object that will represent the `A` instance, and **after** the `B` constructor runs, proxy will point to the instance of `A`. To do that we need to mark the `A` dependency as `lazy`.
+
+```ts
+import { PumpIt, get, isProxy } from 'pumpit'
+
+const container = new PumpIt()
+
+class A {
+  static inject = [B]
+  constructor(public b: B) {}
+  hello() {
+    return 'hello'
+  }
+}
+class B {
+  static inject = [get(A, { lazy: true })]
+  constructor(public a: A) {
+    this.a // will be a proxy untill the constructor runs to completion
+    this.a.hello() //error!
+    isProxy(this.a) //true
+  }
+
+  someMethod() {
+    this.a.hello() //ok
+  }
+}
+
+container.bindClass(A, A)
+container.bindClass(B, B)
+
+const instanceA = container.resolve(A)
+
+instanceA.b.a === instanceA
+```
+
+Please note that eventgoug the dependency `A` in the class `B` is marked as `lazy`, it doesn't mean that the injected value will always be a proxy if there is no circular dependency, then the regular `A` instance would be injected (which is not the case in the above example).
+
+> There is a helper function `is  Proxy()` which could tell you if the injeted dependency is a proxy.
+
+## Injecting arrays
+
+## Transforming dependencies
+
+## Removing injections (unbind)
+
+## Child injectors
+
+## API docs
+
+## Licence
