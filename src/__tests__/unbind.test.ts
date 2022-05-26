@@ -340,4 +340,43 @@ describe('Unbind', () => {
     expect(beforeResolveCount).toBe(2)
     expect(afterResolve).toHaveBeenCalledTimes(2)
   })
+
+  test('clear a particular singleton', () => {
+    const pumpIt = new PumpIt()
+    const keyA = Symbol('key_a')
+
+    const disposeCall = jest.fn()
+    class TestA {
+      static count = 0
+
+      constructor() {
+        TestA.count++
+      }
+
+      dispose() {
+        disposeCall()
+      }
+    }
+
+    pumpIt.bindClass(keyA, TestA, {
+      scope: 'SINGLETON'
+    })
+
+    const instanceOne = pumpIt.resolve(keyA)
+
+    const result = pumpIt.clearSingleton(keyA)
+
+    const instanceTwo = pumpIt.resolve(keyA)
+
+    expect(result).toBe(true)
+    expect(instanceOne).not.toBe(instanceTwo)
+    expect(TestA.count).toBe(2)
+    expect(disposeCall).toHaveBeenCalledTimes(1)
+  })
+
+  test('return false when singleton to be cleared does not exist', () => {
+    const pumpit = new PumpIt()
+
+    expect(pumpit.clearSingleton('not_found')).toBe(false)
+  })
 })
