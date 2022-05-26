@@ -331,7 +331,7 @@ describe('Unbind', () => {
     })
     const instanceOne = pumpIt.resolve(keyA)
 
-    pumpIt.clearInstances()
+    pumpIt.clearAllSingletons()
     const instanceTwo = pumpIt.resolve(keyA)
 
     expect(instanceOne).not.toBe(instanceTwo)

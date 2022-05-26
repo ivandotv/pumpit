@@ -95,7 +95,7 @@ export class PumpIt {
     this.singletonCache.clear()
   }
 
-  clearInstances() {
+  clearAllSingletons() {
     for (const value of this.singletonCache.values()) {
       this.callDispose(value)
     }
