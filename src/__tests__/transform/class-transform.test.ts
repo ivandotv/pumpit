@@ -262,14 +262,12 @@ describe('Class transform', () => {
         afterResolve
       })
 
-      const instance = pumpIt.resolve<TestA>(keyA, {
-        data: resolveCallbackData
-      })
+      const instance = pumpIt.resolve<TestA>(keyA, resolveCallbackData)
 
       expect(afterResolve).toHaveBeenCalledWith({
         container: pumpIt,
         value: instance,
-        ctx: { data: resolveCallbackData }
+        ctx: resolveCallbackData
       })
     })
 

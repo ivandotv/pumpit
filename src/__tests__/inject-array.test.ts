@@ -33,7 +33,7 @@ describe('Inject array of values as a single dependency', () => {
     class TestA {
       static inject = [getArray([get('not_found', { optional: true }), keyTwo])]
 
-      constructor(public props?: [string, number?]) {}
+      constructor(public props?: [string?, number?]) {}
     }
 
     pumpIt.bindValue(keyTwo, valueTwo)
@@ -113,5 +113,31 @@ describe('Inject array of values as a single dependency', () => {
     const instance = pumpIt.resolve<TestA>('class_a')
 
     expect(instance.props).toBeUndefined()
+  })
+
+  test('Inject empty array, if no values can be resolved', () => {
+    const pumpIt = new PumpIt()
+    class TestA {
+      static inject = [
+        getArray(
+          [
+            get('not_found', { optional: true }),
+            get('not_found_2', { optional: true })
+          ],
+          {
+            removeUndefined: true,
+            setToUndefinedIfEmpty: false
+          }
+        )
+      ]
+
+      constructor(public props?: [string, number?]) {}
+    }
+
+    pumpIt.bindClass('class_a', TestA)
+
+    const instance = pumpIt.resolve<TestA>('class_a')
+
+    expect(instance.props).toHaveLength(0)
   })
 })

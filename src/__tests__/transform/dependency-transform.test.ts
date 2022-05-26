@@ -184,6 +184,42 @@ describe('Transform dependencies', () => {
       expect(instance.keyB).toBe(transformedB)
       expect(instance.keyC).toBe(transformedC)
     })
+
+    test('transform function receives "undefined" for non existent dependency', () => {
+      const pumpIt = new PumpIt()
+      const keyA = Symbol()
+      const keyC = Symbol()
+
+      const valueA = {}
+      const valueC = {}
+
+      const injectTransform = jest.fn().mockReturnValue([])
+
+      class TestA {
+        static inject = transform(
+          [keyA, get('not_found', { optional: true }), keyC],
+          injectTransform
+        )
+
+        constructor(public keyA: any, public keyB: any, public keyC: any) {}
+      }
+
+      pumpIt
+        .bindClass(TestA, TestA)
+        .bindValue(keyA, valueA)
+        .bindValue(keyC, valueC)
+        .resolve<TestA>(TestA)
+
+      expect(injectTransform).toHaveBeenCalledWith(
+        {
+          container: pumpIt,
+          ctx: undefined
+        },
+        valueA,
+        undefined,
+        valueC
+      )
+    })
   })
 
   describe('Factory', () => {

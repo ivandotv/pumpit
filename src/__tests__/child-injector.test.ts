@@ -66,6 +66,13 @@ describe('Child injector', () => {
     expect(parent.has(classKey)).toBe(true)
   })
 
+  test('if the value is not present at all, return false', () => {
+    const parent = new PumpIt()
+    const child = parent.child()
+
+    expect(child.has('no_found', true)).toBe(false)
+  })
+
   describe('Singletons', () => {
     describe('Shared', () => {
       test('when the key is on the parent, singleton is created on the parent', () => {
@@ -190,6 +197,7 @@ describe('Child injector', () => {
           expect(TestB.count).toBe(1)
           expect(childB.keyA).toBe(parentA)
         })
+
         test('not shared', () => {
           const parent = new PumpIt()
           const child = parent.child({ shareSingletons: false })
@@ -224,6 +232,27 @@ describe('Child injector', () => {
           expect(TestA.count).toBe(2)
           expect(TestB.count).toBe(1)
           expect(childB.keyA).not.toBe(parentA)
+        })
+
+        test('When not shared, child will create new singleton instance', () => {
+          const parent = new PumpIt()
+          const child = parent.child({ shareSingletons: false })
+
+          class TestA {
+            static count = 0
+
+            constructor() {
+              TestA.count++
+            }
+          }
+
+          parent.bindClass(TestA, TestA, { scope: 'SINGLETON' })
+
+          const parentInstance = parent.resolve<TestA>(TestA)
+          const childInstance = child.resolve<TestA>(TestA)
+
+          expect(TestA.count).toBe(2)
+          expect(parentInstance).not.toBe(childInstance)
         })
       })
 

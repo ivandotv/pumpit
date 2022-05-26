@@ -122,12 +122,7 @@ describe('Unbind', () => {
     const pumpIt = new PumpIt()
     const keyA = Symbol('key_a')
 
-    const disposeCall = jest.fn()
-    class TestA {
-      dispose() {
-        disposeCall()
-      }
-    }
+    class TestA {}
 
     pumpIt.bindClass(keyA, TestA)
     pumpIt.unbind(keyA)
