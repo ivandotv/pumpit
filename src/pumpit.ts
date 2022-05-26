@@ -139,7 +139,7 @@ export class PumpIt {
    * @param value - value to bind
    * @returns current pumpIt instance
    */
-  bindValue(key: BindKey, value: any): this {
+  bindValue<T>(key: BindKey, value: T): this {
     this.add(key, value, {
       type: TYPE.VALUE,
       scope: SCOPE.SINGLETON,
