@@ -1,7 +1,7 @@
 # PumpIt - small but powerful dependency injection container
 
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/ivandotv/pumpit/Test)
-![Codecov](https://img.shields.io/codecov/c/gh/ivandotv/pumpit)
+[![Test](https://github.com/ivandotv/pumpit/actions/workflows/CI.yml/badge.svg)](https://github.com/ivandotv/pumpit/actions/workflows/CI.yml)
+[![Codecov](https://img.shields.io/codecov/c/gh/ivandotv/pumpit)](https://app.codecov.io/gh/ivandotv/pumpit)
 [![GitHub license](https://img.shields.io/github/license/ivandotv/pumpit)](https://github.com/ivandotv/pumpit/blob/main/LICENSE)
 
 `PumpIt` is a small [(~2KB)](https://bundlephobia.com/package/pumpit) dependency injection container without the decorators, suitable for front-end code.
