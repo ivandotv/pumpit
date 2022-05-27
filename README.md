@@ -39,7 +39,7 @@ It supports circular dependencies (via Proxy), injecting arrays of dependencies 
 
 ## Motivation
 
-Dependency injection is a powerful concept, and there are some excellent solutions like [tsyringe](https://github.com/microsoft/tsyringe), [awilix](https://github.com/jeffijoe/awilix), and [inversivfy](https://github.com/inversify/InversifyJS), however, they all use decorators (which are great, but not a standard), and their file size is not suitable for front-end development. So I've decided to create an implementation of a dependency injection container that is small and doesn't use decorators. I also believe that I've covered all the functionality of the above-mentioned libraries.
+Dependency injection is a powerful concept, and there are some excellent solutions like [tsyringe](https://github.com/microsoft/tsyringe), [awilix](https://github.com/jeffijoe/awilix), and [inversify](https://github.com/inversify/InversifyJS), however, they all use decorators (which are great, but not a standard), and their file size is not suitable for front-end development. So I've decided to create an implementation of a dependency injection container that is small and doesn't use decorators. I also believe that I've covered all the functionality of the above-mentioned libraries.
 
 ## Getting Started
 
