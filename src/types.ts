@@ -11,12 +11,6 @@ export type AvailableScopes = keyof typeof SCOPE
 /** Resolve context that is used per request and passed to the callbacks*/
 export type ResolveCtx = Record<string, any>
 
-/** Child injector options*/
-export type ChildOptions = {
-  /** If singleton values should be satisfied by looking at the parent singleton values*/
-  shareSingletons?: boolean
-}
-
 /** Type of values that can be used for the bind key*/
 export type BindKey = string | symbol | Record<string, any>
 

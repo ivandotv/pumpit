@@ -1,8 +1,8 @@
-import { PumpIt } from '../pumpit'
+import { PumpIt, SCOPE } from '../pumpit'
 import { get } from '../utils'
 
-describe('Child injector', () => {
-  test('Create child injector', () => {
+describe('Child container', () => {
+  test('create child container', () => {
     const parent = new PumpIt()
     const child = parent.child()
 
@@ -11,7 +11,7 @@ describe('Child injector', () => {
     expect(child.getParent()).toBe(parent)
   })
 
-  test('Child injector inherits parent values', () => {
+  test('child container inherits parent values', () => {
     const parent = new PumpIt()
     const child = parent.child()
     const classKey = Symbol()
@@ -34,7 +34,7 @@ describe('Child injector', () => {
     expect(resolveValue).toBe(value)
   })
 
-  test('Child injector keys shadow parent keys', () => {
+  test('child container keys shadow parent keys', () => {
     const parent = new PumpIt()
     const child = parent.child()
     const classKey = Symbol()
@@ -50,7 +50,7 @@ describe('Child injector', () => {
     expect(resolveClass).toBeInstanceOf(ChildClass)
   })
 
-  test('removing the value from child injector does not remove it from the parent', () => {
+  test('removing the value from child container does not remove it from the parent', () => {
     const parent = new PumpIt()
     const child = parent.child()
     const classKey = Symbol()
@@ -74,54 +74,52 @@ describe('Child injector', () => {
   })
 
   describe('Singletons', () => {
-    describe('Shared', () => {
-      test('when the key is on the parent, singleton is created on the parent', () => {
-        const parent = new PumpIt()
-        const child = parent.child({ shareSingletons: true })
-        const key = Symbol('key')
+    test('when the key is on the parent, singleton is created on the parent', () => {
+      const parent = new PumpIt()
+      const child = parent.child()
+      const key = Symbol('key')
 
-        class TestA {
-          static count = 0
+      class TestA {
+        static count = 0
 
-          constructor() {
-            TestA.count++
-          }
+        constructor() {
+          TestA.count++
         }
-        parent.bindClass(key, TestA, { scope: 'SINGLETON' })
+      }
+      parent.bindClass(key, TestA, { scope: 'SINGLETON' })
 
-        const childInstance = child.resolve<TestA>(key)
-        const parentInstance = parent.resolve<TestA>(key)
+      const childInstance = child.resolve<TestA>(key)
+      const parentInstance = parent.resolve<TestA>(key)
 
-        expect(childInstance).toBe(parentInstance)
-        expect(TestA.count).toBe(1)
-      })
-
-      test('when the key is on the child, singleton is created on the child', () => {
-        const parent = new PumpIt()
-        const child = parent.child({ shareSingletons: true })
-        const key = Symbol('key')
-
-        class TestA {
-          static count = 0
-
-          constructor() {
-            TestA.count++
-          }
-        }
-        parent.bindClass(key, TestA, { scope: 'SINGLETON' })
-        child.bindClass(key, TestA, { scope: 'SINGLETON' })
-
-        const childInstance = child.resolve<TestA>(key)
-        const parentInstance = parent.resolve<TestA>(key)
-
-        expect(childInstance).not.toBe(parentInstance)
-        expect(TestA.count).toBe(2)
-      })
+      expect(childInstance).toBe(parentInstance)
+      expect(TestA.count).toBe(1)
     })
-    describe('Not shared', () => {
+
+    test('when the key is on the child, singleton is created on the child', () => {
+      const parent = new PumpIt()
+      const child = parent.child()
+      const key = Symbol('key')
+
+      class TestA {
+        static count = 0
+
+        constructor() {
+          TestA.count++
+        }
+      }
+      parent.bindClass(key, TestA, { scope: 'SINGLETON' })
+      child.bindClass(key, TestA, { scope: 'SINGLETON' })
+
+      const childInstance = child.resolve<TestA>(key)
+      const parentInstance = parent.resolve<TestA>(key)
+
+      expect(childInstance).not.toBe(parentInstance)
+      expect(TestA.count).toBe(2)
+    })
+    describe('Container scoped', () => {
       test('when the the key is on the parent, singleton is created on the child', () => {
         const parent = new PumpIt()
-        const child = parent.child({ shareSingletons: false })
+        const child = parent.child()
         const key = Symbol('key')
 
         class TestA {
@@ -131,7 +129,7 @@ describe('Child injector', () => {
             TestA.count++
           }
         }
-        parent.bindClass(key, TestA, { scope: 'SINGLETON' })
+        parent.bindClass(key, TestA, { scope: SCOPE.CONTAINER_SINGLETON })
 
         const childInstance = child.resolve<TestA>(key)
         const parentInstance = parent.resolve<TestA>(key)
@@ -142,7 +140,7 @@ describe('Child injector', () => {
 
       test('when the key is on the child, singleton is created on the child', () => {
         const parent = new PumpIt()
-        const child = parent.child({ shareSingletons: false })
+        const child = parent.child()
         const key = Symbol('key')
 
         class TestA {
@@ -152,6 +150,7 @@ describe('Child injector', () => {
             TestA.count++
           }
         }
+
         parent.bindClass(key, TestA, { scope: 'SINGLETON' })
         child.bindClass(key, TestA, { scope: 'SINGLETON' })
 
@@ -162,270 +161,319 @@ describe('Child injector', () => {
         expect(TestA.count).toBe(2)
       })
 
-      describe('Inject from parent', () => {
-        test('shared', () => {
-          const parent = new PumpIt()
-          const child = parent.child({ shareSingletons: true })
-          const keyA = Symbol('keyA')
-          const keyB = Symbol('keyB')
+      test('when dependency is container scoped, child will create new singleton instance', () => {
+        const parent = new PumpIt()
+        const child = parent.child()
 
-          class TestA {
-            static count = 0
+        class TestA {
+          static count = 0
 
-            constructor() {
-              TestA.count++
-            }
+          constructor() {
+            TestA.count++
           }
+        }
 
-          class TestB {
-            static count = 0
+        parent.bindClass(TestA, TestA, { scope: SCOPE.CONTAINER_SINGLETON })
 
-            static inject = [keyA]
+        const parentInstance = parent.resolve<TestA>(TestA)
+        const childInstance = child.resolve<TestA>(TestA)
 
-            constructor(public keyA: TestA) {
-              TestB.count++
-            }
-          }
-
-          parent.bindClass(keyA, TestA, { scope: 'SINGLETON' })
-          child.bindClass(keyB, TestB, { scope: 'SINGLETON' })
-
-          const childB = child.resolve<TestB>(keyB)
-          const parentA = parent.resolve<TestA>(keyA)
-
-          expect(TestA.count).toBe(1)
-          expect(TestB.count).toBe(1)
-          expect(childB.keyA).toBe(parentA)
-        })
-
-        test('not shared', () => {
-          const parent = new PumpIt()
-          const child = parent.child({ shareSingletons: false })
-          const keyA = Symbol('keyA')
-          const keyB = Symbol('keyB')
-
-          class TestA {
-            static count = 0
-
-            constructor() {
-              TestA.count++
-            }
-          }
-
-          class TestB {
-            static count = 0
-
-            static inject = [keyA]
-
-            constructor(public keyA: TestA) {
-              TestB.count++
-            }
-          }
-          parent.bindClass(keyA, TestA, { scope: 'SINGLETON' })
-          child.bindClass(keyB, TestB, { scope: 'SINGLETON' })
-
-          const childB = child.resolve<TestB>(keyB)
-          child.resolve<TestB>(keyB)
-          const parentA = parent.resolve<TestA>(keyA)
-          parent.resolve<TestA>(keyA)
-
-          expect(TestA.count).toBe(2)
-          expect(TestB.count).toBe(1)
-          expect(childB.keyA).not.toBe(parentA)
-        })
-
-        test('When not shared, child will create new singleton instance', () => {
-          const parent = new PumpIt()
-          const child = parent.child({ shareSingletons: false })
-
-          class TestA {
-            static count = 0
-
-            constructor() {
-              TestA.count++
-            }
-          }
-
-          parent.bindClass(TestA, TestA, { scope: 'SINGLETON' })
-
-          const parentInstance = parent.resolve<TestA>(TestA)
-          const childInstance = child.resolve<TestA>(TestA)
-
-          expect(TestA.count).toBe(2)
-          expect(parentInstance).not.toBe(childInstance)
-        })
+        expect(TestA.count).toBe(2)
+        expect(parentInstance).not.toBe(childInstance)
       })
 
-      describe('Circular injection', () => {
-        test('shared', () => {
-          const parent = new PumpIt()
-          const child = parent.child({ shareSingletons: true })
-          const keyA = Symbol('keyA')
-          const keyB = Symbol('keyB')
-          const keyC = Symbol('keyC')
+      test('dependency is picked up from child', () => {
+        const parentContainer = new PumpIt()
+        const childContainer = parentContainer.child()
+        const parentConfig = { name: 'Ivan' }
+        const childConfig = { name: 'Leonardo' }
 
-          class TestA {
-            static count = 0
+        class TestA {
+          static inject = ['config']
 
-            constructor() {
-              TestA.count++
-            }
-          }
+          constructor(public config: any) {}
+        }
 
-          class TestB {
-            static count = 0
+        parentContainer.bindClass(TestA, TestA)
+        parentContainer.bindValue('config', parentConfig)
+        childContainer.bindValue('config', childConfig)
 
-            static inject = [keyA, get(keyC, { lazy: true })]
+        const instance = childContainer.resolve<TestA>(TestA)
 
-            constructor(public keyA: TestA, public keyC: TestC) {
-              TestB.count++
-            }
-          }
+        expect(instance.config).toBe(childConfig)
+      })
 
-          class TestC {
-            static count = 0
+      test('for singleton, dependency is picked up from parent', () => {
+        const parentContainer = new PumpIt()
+        const childContainer = parentContainer.child()
+        const parentConfig = { name: 'Ivan' }
+        const childConfig = { name: 'Leonardo' }
 
-            static inject = [keyA, get(keyB, { lazy: true })]
+        class TestA {
+          static inject = ['config']
 
-            constructor(public keyA: TestA, public keyB: TestB) {
-              TestC.count++
-            }
-          }
+          constructor(public config: any) {}
+        }
 
-          parent.bindClass(keyA, TestA, { scope: 'SINGLETON' })
-          child.bindClass(keyB, TestB, { scope: 'SINGLETON' })
-          child.bindClass(keyC, TestC, { scope: 'SINGLETON' })
-
-          const childB = child.resolve<TestB>(keyB)
-          child.resolve<TestB>(keyB)
-          child.resolve<TestC>(keyC)
-          child.resolve<TestC>(keyC)
-          const parentA = parent.resolve<TestA>(keyA)
-          parent.resolve<TestA>(keyA)
-
-          expect(TestA.count).toBe(1)
-          expect(TestB.count).toBe(1)
-          expect(TestC.count).toBe(1)
-          expect(childB.keyA).toBe(parentA)
-          expect(childB.keyC.keyA).toBe(parentA)
+        parentContainer.bindClass(TestA, TestA, {
+          scope: SCOPE.CONTAINER_SINGLETON
         })
+        parentContainer.bindValue('config', parentConfig)
 
-        test('shared three levels', () => {
-          const grandParent = new PumpIt()
-          const parent = grandParent.child({ shareSingletons: true })
-          const child = parent.child({ shareSingletons: true })
-          const keyA = Symbol('keyA')
-          const keyB = Symbol('keyB')
-          const keyC = Symbol('keyC')
+        childContainer.bindValue('config', childConfig)
 
-          class TestA {
-            static count = 0
+        const instance = childContainer.resolve<TestA>(TestA)
 
-            constructor() {
-              TestA.count++
-            }
+        expect(instance.config).toBe(childConfig)
+      })
+    })
+
+    describe('Resolve dependency from the parent', () => {
+      test('singleton', () => {
+        const parent = new PumpIt()
+        const child = parent.child()
+        const keyA = Symbol('keyA')
+        const keyB = Symbol('keyB')
+
+        class TestA {
+          static count = 0
+
+          constructor() {
+            TestA.count++
           }
+        }
 
-          class TestB {
-            static count = 0
+        class TestB {
+          static count = 0
 
-            static inject = [keyA, get(keyC, { lazy: true })]
+          static inject = [keyA]
 
-            constructor(public keyA: TestA, public keyC: TestC) {
-              TestB.count++
-            }
+          constructor(public keyA: TestA) {
+            TestB.count++
           }
+        }
 
-          class TestC {
-            static count = 0
+        parent.bindClass(keyA, TestA, { scope: 'SINGLETON' })
+        child.bindClass(keyB, TestB, { scope: 'SINGLETON' })
 
-            static inject = [keyA, get(keyB, { lazy: true })]
+        const childB = child.resolve<TestB>(keyB)
+        const parentA = parent.resolve<TestA>(keyA)
 
-            constructor(public keyA: TestA, public keyB: TestB) {
-              TestC.count++
-            }
+        expect(TestA.count).toBe(1)
+        expect(TestB.count).toBe(1)
+        expect(childB.keyA).toBe(parentA)
+      })
+
+      test('container scoped singleton', () => {
+        const parent = new PumpIt()
+        const child = parent.child()
+        const keyA = Symbol('keyA')
+        const keyB = Symbol('keyB')
+
+        class TestA {
+          static count = 0
+
+          constructor() {
+            TestA.count++
           }
+        }
 
-          grandParent.bindClass(keyA, TestA, { scope: 'SINGLETON' })
-          child.bindClass(keyB, TestB, { scope: 'SINGLETON' })
-          child.bindClass(keyC, TestC, { scope: 'SINGLETON' })
+        class TestB {
+          static count = 0
 
-          const childB = child.resolve<TestB>(keyB)
-          child.resolve<TestB>(keyB)
-          child.resolve<TestC>(keyC)
-          child.resolve<TestC>(keyC)
+          static inject = [keyA]
 
-          const parentA = parent.resolve<TestA>(keyA)
-          parent.resolve<TestA>(keyA)
-
-          grandParent.resolve<TestA>(keyA)
-
-          expect(TestA.count).toBe(1)
-          expect(TestB.count).toBe(1)
-          expect(TestC.count).toBe(1)
-          expect(childB.keyA).toBe(parentA)
-          expect(childB.keyC.keyA).toBe(parentA)
-        })
-
-        test('not shared', () => {
-          const parent = new PumpIt()
-          const child = parent.child({ shareSingletons: false })
-          const keyA = Symbol('keyA')
-          const keyB = Symbol('keyB')
-          const keyC = Symbol('keyC')
-
-          class TestA {
-            static count = 0
-
-            constructor() {
-              TestA.count++
-            }
+          constructor(public keyA: TestA) {
+            TestB.count++
           }
+        }
 
-          class TestB {
-            static count = 0
+        parent.bindClass(keyA, TestA, { scope: SCOPE.CONTAINER_SINGLETON })
+        child.bindClass(keyB, TestB, { scope: 'SINGLETON' })
 
-            static inject = [keyA, get(keyC, { lazy: true })]
+        const childB = child.resolve<TestB>(keyB)
+        //second resolve
+        child.resolve<TestB>(keyB)
 
-            constructor(public keyA: TestA, public keyC: TestC) {
-              TestB.count++
-            }
+        const parentA = parent.resolve<TestA>(keyA)
+        parent.resolve<TestA>(keyA)
+
+        expect(TestA.count).toBe(2)
+        expect(TestB.count).toBe(1)
+        expect(childB.keyA).not.toBe(parentA)
+      })
+    })
+
+    describe('Circular injection', () => {
+      test('singleton', () => {
+        const parent = new PumpIt()
+        const child = parent.child()
+        const keyA = Symbol('keyA')
+        const keyB = Symbol('keyB')
+        const keyC = Symbol('keyC')
+
+        class TestA {
+          static count = 0
+
+          constructor() {
+            TestA.count++
           }
+        }
 
-          class TestC {
-            static count = 0
+        class TestB {
+          static count = 0
 
-            static inject = [keyA, get(keyB, { lazy: true })]
+          static inject = [keyA, get(keyC, { lazy: true })]
 
-            constructor(public keyA: TestA, public keyB: TestB) {
-              TestC.count++
-            }
+          constructor(public keyA: TestA, public keyC: TestC) {
+            TestB.count++
           }
+        }
 
-          parent.bindClass(keyA, TestA, { scope: 'SINGLETON' })
-          child.bindClass(keyB, TestB, { scope: 'SINGLETON' })
-          child.bindClass(keyC, TestC)
+        class TestC {
+          static count = 0
 
-          const childB = child.resolve<TestB>(keyB)
-          const childC = child.resolve<TestC>(keyC)
-          const childA = child.resolve<TestA>(keyA)
-          child.resolve<TestB>(keyB)
-          child.resolve<TestB>(keyB)
-          const parentA = parent.resolve<TestA>(keyA)
-          parent.resolve<TestA>(keyA)
+          static inject = [keyA, get(keyB, { lazy: true })]
 
-          expect(TestA.count).toBe(2)
-          expect(TestB.count).toBe(1)
-          expect(TestC.count).toBe(2)
+          constructor(public keyA: TestA, public keyB: TestB) {
+            TestC.count++
+          }
+        }
 
-          expect(childB.keyA).not.toBe(parentA)
-          expect(childB.keyA).toBe(childA)
-          expect(childB.keyC.keyA).not.toBe(parentA)
-          expect(childB.keyC.keyA).toBe(childB.keyA)
+        parent.bindClass(keyA, TestA, { scope: 'SINGLETON' })
+        child.bindClass(keyB, TestB, { scope: 'SINGLETON' })
+        child.bindClass(keyC, TestC, { scope: 'SINGLETON' })
 
-          expect(childC.keyB).toBe(childB)
-          expect(childC.keyA).toBe(childA)
-        })
+        const childB = child.resolve<TestB>(keyB)
+        child.resolve<TestB>(keyB)
+        child.resolve<TestC>(keyC)
+        child.resolve<TestC>(keyC)
+        const parentA = parent.resolve<TestA>(keyA)
+        parent.resolve<TestA>(keyA)
+
+        expect(TestA.count).toBe(1)
+        expect(TestB.count).toBe(1)
+        expect(TestC.count).toBe(1)
+        expect(childB.keyA).toBe(parentA)
+        expect(childB.keyC.keyA).toBe(parentA)
+      })
+
+      test('singleton three levels deep', () => {
+        const grandParent = new PumpIt()
+        const parent = grandParent.child()
+        const child = parent.child()
+        const keyA = Symbol('keyA')
+        const keyB = Symbol('keyB')
+        const keyC = Symbol('keyC')
+
+        class TestA {
+          static count = 0
+
+          constructor() {
+            TestA.count++
+          }
+        }
+
+        class TestB {
+          static count = 0
+
+          static inject = [keyA, get(keyC, { lazy: true })]
+
+          constructor(public keyA: TestA, public keyC: TestC) {
+            TestB.count++
+          }
+        }
+
+        class TestC {
+          static count = 0
+
+          static inject = [keyA, get(keyB, { lazy: true })]
+
+          constructor(public keyA: TestA, public keyB: TestB) {
+            TestC.count++
+          }
+        }
+
+        grandParent.bindClass(keyA, TestA, { scope: 'SINGLETON' })
+        child.bindClass(keyB, TestB, { scope: 'SINGLETON' })
+        child.bindClass(keyC, TestC, { scope: 'SINGLETON' })
+
+        const childB = child.resolve<TestB>(keyB)
+        child.resolve<TestB>(keyB)
+        child.resolve<TestC>(keyC)
+        child.resolve<TestC>(keyC)
+
+        const parentA = parent.resolve<TestA>(keyA)
+        parent.resolve<TestA>(keyA)
+
+        grandParent.resolve<TestA>(keyA)
+
+        expect(TestA.count).toBe(1)
+        expect(TestB.count).toBe(1)
+        expect(TestC.count).toBe(1)
+        expect(childB.keyA).toBe(parentA)
+        expect(childB.keyC.keyA).toBe(parentA)
+      })
+
+      test('container scoped', () => {
+        const parent = new PumpIt()
+        const child = parent.child()
+        const keyA = Symbol('keyA')
+        const keyB = Symbol('keyB')
+        const keyC = Symbol('keyC')
+
+        class TestA {
+          static count = 0
+
+          constructor() {
+            TestA.count++
+          }
+        }
+
+        class TestB {
+          static count = 0
+
+          static inject = [keyA, get(keyC, { lazy: true })]
+
+          constructor(public keyA: TestA, public keyC: TestC) {
+            TestB.count++
+          }
+        }
+
+        class TestC {
+          static count = 0
+
+          static inject = [keyA, get(keyB, { lazy: true })]
+
+          constructor(public keyA: TestA, public keyB: TestB) {
+            TestC.count++
+          }
+        }
+
+        parent.bindClass(keyA, TestA, { scope: SCOPE.CONTAINER_SINGLETON })
+        child.bindClass(keyB, TestB, { scope: 'SINGLETON' })
+        child.bindClass(keyC, TestC)
+
+        const childB = child.resolve<TestB>(keyB)
+        const childC = child.resolve<TestC>(keyC)
+        const childA = child.resolve<TestA>(keyA)
+        child.resolve<TestB>(keyB)
+        child.resolve<TestB>(keyB)
+
+        const parentA = parent.resolve<TestA>(keyA)
+        parent.resolve<TestA>(keyA)
+
+        expect(TestA.count).toBe(2)
+        expect(TestB.count).toBe(1)
+        expect(TestC.count).toBe(2)
+
+        expect(childB.keyA).not.toBe(parentA)
+        expect(childB.keyA).toBe(childA)
+        expect(childB.keyC.keyA).not.toBe(parentA)
+        expect(childB.keyC.keyA).toBe(childB.keyA)
+
+        expect(childC.keyB).toBe(childB)
+        expect(childC.keyA).toBe(childA)
       })
     })
   })

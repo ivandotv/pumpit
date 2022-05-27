@@ -3,7 +3,6 @@ import type {
   AvailableScopes,
   AvailableTypes,
   BindKey,
-  ChildOptions,
   ClassOptions,
   ClassValue,
   FactoryOptions,
@@ -19,7 +18,7 @@ import {
   parseInjectionData
 } from './utils'
 
-//track undefined values from factory
+//track undefined values from the factory
 const UNDEFINED_RESULT = Symbol()
 
 const DISPOSE_PROP = 'dispose'
@@ -38,7 +37,8 @@ export const TYPE = {
 export const SCOPE = {
   SINGLETON: 'SINGLETON',
   TRANSIENT: 'TRANSIENT',
-  REQUEST: 'REQUEST'
+  REQUEST: 'REQUEST',
+  CONTAINER_SINGLETON: 'CONTAINER_SINGLETON'
 } as const
 
 export class PumpIt {
@@ -49,8 +49,6 @@ export class PumpIt {
   protected parent: this | undefined
 
   protected currentCtx: RequestCtx | null = null
-
-  protected options: ChildOptions = { shareSingletons: false }
 
   protected add(key: BindKey, value: any, info: PoolData): void {
     const dataHit = this.pool.get(key)
@@ -280,12 +278,10 @@ export class PumpIt {
    * Creates child PumpIt instance. Child injection instance is connected to the parent instance and it can use
    * parent singleton values.
    *
-   * @param options - child injector options {@link ChildOptions | ChildOptions}
    */
-  child(options: ChildOptions = { shareSingletons: false }): this {
+  child(): this {
     const child = new (this.constructor as new () => this)()
     child.parent = this
-    child.options = options
 
     return child
   }
@@ -344,7 +340,7 @@ export class PumpIt {
       if (keySeen) {
         //check if it is constructed
         if (!keySeen.constructed) {
-          // check if using lazy or key is on the paren, then it's ok
+          // check if using lazy or key is on the parent, then it's ok
           if (options.lazy || fromParent) {
             //delay construction
             useLazy = true
@@ -484,9 +480,9 @@ export class PumpIt {
     fn: (...args: any[]) => any,
     ctx: RequestCtx
   ) {
-    if (scope === SCOPE.SINGLETON) {
+    if (scope === SCOPE.SINGLETON || scope === SCOPE.CONTAINER_SINGLETON) {
       //if singleton and key is on the parent resolve the key via parent
-      if (!this.pool.has(key) && this.options.shareSingletons) {
+      if (!this.pool.has(key) && scope === SCOPE.SINGLETON) {
         return this.parent?.resolve(key)
       }
       const cachedValue = ctx.singletonCache.get(key)
@@ -503,6 +499,7 @@ export class PumpIt {
         return result
       }
     }
+
     if (SCOPE.REQUEST === scope) {
       const cachedValue = ctx.requestCache.get(key)
       if (cachedValue !== undefined) {
@@ -519,6 +516,7 @@ export class PumpIt {
       }
     }
 
+    //transient scope
     const result = fn()
 
     //transient cache is only used for proxies
