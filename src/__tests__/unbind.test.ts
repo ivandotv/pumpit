@@ -331,7 +331,7 @@ describe('Unbind', () => {
     })
     const instanceOne = pumpIt.resolve(keyA)
 
-    pumpIt.clearAllSingletons()
+    pumpIt.clearAllInstances()
     const instanceTwo = pumpIt.resolve(keyA)
 
     expect(instanceOne).not.toBe(instanceTwo)
@@ -364,7 +364,7 @@ describe('Unbind', () => {
 
     const instanceOne = pumpIt.resolve(keyA)
 
-    const result = pumpIt.clearSingleton(keyA)
+    const result = pumpIt.clearInstance(keyA)
 
     const instanceTwo = pumpIt.resolve(keyA)
 
@@ -377,6 +377,6 @@ describe('Unbind', () => {
   test('return false when singleton to be cleared does not exist', () => {
     const pumpit = new PumpIt()
 
-    expect(pumpit.clearSingleton('not_found')).toBe(false)
+    expect(pumpit.clearInstance('not_found')).toBe(false)
   })
 })

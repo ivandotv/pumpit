@@ -93,14 +93,14 @@ export class PumpIt {
     this.singletonCache.clear()
   }
 
-  clearAllSingletons() {
+  clearAllInstances() {
     for (const value of this.singletonCache.values()) {
       this.callDispose(value)
     }
     this.singletonCache.clear()
   }
 
-  clearSingleton(key: BindKey): boolean {
+  clearInstance(key: BindKey): boolean {
     const found = this.singletonCache.get(key)
     if (found) {
       this.singletonCache.delete(key)
