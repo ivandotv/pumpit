@@ -43,6 +43,11 @@ Dependency injection is a powerful concept, and there are some excellent solutio
 
 ## Getting Started
 
+Installation:
+```sh
+npm i pumpit
+```
+
 Since `PumpIt` does not rely on the decorators the injection is done via the `injection` property. When used with `classes`, `inject` will be a static property on the class, and it will hold an array of registered injection `tokens` that will be injected into the constructor in the same order when the class instance is created (in case of factory functions it will be a property on the function itself, more on that [later](#registering-factories)).
 
 ### Registering classes
