@@ -1,5 +1,21 @@
 # pumpa
 
+## 4.0.0
+
+### Major Changes
+
+- 5eef060: Change method name
+- a20b69b: Implement `clearSingleton` method.
+
+  It enables clearing a single singleton by key.
+
+- 1d024dc: Rename methods.
+  `clearAllSingletons` is renamed to `clearAllInstances`
+  `clearSingleton` is renamed to `clearInstance`
+- 42309c6: Introduce new scope: `SCOPE.CONTAINER_SINGLETON`. This is similar to regular `singleton` scope, but if a child container is made, that child container will resolve an instance unique to it.
+
+  Remove "`shareSingletons`" option from `child` method. This is no longer needed since the new `SCOPE.CONTAINER_SINGLETON` replaces this functionality.
+
 ## 3.0.0
 
 ### Major Changes
