@@ -14,7 +14,8 @@
 - [bindFactory](PumpIt.md#bindfactory)
 - [bindValue](PumpIt.md#bindvalue)
 - [child](PumpIt.md#child)
-- [clearInstances](PumpIt.md#clearinstances)
+- [clearAllInstances](PumpIt.md#clearallinstances)
+- [clearInstance](PumpIt.md#clearinstance)
 - [getParent](PumpIt.md#getparent)
 - [has](PumpIt.md#has)
 - [resolve](PumpIt.md#resolve)
@@ -48,7 +49,7 @@ depends on the scope used.
 | :------ | :------ | :------ |
 | `key` | [`BindKey`](../README.md#bindkey) | key to resolve binded value [BindKey](../README.md#bindkey) |
 | `value` | `T` | class to bind |
-| `options?` | `Omit`<`Partial`<[`ClassOptions`](../README.md#classoptions)<`T`, ``"SINGLETON"`` \| ``"TRANSIENT"`` \| ``"REQUEST"``\>\>, ``"type"``\> | bind options for factory [ClassOptions](../README.md#classoptions) |
+| `options?` | `Omit`<`Partial`<[`ClassOptions`](../README.md#classoptions)<`T`, ``"SINGLETON"`` \| ``"TRANSIENT"`` \| ``"REQUEST"`` \| ``"CONTAINER_SINGLETON"``\>\>, ``"type"``\> | bind options for factory [ClassOptions](../README.md#classoptions) |
 
 #### Returns
 
@@ -56,7 +57,7 @@ depends on the scope used.
 
 #### Defined in
 
-[pumpit.ts:203](https://github.com/ivandotv/pumpit/blob/dbe7399/src/pumpit.ts#L203)
+[pumpit.ts:213](https://github.com/ivandotv/pumpit/blob/f276241/src/pumpit.ts#L213)
 
 ___
 
@@ -79,7 +80,7 @@ Number of executions depends on the scope used.
 | :------ | :------ | :------ |
 | `key` | [`BindKey`](../README.md#bindkey) | key to resolve binded value [BindKey](../README.md#bindkey) |
 | `value` | `T` | factory function to bind |
-| `options?` | `Omit`<`Partial`<[`FactoryOptions`](../README.md#factoryoptions)<`T`, ``"SINGLETON"`` \| ``"TRANSIENT"`` \| ``"REQUEST"``\>\>, ``"type"``\> | bind options [FactoryOptions](../README.md#factoryoptions) |
+| `options?` | `Omit`<`Partial`<[`FactoryOptions`](../README.md#factoryoptions)<`T`, ``"SINGLETON"`` \| ``"TRANSIENT"`` \| ``"REQUEST"`` \| ``"CONTAINER_SINGLETON"``\>\>, ``"type"``\> | bind options [FactoryOptions](../README.md#factoryoptions) |
 
 #### Returns
 
@@ -87,22 +88,28 @@ Number of executions depends on the scope used.
 
 #### Defined in
 
-[pumpit.ts:148](https://github.com/ivandotv/pumpit/blob/dbe7399/src/pumpit.ts#L148)
+[pumpit.ts:158](https://github.com/ivandotv/pumpit/blob/f276241/src/pumpit.ts#L158)
 
 ___
 
 ### bindValue
 
-▸ **bindValue**(`key`, `value`): [`PumpIt`](PumpIt.md)
+▸ **bindValue**<`T`\>(`key`, `value`): [`PumpIt`](PumpIt.md)
 
 Binds value. Value is treated as a singleton and ti will always resolve to the same data (value)
+
+#### Type parameters
+
+| Name |
+| :------ |
+| `T` |
 
 #### Parameters
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
 | `key` | [`BindKey`](../README.md#bindkey) | key to resolve binded value [BindKey](../README.md#bindkey) |
-| `value` | `any` | value to bind |
+| `value` | `T` | value to bind |
 
 #### Returns
 
@@ -112,22 +119,16 @@ current pumpIt instance
 
 #### Defined in
 
-[pumpit.ts:130](https://github.com/ivandotv/pumpit/blob/dbe7399/src/pumpit.ts#L130)
+[pumpit.ts:140](https://github.com/ivandotv/pumpit/blob/f276241/src/pumpit.ts#L140)
 
 ___
 
 ### child
 
-▸ **child**(`options?`): [`PumpIt`](PumpIt.md)
+▸ **child**(): [`PumpIt`](PumpIt.md)
 
 Creates child PumpIt instance. Child injection instance is connected to the parent instance and it can use
 parent singleton values.
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `options` | [`ChildOptions`](../README.md#childoptions) | child injector options [ChildOptions](../README.md#childoptions) |
 
 #### Returns
 
@@ -135,13 +136,13 @@ parent singleton values.
 
 #### Defined in
 
-[pumpit.ts:273](https://github.com/ivandotv/pumpit/blob/dbe7399/src/pumpit.ts#L273)
+[pumpit.ts:282](https://github.com/ivandotv/pumpit/blob/f276241/src/pumpit.ts#L282)
 
 ___
 
-### clearInstances
+### clearAllInstances
 
-▸ **clearInstances**(): `void`
+▸ **clearAllInstances**(): `void`
 
 #### Returns
 
@@ -149,7 +150,27 @@ ___
 
 #### Defined in
 
-[pumpit.ts:98](https://github.com/ivandotv/pumpit/blob/dbe7399/src/pumpit.ts#L98)
+[pumpit.ts:96](https://github.com/ivandotv/pumpit/blob/f276241/src/pumpit.ts#L96)
+
+___
+
+### clearInstance
+
+▸ **clearInstance**(`key`): `boolean`
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `key` | [`BindKey`](../README.md#bindkey) |
+
+#### Returns
+
+`boolean`
+
+#### Defined in
+
+[pumpit.ts:103](https://github.com/ivandotv/pumpit/blob/f276241/src/pumpit.ts#L103)
 
 ___
 
@@ -165,7 +186,7 @@ Gets parent injector instance
 
 #### Defined in
 
-[pumpit.ts:284](https://github.com/ivandotv/pumpit/blob/dbe7399/src/pumpit.ts#L284)
+[pumpit.ts:292](https://github.com/ivandotv/pumpit/blob/f276241/src/pumpit.ts#L292)
 
 ___
 
@@ -186,7 +207,7 @@ ___
 
 #### Defined in
 
-[pumpit.ts:115](https://github.com/ivandotv/pumpit/blob/dbe7399/src/pumpit.ts#L115)
+[pumpit.ts:125](https://github.com/ivandotv/pumpit/blob/f276241/src/pumpit.ts#L125)
 
 ___
 
@@ -215,7 +236,7 @@ Resolve value that has previously been binded.
 
 #### Defined in
 
-[pumpit.ts:234](https://github.com/ivandotv/pumpit/blob/dbe7399/src/pumpit.ts#L234)
+[pumpit.ts:244](https://github.com/ivandotv/pumpit/blob/f276241/src/pumpit.ts#L244)
 
 ___
 
@@ -236,7 +257,7 @@ ___
 
 #### Defined in
 
-[pumpit.ts:64](https://github.com/ivandotv/pumpit/blob/dbe7399/src/pumpit.ts#L64)
+[pumpit.ts:62](https://github.com/ivandotv/pumpit/blob/f276241/src/pumpit.ts#L62)
 
 ___
 
@@ -256,4 +277,4 @@ ___
 
 #### Defined in
 
-[pumpit.ts:90](https://github.com/ivandotv/pumpit/blob/dbe7399/src/pumpit.ts#L90)
+[pumpit.ts:88](https://github.com/ivandotv/pumpit/blob/f276241/src/pumpit.ts#L88)
