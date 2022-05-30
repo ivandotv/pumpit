@@ -1,4 +1,4 @@
-# PumpIt - small but powerful dependency injection container
+# PumpIt
 
 [![Test](https://github.com/ivandotv/pumpit/actions/workflows/CI.yml/badge.svg)](https://github.com/ivandotv/pumpit/actions/workflows/CI.yml)
 [![Codecov](https://img.shields.io/codecov/c/gh/ivandotv/pumpit)](https://app.codecov.io/gh/ivandotv/pumpit)
@@ -44,6 +44,7 @@ Dependency injection is a powerful concept, and there are some excellent solutio
 ## Getting Started
 
 Installation:
+
 ```sh
 npm i pumpit
 ```
