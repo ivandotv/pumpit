@@ -1,5 +1,11 @@
 # pumpa
 
+## 4.0.1
+
+### Patch Changes
+
+- 0e346fb: chore: update README
+
 ## 4.0.0
 
 ### Major Changes

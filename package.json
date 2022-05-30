@@ -1,6 +1,6 @@
 {
   "name": "pumpit",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "Dependency injection container without decorators, supports circular dependencies and arrays of dependencies.",
   "keywords": [
     "ioc",
