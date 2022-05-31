@@ -11,27 +11,31 @@ It supports circular dependencies (via Proxy), injecting arrays of dependencies 
 
 - [Motivation](#motivation)
 - [Getting Started](#getting-started)
-  - [Registering classes](#registering-classes)
-  - [Registering factories](#registering-factories)
-  - [Registering values](#registering-values)
+  * [Registering classes](#registering-classes)
+  * [Registering factories](#registering-factories)
+  * [Registering values](#registering-values)
 - [Resolving container data](#resolving-container-data)
-  - [Resolve context](#resolve-context)
+  * [Resolve context](#resolve-context)
 - [Injection tokens](#injection-tokens)
 - [Injection scopes](#injection-scopes)
+  * [Singleton](#singleton)
+  * [Transient](#transient)
+  * [Request](#request)
+  * [Container singleton](#container-singleton)
 - [Optional injections](#optional-injections)
 - [Circular dependencies](#circular-dependencies)
 - [Injecting arrays](#injecting-arrays)
 - [Transforming dependencies](#transforming-dependencies)
-  - [Transforming injected dependencies](#transforming-injected-dependencies)
+  * [Transforming injected dependencies](#transforming-injected-dependencies)
 - [Removing values from the container](#removing-values-from-the-container)
-  - [Calling the dispose method](#calling-the-dispose-method)
-  - [Dispose callback](#dispose-callback)
-  - [Removing all the values from the container](#removing-all-the-values-from-the-container)
-  - [Clearing container values](#clearing-container-values)
+  * [Calling the dispose method](#calling-the-dispose-method)
+  * [Dispose callback](#dispose-callback)
+  * [Removing all the values from the container](#removing-all-the-values-from-the-container)
+  * [Clearing container values](#clearing-container-values)
 - [Child containers](#child-containers)
-  - [Shadowing values](#shadowing-values)
-  - [Checking for values](#checking-for-values)
-  - [Child singletons](#child-singletons)
+  * [Shadowing values](#shadowing-values)
+  * [Checking for values](#checking-for-values)
+  * [Child singletons](#child-singletons)
 - [API docs](#api-docs)
 - [License](#license)
 
@@ -224,7 +228,9 @@ class B {
 
 There are four types of injection scopes:
 
-- `singleton` - once the value is resolved the value will not be changed as long as the same container is used.
+### Singleton
+
+Once the value is resolved the value will not be changed as long as the same container is used.
 
 In the next example, both `A` and `B` instances have the same instance of `C`
 
@@ -256,8 +262,10 @@ const instanceA = container.resolve(A)
 instanceA.c === instanceA.b.c
 ```
 
-- `transient` - This is the **default scope**. Every time the value is requested, a new value will be returned (resolved).
-  In the case of `classes`, it will be a new instance every time, in the case of factories, the factory function will be executed every time.
+### Transient
+
+This is the **default scope**. Every time the value is requested, a new value will be returned (resolved).
+In the case of `classes`, it will be a new instance every time, in the case of factories, the factory function will be executed every time.
 
 In the next example, both `A` and `B` instances will have a different `C` instance.
 
@@ -289,7 +297,9 @@ const instanceA = container.resolve(A)
 instanceA.c !== instanceA.b.c //C
 ```
 
--` request` - this is similar to the `singleton` scope except the value is resolved **once** per resolve request.
+### Request
+
+This is similar to the `singleton` scope except the value is resolved **once** per resolve request.
 Every new call to `container.resolve()` will create a new value.
 
 ```ts
@@ -322,7 +332,9 @@ secondA.c === secondA.b.c
 secondA.c !== firstA.c
 ```
 
-- `container singleton - this scope is similar to the regular `singleton` scope, but in the case of [child containers](#child-containers), the child container will create its version of the singleton instance.
+### Container singleton
+
+This scope is similar to the regular `singleton` scope, but in the case of [child containers](#child-containers), the child container will create its version of the singleton instance.
 
 In the next example, the child container will create its version of the singleton.
 
