@@ -1,5 +1,11 @@
 # pumpa
 
+## 4.0.2
+
+### Patch Changes
+
+- fef839d: update docs
+
 ## 4.0.1
 
 ### Patch Changes
