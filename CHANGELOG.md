@@ -1,5 +1,11 @@
 # pumpa
 
+## 4.0.3
+
+### Patch Changes
+
+- 0bbcf2c: fix: Singleton values are not properly resolved on multiple resolve calls.
+
 ## 4.0.2
 
 ### Patch Changes
