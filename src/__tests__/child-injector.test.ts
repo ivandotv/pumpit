@@ -476,5 +476,33 @@ describe('Child container', () => {
         expect(childC.keyA).toBe(childA)
       })
     })
+
+    test('get from singleton cache on second resolve', () => {
+      const container = new PumpIt()
+      let count = 0
+
+      function One(config, _two) {
+        return () => config
+      }
+      One.inject = ['config', Two]
+
+      function Two(config) {
+        return () => config
+      }
+      Two.inject = ['config']
+
+      container
+        .bindFactory(One, One)
+        .bindFactory(Two, Two)
+        .bindFactory('config', () => count++, {
+          scope: SCOPE.CONTAINER_SINGLETON
+        })
+
+      container.resolve('config')
+      container.resolve(One)
+      container.resolve(Two)
+
+      expect(count).toBe(1)
+    })
   })
 })

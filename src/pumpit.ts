@@ -386,7 +386,10 @@ export class PumpIt {
         //resolve array of injection keys
         const nested = []
         for (const k of key) {
-          const doneDep = this._resolve(k.key, { ...k.options }, ctx)
+          let doneDep = ctx.singletonCache.get(k.key)
+          if (doneDep === undefined) {
+            doneDep = this._resolve(k.key, { ...k.options }, ctx)
+          }
           // @ts-expect-error needs type narrowing for "removeUndefined"
           if (doneDep === undefined && options.removeUndefined) {
             continue
@@ -402,7 +405,10 @@ export class PumpIt {
             : nested
         )
       } else {
-        const doneDep = this._resolve(key, { ...options }, ctx)
+        let doneDep = ctx.singletonCache.get(key)
+        if (doneDep === undefined) {
+          doneDep = this._resolve(key, { ...options }, ctx)
+        }
         finalDeps.push(doneDep)
       }
     }
