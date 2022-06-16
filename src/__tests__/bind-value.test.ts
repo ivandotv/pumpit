@@ -19,13 +19,13 @@ describe('Bind values', () => {
 
     pumpIt.bindValue(key, nameValue)
 
-    expect(() => pumpIt.bindValue(key, nameValue)).toThrowError(`${key}`)
+    expect(() => pumpIt.bindValue(key, nameValue)).toThrow(`${key}`)
   })
 
   test('throw if the key to be resolved cannot be found', () => {
     const pumpIt = new PumpIt()
     const key = 'name'
 
-    expect(() => pumpIt.resolve(key)).toThrowError(`${key}`)
+    expect(() => pumpIt.resolve(key)).toThrow(`${key}`)
   })
 })

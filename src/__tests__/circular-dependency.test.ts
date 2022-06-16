@@ -21,7 +21,7 @@ describe('Circular dependency', () => {
 
     pumpIt.bindClass(keyA, TestA).bindClass(keyB, TestB).bindClass(keyC, TestC)
 
-    expect(() => pumpIt.resolve<TestA>(keyA)).toThrowError(
+    expect(() => pumpIt.resolve<TestA>(keyA)).toThrow(
       'Circular reference detected'
     )
   })

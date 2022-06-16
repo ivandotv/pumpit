@@ -86,7 +86,7 @@ describe('Inject array of values as a single dependency', () => {
     pumpIt.bindValue(keyTwo, valueTwo)
     pumpIt.bindClass('class_a', TestA)
 
-    expect(() => pumpIt.resolve<TestA>('class_a')).toThrowError('not found')
+    expect(() => pumpIt.resolve<TestA>('class_a')).toThrow('not found')
   })
 
   test('set the whole array to undefined if there are no resolved keys', () => {

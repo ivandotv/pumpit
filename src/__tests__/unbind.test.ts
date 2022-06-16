@@ -5,7 +5,7 @@ describe('Unbind', () => {
   test('throw if the key is not found', () => {
     const pumpIt = new PumpIt()
 
-    expect(() => pumpIt.unbind('does_not_exist')).toThrowError('not found')
+    expect(() => pumpIt.unbind('does_not_exist')).toThrow('not found')
   })
 
   test('unbind factory', () => {
@@ -41,7 +41,7 @@ describe('Unbind', () => {
     pumpIt.unbind(keyA)
 
     expect(pumpIt.has(keyA)).toBe(false)
-    expect(() => pumpIt.resolve(keyA)).toThrowError('not found')
+    expect(() => pumpIt.resolve(keyA)).toThrow('not found')
     expect(disposeCall).toHaveBeenCalled()
   })
 
@@ -114,7 +114,7 @@ describe('Unbind', () => {
     pumpIt.unbind(keyA, false)
 
     expect(pumpIt.has(keyA)).toBe(false)
-    expect(() => pumpIt.resolve(keyA)).toThrowError('not found')
+    expect(() => pumpIt.resolve(keyA)).toThrow('not found')
     expect(disposeCall).not.toHaveBeenCalled()
   })
 
@@ -147,7 +147,7 @@ describe('Unbind', () => {
     pumpIt.unbind(keyA)
 
     expect(pumpIt.has(keyA)).toBe(false)
-    expect(() => pumpIt.resolve(keyA)).toThrowError('not found')
+    expect(() => pumpIt.resolve(keyA)).toThrow('not found')
     expect(disposeCall).toHaveBeenCalled()
   })
 
@@ -219,7 +219,7 @@ describe('Unbind', () => {
     pumpIt.unbind(keyA)
 
     expect(pumpIt.has(keyA)).toBe(false)
-    expect(() => pumpIt.resolve(keyA)).toThrowError('not found')
+    expect(() => pumpIt.resolve(keyA)).toThrow('not found')
     expect(disposeCall).toHaveBeenCalled()
   })
 
@@ -258,9 +258,9 @@ describe('Unbind', () => {
       expect(pumpIt.has(factoryKey)).toBe(false)
       expect(pumpIt.has(classKey)).toBe(false)
       expect(pumpIt.has(valueKey)).toBe(false)
-      expect(() => pumpIt.resolve(factoryKey)).toThrowError('not found')
-      expect(() => pumpIt.resolve(classKey)).toThrowError('not found')
-      expect(() => pumpIt.resolve(classKey)).toThrowError('not found')
+      expect(() => pumpIt.resolve(factoryKey)).toThrow('not found')
+      expect(() => pumpIt.resolve(classKey)).toThrow('not found')
+      expect(() => pumpIt.resolve(classKey)).toThrow('not found')
       expect(factoryDisposeCall).toHaveBeenCalledTimes(1)
       expect(classDisposeCall).not.toHaveBeenCalled()
     })

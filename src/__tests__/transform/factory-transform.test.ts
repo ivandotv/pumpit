@@ -260,7 +260,7 @@ describe('Resolve transform factory', () => {
 
       pumpIt.resolve<TestC>(keyC)
 
-      expect(afterResolve).toBeCalledTimes(2)
+      expect(afterResolve).toHaveBeenCalledTimes(2)
     })
 
     test('runs once per resolve request when the scope is "request"', () => {

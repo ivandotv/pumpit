@@ -247,7 +247,7 @@ describe('Optional injection', () => {
     const factory = () => {}
 
     // @ts-expect-error - deliberate wrong keys
-    expect(() => pumpit.bindFactory('a', { a: factory, b: [] })).toThrowError(
+    expect(() => pumpit.bindFactory('a', { a: factory, b: [] })).toThrow(
       'bind keys must be "value" and "inject"'
     )
   })
