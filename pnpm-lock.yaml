@@ -26,7 +26,7 @@ specifiers:
   microbundle: ^0.15.0
   prettier: ^2.6.2
   shx: ^0.3.4
-  typedoc: ^0.22.15
+  typedoc: ^0.23.0
   typedoc-plugin-markdown: ^3.12.1
   typescript: ^4.6.4
 
@@ -56,8 +56,8 @@ devDependencies:
   microbundle: 0.15.0
   prettier: 2.6.2
   shx: 0.3.4
-  typedoc: 0.22.15_typescript@4.6.4
-  typedoc-plugin-markdown: 3.12.1_typedoc@0.22.15
+  typedoc: 0.23.1_typescript@4.6.4
+  typedoc-plugin-markdown: 3.12.1_typedoc@0.23.1
   typescript: 4.6.4
 
 packages:
@@ -351,6 +351,8 @@ packages:
     resolution: {integrity: sha512-n2Q6i+fnJqzOaq2VkdXxy2TCPCWQZHiCo0XqmrCvDWcZQKRyZzYi4Z0yxlBuN0w+r2ZHmre+Q087DSrw3pbJDQ==}
     engines: {node: '>=6.0.0'}
     hasBin: true
+    dependencies:
+      '@babel/types': 7.17.10
     dev: true
 
   /@babel/plugin-bugfix-safari-id-destructuring-collision-in-function-expression/7.16.7_@babel+core@7.17.10:
@@ -3649,7 +3651,7 @@ packages:
   /filelist/1.0.3:
     resolution: {integrity: sha512-LwjCsruLWQULGYKy7TX0OPtrL9kLpojOFKc5VCTxdFTV7w5zbsgqVKfnkKG7Qgjtq50gKfO56hJv88OfcGb70Q==}
     dependencies:
-      minimatch: 5.0.1
+      minimatch: 5.1.0
     dev: true
 
   /filesize/6.4.0:
@@ -5048,8 +5050,8 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
-  /marked/4.0.14:
-    resolution: {integrity: sha512-HL5sSPE/LP6U9qKgngIIPTthuxC0jrfxpYMZ3LdGDD3vTnLs59m2Z7r6+LNDR3ToqEQdkKd6YaaEfJhodJmijQ==}
+  /marked/4.0.17:
+    resolution: {integrity: sha512-Wfk0ATOK5iPxM4ptrORkFemqroz0ZDxp5MWfYA7H/F+wO17NRWV5Ypxi6p3g2Xmw2bKeiYOl6oVnLHKxBA0VhA==}
     engines: {node: '>= 12'}
     hasBin: true
     dev: true
@@ -5170,8 +5172,8 @@ packages:
       brace-expansion: 1.1.11
     dev: true
 
-  /minimatch/5.0.1:
-    resolution: {integrity: sha512-nLDxIFRyhDblz3qMuq+SoRZED4+miJ/G+tdDrjkkkRnjAsBexeGpgjLEQ0blJy7rHhR2b93rhQY4SvyWu9v03g==}
+  /minimatch/5.1.0:
+    resolution: {integrity: sha512-9TPBGGak4nHfGZsPBohm9AWg6NoT7QTCehS3BIJABslyZbzxfV78QM2Y6+i741OPZIafFAaiiEMh5OyIrJPgtg==}
     engines: {node: '>=10'}
     dependencies:
       brace-expansion: 2.0.1
@@ -6872,26 +6874,25 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
-  /typedoc-plugin-markdown/3.12.1_typedoc@0.22.15:
+  /typedoc-plugin-markdown/3.12.1_typedoc@0.23.1:
     resolution: {integrity: sha512-gMntJq7+JlGJZ5sVjrkzO/rG2dsmNBbWk5ZkcKvYu6QOeBwGcK5tzEyS0aqnFTJj9GCHCB+brAnTuKtAyotNwA==}
     peerDependencies:
       typedoc: '>=0.22.0'
     dependencies:
       handlebars: 4.7.7
-      typedoc: 0.22.15_typescript@4.6.4
+      typedoc: 0.23.1_typescript@4.6.4
     dev: true
 
-  /typedoc/0.22.15_typescript@4.6.4:
-    resolution: {integrity: sha512-CMd1lrqQbFvbx6S9G6fL4HKp3GoIuhujJReWqlIvSb2T26vGai+8Os3Mde7Pn832pXYemd9BMuuYWhFpL5st0Q==}
-    engines: {node: '>= 12.10.0'}
+  /typedoc/0.23.1_typescript@4.6.4:
+    resolution: {integrity: sha512-6Lb8E+RTEUPzdPUNugQQTOQYccq0iSfZgZ875fzSynByJWC7RbKNwLIx0Osv8pcJyiByy3jH/wdZR0tajuijLQ==}
+    engines: {node: '>= 14.14'}
     hasBin: true
     peerDependencies:
-      typescript: 4.0.x || 4.1.x || 4.2.x || 4.3.x || 4.4.x || 4.5.x || 4.6.x
+      typescript: 4.6.x || 4.7.x
     dependencies:
-      glob: 7.2.0
       lunr: 2.3.9
-      marked: 4.0.14
-      minimatch: 5.0.1
+      marked: 4.0.17
+      minimatch: 5.1.0
       shiki: 0.10.1
       typescript: 4.6.4
     dev: true
