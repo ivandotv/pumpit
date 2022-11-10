@@ -60,16 +60,18 @@ export class PumpIt {
   }
 
   unbind(key: BindKey, dispose = true): void {
-    // @ts-expect-error -unbind does not exist on ValueOptions
-    const { value, unbind } = this.pool.get(key) ?? {}
-    const singleton = this.singletonCache.get(key)
-    const payload = {
-      dispose,
-      container: this,
-      value: singleton
-    }
+    const poolData = this.pool.get(key)
 
-    if (value) {
+    if (poolData) {
+      // @ts-expect-error -unbind does not exist on ValueOptions
+      const { unbind } = poolData
+      const singleton = this.singletonCache.get(key)
+      const payload = {
+        dispose,
+        container: this,
+        value: singleton
+      }
+
       this.pool.delete(key)
       this.singletonCache.delete(key)
 

@@ -379,4 +379,15 @@ describe('Unbind', () => {
 
     expect(pumpit.clearInstance('not_found')).toBe(false)
   })
+
+  test('unbind falsy values', () => {
+    const pumpit = new PumpIt()
+
+    pumpit.bindValue('string', '')
+    pumpit.bindValue('undefined', undefined)
+    pumpit.bindValue('null', null)
+    pumpit.bindValue('false', false)
+
+    pumpit.unbindAll()
+  })
 })
