@@ -388,6 +388,8 @@ describe('Unbind', () => {
     pumpit.bindValue('null', null)
     pumpit.bindValue('false', false)
 
-    pumpit.unbindAll()
+    expect(() => {
+      pumpit.unbindAll()
+    }).not.toThrow()
   })
 })
