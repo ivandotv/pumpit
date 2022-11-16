@@ -383,10 +383,19 @@ describe('Unbind', () => {
   test('unbind falsy values', () => {
     const pumpit = new PumpIt()
 
-    pumpit.bindValue('string', '')
-    pumpit.bindValue('undefined', undefined)
-    pumpit.bindValue('null', null)
-    pumpit.bindValue('false', false)
+    const stringValue = ''
+    const undefinedValue = undefined
+    const nullValue = null
+    const falseValue = false
+    pumpit.bindValue('string', stringValue)
+    pumpit.bindValue('undefined', undefinedValue)
+    pumpit.bindValue('null', nullValue)
+    pumpit.bindValue('false', falseValue)
+
+    expect(pumpit.resolve('string')).toBe(stringValue)
+    expect(pumpit.resolve('undefined')).toBe(undefinedValue)
+    expect(pumpit.resolve('null')).toBe(nullValue)
+    expect(pumpit.resolve('false')).toBe(falseValue)
 
     expect(() => {
       pumpit.unbindAll()
