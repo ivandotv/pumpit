@@ -28,4 +28,23 @@ describe('Bind values', () => {
 
     expect(() => pumpIt.resolve(key)).toThrow(`${key}`)
   })
+
+  test('Bind and resolve falsy values', () => {
+    const pumpit = new PumpIt()
+
+    const stringValue = ''
+    const undefinedValue = undefined
+    const nullValue = null
+    const falseValue = false
+
+    pumpit.bindValue('string', stringValue)
+    pumpit.bindValue('undefined', undefinedValue)
+    pumpit.bindValue('null', nullValue)
+    pumpit.bindValue('false', falseValue)
+
+    expect(pumpit.resolve('string')).toBe(stringValue)
+    expect(pumpit.resolve('undefined')).toBe(undefinedValue)
+    expect(pumpit.resolve('null')).toBe(nullValue)
+    expect(pumpit.resolve('false')).toBe(falseValue)
+  })
 })
