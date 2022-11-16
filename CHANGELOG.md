@@ -1,5 +1,11 @@
 # pumpa
 
+## 4.0.4
+
+### Patch Changes
+
+- cb7c7b7: fix unbind falsy values
+
 ## 4.0.3
 
 ### Patch Changes
