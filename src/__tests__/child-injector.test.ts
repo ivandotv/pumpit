@@ -177,9 +177,11 @@ describe('Child container', () => {
 
         const parentInstance = parent.resolve<TestA>(TestA)
         const childInstance = child.resolve<TestA>(TestA)
+        const childInstanceTwo = child.resolve<TestA>(TestA)
 
         expect(TestA.count).toBe(2)
         expect(parentInstance).not.toBe(childInstance)
+        expect(childInstanceTwo).toBe(childInstance)
       })
 
       test('dependency is picked up from child', () => {
@@ -203,7 +205,43 @@ describe('Child container', () => {
         expect(instance.config).toBe(childConfig)
       })
 
-      test('for singleton, dependency is picked up from parent', () => {
+      test('parent value resolves with child dependency', () => {
+        const parentContainer = new PumpIt()
+        const childContainer = parentContainer.child()
+        const parentConfig = { name: 'Ivan' }
+        const childConfig = { name: 'Leonardo' }
+
+        class TestB {
+          static inject = ['config']
+
+          constructor(public config: any) {}
+        }
+
+        class TestA {
+          static inject = [TestB]
+
+          constructor(public config: TestB) {}
+        }
+
+        class TestBShadow {
+          static inject = ['config']
+        }
+
+        parentContainer.bindClass(TestA, TestA)
+        parentContainer.bindClass(TestB, TestB)
+        parentContainer.bindValue('config', parentConfig)
+
+        childContainer.bindValue('config', childConfig)
+        childContainer.bindClass(TestB, TestBShadow, {
+          scope: SCOPE.CONTAINER_SINGLETON
+        })
+
+        const instance = childContainer.resolve<TestA>(TestA)
+
+        expect(instance.config).toBeInstanceOf(TestBShadow)
+      })
+
+      test('dependency is picked up from parent', () => {
         const parentContainer = new PumpIt()
         const childContainer = parentContainer.child()
         const parentConfig = { name: 'Ivan' }
@@ -219,7 +257,6 @@ describe('Child container', () => {
           scope: SCOPE.CONTAINER_SINGLETON
         })
         parentContainer.bindValue('config', parentConfig)
-
         childContainer.bindValue('config', childConfig)
 
         const instance = childContainer.resolve<TestA>(TestA)
