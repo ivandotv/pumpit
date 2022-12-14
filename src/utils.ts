@@ -109,7 +109,7 @@ export function parseInjectionData(key: Injection): ParsedInjectionData {
 
 /**
  * Wrapper function for registering dependencies that can be manipulated before being injected
- * It gets an array of dependeciens in injection order, and it should return an array
+ * It gets an array of dependencies in injection order, and it should return an array
  * @param deps - array of dependencies that need to be satisfied see: {@link BindKey | BindKey} {@link get | get()} {@link getArray | getArray()}
  * @param fn - function that will be called with the resolved dependencies
  */
