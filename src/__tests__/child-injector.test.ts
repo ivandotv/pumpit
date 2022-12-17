@@ -64,6 +64,7 @@ describe('Child container', () => {
     expect(child.has(classKey, false)).toBe(false)
     expect(child.has(classKey, true)).toBe(true)
     expect(parent.has(classKey)).toBe(true)
+    expect(parent.resolve(classKey)).toBeInstanceOf(ParentClass)
   })
 
   test('if the value is not present at all, return false', () => {
@@ -116,7 +117,29 @@ describe('Child container', () => {
       expect(childInstance).not.toBe(parentInstance)
       expect(TestA.count).toBe(2)
     })
-    describe('Container scoped', () => {
+
+    test('dependency is picked up from child', () => {
+      const parentContainer = new PumpIt()
+      const childContainer = parentContainer.child()
+      const parentConfig = { name: 'Ivan' }
+      const childConfig = { name: 'Leonardo' }
+
+      class TestA {
+        static inject = ['config']
+
+        constructor(public config: any) {}
+      }
+
+      parentContainer.bindClass(TestA, TestA)
+      parentContainer.bindValue('config', parentConfig)
+      childContainer.bindValue('config', childConfig)
+
+      const instance = childContainer.resolve<TestA>(TestA)
+
+      expect(instance.config).toBe(childConfig)
+    })
+
+    describe('Container scoped (CONTAINER_SINGLETON)', () => {
       test('when the the key is on the parent, singleton is created on the child', () => {
         const parent = new PumpIt()
         const child = parent.child()
@@ -133,35 +156,14 @@ describe('Child container', () => {
 
         const childInstance = child.resolve<TestA>(key)
         const parentInstance = parent.resolve<TestA>(key)
+        const childInstanceTwo = child.resolve<TestA>(key)
 
         expect(childInstance).not.toBe(parentInstance)
+        expect(childInstance).toBe(childInstanceTwo)
         expect(TestA.count).toBe(2)
       })
 
-      test('when the key is on the child, singleton is created on the child', () => {
-        const parent = new PumpIt()
-        const child = parent.child()
-        const key = Symbol('key')
-
-        class TestA {
-          static count = 0
-
-          constructor() {
-            TestA.count++
-          }
-        }
-
-        parent.bindClass(key, TestA, { scope: 'SINGLETON' })
-        child.bindClass(key, TestA, { scope: 'SINGLETON' })
-
-        const childInstance = child.resolve<TestA>(key)
-        const parentInstance = parent.resolve<TestA>(key)
-
-        expect(childInstance).not.toBe(parentInstance)
-        expect(TestA.count).toBe(2)
-      })
-
-      test('when dependency is container scoped, child will create new singleton instance', () => {
+      test('when the dependency is container scoped, child will create a new singleton instance', () => {
         const parent = new PumpIt()
         const child = parent.child()
 
@@ -182,27 +184,6 @@ describe('Child container', () => {
         expect(TestA.count).toBe(2)
         expect(parentInstance).not.toBe(childInstance)
         expect(childInstanceTwo).toBe(childInstance)
-      })
-
-      test('dependency is picked up from child', () => {
-        const parentContainer = new PumpIt()
-        const childContainer = parentContainer.child()
-        const parentConfig = { name: 'Ivan' }
-        const childConfig = { name: 'Leonardo' }
-
-        class TestA {
-          static inject = ['config']
-
-          constructor(public config: any) {}
-        }
-
-        parentContainer.bindClass(TestA, TestA)
-        parentContainer.bindValue('config', parentConfig)
-        childContainer.bindValue('config', childConfig)
-
-        const instance = childContainer.resolve<TestA>(TestA)
-
-        expect(instance.config).toBe(childConfig)
       })
 
       test('parent value resolves with child dependency', () => {
@@ -451,95 +432,6 @@ describe('Child container', () => {
         expect(childB.keyA).toBe(parentA)
         expect(childB.keyC.keyA).toBe(parentA)
       })
-
-      test('container scoped', () => {
-        const parent = new PumpIt()
-        const child = parent.child()
-        const keyA = Symbol('keyA')
-        const keyB = Symbol('keyB')
-        const keyC = Symbol('keyC')
-
-        class TestA {
-          static count = 0
-
-          constructor() {
-            TestA.count++
-          }
-        }
-
-        class TestB {
-          static count = 0
-
-          static inject = [keyA, get(keyC, { lazy: true })]
-
-          constructor(public keyA: TestA, public keyC: TestC) {
-            TestB.count++
-          }
-        }
-
-        class TestC {
-          static count = 0
-
-          static inject = [keyA, get(keyB, { lazy: true })]
-
-          constructor(public keyA: TestA, public keyB: TestB) {
-            TestC.count++
-          }
-        }
-
-        parent.bindClass(keyA, TestA, { scope: SCOPE.CONTAINER_SINGLETON })
-        child.bindClass(keyB, TestB, { scope: 'SINGLETON' })
-        child.bindClass(keyC, TestC)
-
-        const childB = child.resolve<TestB>(keyB)
-        const childC = child.resolve<TestC>(keyC)
-        const childA = child.resolve<TestA>(keyA)
-        child.resolve<TestB>(keyB)
-        child.resolve<TestB>(keyB)
-
-        const parentA = parent.resolve<TestA>(keyA)
-        parent.resolve<TestA>(keyA)
-
-        expect(TestA.count).toBe(2)
-        expect(TestB.count).toBe(1)
-        expect(TestC.count).toBe(2)
-
-        expect(childB.keyA).not.toBe(parentA)
-        expect(childB.keyA).toBe(childA)
-        expect(childB.keyC.keyA).not.toBe(parentA)
-        expect(childB.keyC.keyA).toBe(childB.keyA)
-
-        expect(childC.keyB).toBe(childB)
-        expect(childC.keyA).toBe(childA)
-      })
-    })
-
-    test('get from singleton cache on second resolve', () => {
-      const container = new PumpIt()
-      let count = 0
-
-      function One(config, _two) {
-        return () => config
-      }
-      One.inject = ['config', Two]
-
-      function Two(config) {
-        return () => config
-      }
-      Two.inject = ['config']
-
-      container
-        .bindFactory(One, One)
-        .bindFactory(Two, Two)
-        .bindFactory('config', () => count++, {
-          scope: SCOPE.CONTAINER_SINGLETON
-        })
-
-      container.resolve('config')
-      container.resolve(One)
-      container.resolve(Two)
-
-      expect(count).toBe(1)
     })
   })
 })
