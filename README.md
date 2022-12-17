@@ -9,35 +9,36 @@ It supports circular dependencies (via Proxy), injecting arrays of dependencies 
 
 <!-- toc -->
 
-- [Motivation](#motivation)
-- [Getting Started](#getting-started)
-  * [Registering classes](#registering-classes)
-  * [Registering factories](#registering-factories)
-  * [Registering values](#registering-values)
-- [Resolving container data](#resolving-container-data)
-  * [Resolve context](#resolve-context)
-- [Injection tokens](#injection-tokens)
-- [Injection scopes](#injection-scopes)
-  * [Singleton](#singleton)
-  * [Transient](#transient)
-  * [Request](#request)
-  * [Container singleton](#container-singleton)
-- [Optional injections](#optional-injections)
-- [Circular dependencies](#circular-dependencies)
-- [Injecting arrays](#injecting-arrays)
-- [Transforming dependencies](#transforming-dependencies)
-  * [Transforming injected dependencies](#transforming-injected-dependencies)
-- [Removing values from the container](#removing-values-from-the-container)
-  * [Calling the dispose method](#calling-the-dispose-method)
-  * [Dispose callback](#dispose-callback)
-  * [Removing all the values from the container](#removing-all-the-values-from-the-container)
-  * [Clearing container values](#clearing-container-values)
-- [Child containers](#child-containers)
-  * [Shadowing values](#shadowing-values)
-  * [Checking for values](#checking-for-values)
-  * [Child singletons](#child-singletons)
-- [API docs](#api-docs)
-- [License](#license)
+- [PumpIt](#pumpit)
+  - [Motivation](#motivation)
+  - [Getting Started](#getting-started)
+    - [Registering classes](#registering-classes)
+    - [Registering factories](#registering-factories)
+    - [Registering values](#registering-values)
+  - [Resolving container data](#resolving-container-data)
+    - [Resolve context](#resolve-context)
+  - [Injection tokens](#injection-tokens)
+  - [Injection scopes](#injection-scopes)
+    - [Singleton](#singleton)
+    - [Transient](#transient)
+    - [Request](#request)
+    - [Container singleton](#container-singleton)
+  - [Optional injections](#optional-injections)
+  - [Circular dependencies](#circular-dependencies)
+  - [Injecting arrays](#injecting-arrays)
+  - [Transforming dependencies](#transforming-dependencies)
+    - [Transforming injected dependencies](#transforming-injected-dependencies)
+  - [Removing values from the container](#removing-values-from-the-container)
+    - [Calling the dispose method](#calling-the-dispose-method)
+    - [Dispose callback](#dispose-callback)
+    - [Removing all the values from the container](#removing-all-the-values-from-the-container)
+    - [Clearing container values](#clearing-container-values)
+  - [Child containers](#child-containers)
+    - [Shadowing values](#shadowing-values)
+    - [Checking for values](#checking-for-values)
+    - [Child singletons](#child-singletons)
+  - [API docs](#api-docs)
+  - [License](#license)
 
 <!-- tocstop -->
 
@@ -81,7 +82,7 @@ const instanceB = container.resolve<TestA>(bindKeyB)
 instanceA.b // injected B instance
 ```
 
-There is also alternative syntax that you can use when you don't want to use the static `inject` property, or you are importing class from third-party packages.
+There is also alternative syntax that you can use when you don't want to use the static `inject` property, or you are importing a class from third-party packages.
 
 ```ts
 import { PumpIt } from 'pumpit'
@@ -336,7 +337,7 @@ secondA.c !== firstA.c
 
 This scope is similar to the regular `singleton` scope, but in the case of [child containers](#child-containers), the child container will create its version of the singleton instance.
 
-In the next example, the child container will create its version of the singleton.
+In the next example, the child container will create its own version of the singleton instance.
 
 ```ts
 import { PumpIt, SCOPE } from 'pumpit'
@@ -402,6 +403,7 @@ instanceA.b // undefined
 `PumpIt` supports circular dependencies. The container uses [`Proxy`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) under the hood, to handle circular dependency cases.
 
 For example: In case of circular dependency: `A -> B -> A`
+
 `B` will be given a `proxy` object that will represent the `A` instance, and **after** the `B` constructor runs, the proxy will point to the instance of `A`. To do that we need to mark the `A` dependency as `lazy`. For this, we need to use the `get()` helper function.
 
 ```ts
@@ -450,7 +452,7 @@ class B {
   static inject = [get(A, { lazy: true })]
 
   constructor(public a: A) {
-    this.a // will be a proxy untill the constructor runs to completion
+    this.a // will be a proxy until the constructor runs to completion
     this.a.hello() //error!
 
     // check if proxy
