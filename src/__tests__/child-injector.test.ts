@@ -163,7 +163,7 @@ describe('Child container', () => {
         expect(TestA.count).toBe(2)
       })
 
-      test('when the dependency is container scoped, child will create a new singleton instance', () => {
+      test('when the dependency is created on the parent, child will still create a new singleton instance', () => {
         const parent = new PumpIt()
         const child = parent.child()
 
