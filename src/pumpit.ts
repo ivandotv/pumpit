@@ -187,9 +187,6 @@ export class PumpIt {
     let inject: InjectionData
 
     if (typeof value !== 'function') {
-      if (!value.value || !value.inject) {
-        throw new Error('bind keys must be "value" and "inject"')
-      }
       exec = value.value
       inject = value.inject
     } else {

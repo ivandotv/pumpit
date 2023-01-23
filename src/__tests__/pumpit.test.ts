@@ -241,14 +241,4 @@ describe('Optional injection', () => {
     expect(instance.bd[0]).toBeInstanceOf(TestB)
     expect(instance.bd[1]).toBeInstanceOf(TestD)
   })
-
-  test('throw if bind keys are incorrect', () => {
-    const pumpit = new PumpIt()
-    const factory = () => {}
-
-    // @ts-expect-error - deliberate wrong keys
-    expect(() => pumpit.bindFactory('a', { a: factory, b: [] })).toThrow(
-      'bind keys must be "value" and "inject"'
-    )
-  })
 })
