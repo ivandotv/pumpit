@@ -331,8 +331,10 @@ export class PumpIt {
 
     let useLazy = false
 
-    //values have no circular references
-    if (type !== TYPE.VALUE) {
+    if (type === TYPE.VALUE) {
+      // resolve immediately - value type has no dependencies
+      return value
+    } else {
       const keySeen = ctx.requestedKeys.get(key)
 
       //if key has been seen
@@ -363,10 +365,6 @@ export class PumpIt {
     }
 
     let fn
-    if (type === TYPE.VALUE) {
-      // resolve immediately - value type has no dependencies
-      return value
-    }
     if (useLazy) {
       fn = () => this.createLazy(key, type, ctx)
     } else {
