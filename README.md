@@ -9,36 +9,36 @@ It supports circular dependencies (via Proxy), injecting arrays of dependencies 
 
 <!-- toc -->
 
-- [PumpIt](#pumpit)
-  - [Motivation](#motivation)
-  - [Getting Started](#getting-started)
-    - [Registering classes](#registering-classes)
-    - [Registering factories](#registering-factories)
-    - [Registering values](#registering-values)
-  - [Resolving container data](#resolving-container-data)
-    - [Resolve context](#resolve-context)
-  - [Injection tokens](#injection-tokens)
-  - [Injection scopes](#injection-scopes)
-    - [Singleton](#singleton)
-    - [Transient](#transient)
-    - [Request](#request)
-    - [Container singleton](#container-singleton)
-  - [Optional injections](#optional-injections)
-  - [Circular dependencies](#circular-dependencies)
-  - [Injecting arrays](#injecting-arrays)
-  - [Transforming dependencies](#transforming-dependencies)
-    - [Transforming injected dependencies](#transforming-injected-dependencies)
-  - [Removing values from the container](#removing-values-from-the-container)
-    - [Calling the dispose method](#calling-the-dispose-method)
-    - [Dispose callback](#dispose-callback)
-    - [Removing all the values from the container](#removing-all-the-values-from-the-container)
-    - [Clearing container values](#clearing-container-values)
-  - [Child containers](#child-containers)
-    - [Shadowing values](#shadowing-values)
-    - [Checking for values](#checking-for-values)
-    - [Child singletons](#child-singletons)
-  - [API docs](#api-docs)
-  - [License](#license)
+- [Motivation](#motivation)
+- [Getting Started](#getting-started)
+  * [Registering classes](#registering-classes)
+  * [Registering factories](#registering-factories)
+  * [Registering values](#registering-values)
+- [Resolving container data](#resolving-container-data)
+  * [Resolve context](#resolve-context)
+- [Injection tokens](#injection-tokens)
+- [Injection scopes](#injection-scopes)
+  * [Singleton](#singleton)
+  * [Transient](#transient)
+  * [Request](#request)
+  * [Container singleton](#container-singleton)
+- [Optional injections](#optional-injections)
+- [Circular dependencies](#circular-dependencies)
+- [Injecting arrays](#injecting-arrays)
+- [Transforming dependencies (hooks)](#transforming-dependencies-hooks)
+  * [Transforming injected dependencies](#transforming-injected-dependencies)
+  * [Post construct method](#post-construct-method)
+- [Removing values from the container](#removing-values-from-the-container)
+  * [Calling the dispose method](#calling-the-dispose-method)
+  * [Dispose callback](#dispose-callback)
+  * [Removing all the values from the container](#removing-all-the-values-from-the-container)
+  * [Clearing container values](#clearing-container-values)
+- [Child containers](#child-containers)
+  * [Shadowing values](#shadowing-values)
+  * [Checking for values](#checking-for-values)
+  * [Child singletons](#child-singletons)
+- [API docs](#api-docs)
+- [License](#license)
 
 <!-- tocstop -->
 
@@ -550,7 +550,7 @@ class TestA {
 }
 ```
 
-## Transforming dependencies
+## Transforming dependencies (hooks)
 
 Dependencies can be transformed before being resolved.
 
@@ -652,6 +652,10 @@ class TestA {
   constructor(a: typeof valueA, b: typeof valueB, c: typeof valueC) {}
 }
 ```
+
+### Post construct method
+
+If the class that is being constructed (resolved) has a "postConstruct" method defined it will be called automatically when the class instance is created, in the case of singleton instances it will be called only once. One more important thing about `postConstruct` method is that it will be called in the reverse order of the resolution chain. [Please refer to this test for a concrete example](src/__tests__/instance/post-construct.test.ts#L22)
 
 ## Removing values from the container
 

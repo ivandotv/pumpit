@@ -247,6 +247,7 @@ export class PumpIt {
       requestCache: new Map(),
       requestedKeys: new Map(),
       delayed: new Map(),
+      postConstruct: [],
       ctx: opts
     }
 
@@ -266,6 +267,10 @@ export class PumpIt {
       }
 
       // throw new Error(`Can't resolve lazy key: ${keyToString(key)}`)
+    })
+
+    ctx.postConstruct.forEach((value) => {
+      value.postConstruct()
     })
 
     this.currentCtx = null
@@ -436,7 +441,7 @@ export class PumpIt {
     data: FactoryPoolData | ClassPoolData,
     ctx: RequestCtx
   ) {
-    const { beforeResolve, afterResolve, value } = data
+    const { beforeResolve, afterResolve, value, type } = data
     // @ts-expect-error - inject
     const injectionData = value.inject
     let resolvedDeps: any[] = []
@@ -473,6 +478,10 @@ export class PumpIt {
       : null
 
     ctx.requestedKeys.get(key)!.constructed = true
+
+    if (type === 'CLASS' && 'postConstruct' in result) {
+      ctx.postConstruct.push(result)
+    }
 
     return result
   }

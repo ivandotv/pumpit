@@ -45,4 +45,5 @@ export type RequestCtx = {
     }
   >
   ctx?: InternalResolveCtx
+  postConstruct: { postConstruct: () => void }[]
 }
