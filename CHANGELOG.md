@@ -1,5 +1,12 @@
 # pumpa
 
+## 4.1.0
+
+### Minor Changes
+
+- 6fb62fa: Remove bind key check. This will not check if the bind keys passed to the `bindFactory` are correct.
+- 5669230: Implement `postConstruct` method that will be automatically called if it exists on the class.
+
 ## 4.0.4
 
 ### Patch Changes
