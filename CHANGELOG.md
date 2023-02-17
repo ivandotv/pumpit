@@ -1,5 +1,11 @@
 # pumpa
 
+## 4.1.1
+
+### Patch Changes
+
+- af829ec: update readme
+
 ## 4.1.0
 
 ### Minor Changes
