@@ -71,7 +71,7 @@
     "jest-watch-typeahead": "^2.2.2",
     "lint-staged": "^13.1.0",
     "microbundle": "^0.15.1",
-    "prettier": "^2.8.3",
+    "prettier": "^3.0.0",
     "shx": "^0.3.4",
     "typedoc": "^0.24.0",
     "typedoc-plugin-markdown": "^3.14.0",
