@@ -1,5 +1,9 @@
 lockfileVersion: '6.0'
 
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
 devDependencies:
   '@babel/core':
     specifier: ^7.20.12
@@ -77,11 +81,11 @@ devDependencies:
     specifier: ^0.3.4
     version: 0.3.4
   typedoc:
-    specifier: ^0.24.0
-    version: 0.24.0(typescript@4.9.4)
+    specifier: ^0.25.0
+    version: 0.25.0(typescript@4.9.4)
   typedoc-plugin-markdown:
     specifier: ^3.14.0
-    version: 3.14.0(typedoc@0.24.0)
+    version: 3.14.0(typedoc@0.25.0)
   typescript:
     specifier: ^4.9.4
     version: 4.9.4
@@ -5356,8 +5360,8 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
-  /marked@4.2.12:
-    resolution: {integrity: sha512-yr8hSKa3Fv4D3jdZmtMMPghgVt6TWbk86WQaWhDloQjRSQhMMYCAro7jP7VDJrjjdV8pxVxMssXS8B8Y5DZ5aw==}
+  /marked@4.3.0:
+    resolution: {integrity: sha512-PRsaiG84bK+AMvxziE/lCFss8juXjNaWzVbN5tXAm4XjeaS9NAHhop+PjQxz2A9h8Q4M/xGmzP8vqNwy6JeK0A==}
     engines: {node: '>= 12'}
     hasBin: true
     dev: true
@@ -5490,9 +5494,9 @@ packages:
       brace-expansion: 2.0.1
     dev: true
 
-  /minimatch@7.4.6:
-    resolution: {integrity: sha512-sBz8G/YjVniEz6lKPNpKxXwazJe4c19fEfV2GDMX6AjFz+MX9uDWIZW8XreVhkFW3fkIdTv/gxWr/Kks5FFAVw==}
-    engines: {node: '>=10'}
+  /minimatch@9.0.3:
+    resolution: {integrity: sha512-RHiac9mvaRw0x3AYRgDC1CxAP7HTcNrrECeA8YYJeWnpo+2Q5CegtZjaotWTWxDG3UeGA1coE05iH1mPjT/2mg==}
+    engines: {node: '>=16 || 14 >=14.17'}
     dependencies:
       brace-expansion: 2.0.1
     dev: true
@@ -7208,25 +7212,25 @@ packages:
     engines: {node: '>=14.16'}
     dev: true
 
-  /typedoc-plugin-markdown@3.14.0(typedoc@0.24.0):
+  /typedoc-plugin-markdown@3.14.0(typedoc@0.25.0):
     resolution: {integrity: sha512-UyQLkLRkfTFhLdhSf3RRpA3nNInGn+k6sll2vRXjflaMNwQAAiB61SYbisNZTg16t4K1dt1bPQMMGLrxS0GZ0Q==}
     peerDependencies:
       typedoc: '>=0.23.0'
     dependencies:
       handlebars: 4.7.7
-      typedoc: 0.24.0(typescript@4.9.4)
+      typedoc: 0.25.0(typescript@4.9.4)
     dev: true
 
-  /typedoc@0.24.0(typescript@4.9.4):
-    resolution: {integrity: sha512-yNbhPdDCb67r+v+SRcyXDp5JTImMqHHOFQDI7zciT7rXJnJt5UD9wz1Z4WllCVm5Ey92j2bOML0hnaiK1Pk2JA==}
-    engines: {node: '>= 14.14'}
+  /typedoc@0.25.0(typescript@4.9.4):
+    resolution: {integrity: sha512-FvCYWhO1n5jACE0C32qg6b3dSfQ8f2VzExnnRboowHtqUD6ARzM2r8YJeZFYXhcm2hI4C2oCRDgNPk/yaQUN9g==}
+    engines: {node: '>= 16'}
     hasBin: true
     peerDependencies:
-      typescript: 4.6.x || 4.7.x || 4.8.x || 4.9.x || 5.0.x
+      typescript: 4.6.x || 4.7.x || 4.8.x || 4.9.x || 5.0.x || 5.1.x || 5.2.x
     dependencies:
       lunr: 2.3.9
-      marked: 4.2.12
-      minimatch: 7.4.6
+      marked: 4.3.0
+      minimatch: 9.0.3
       shiki: 0.14.1
       typescript: 4.9.4
     dev: true
