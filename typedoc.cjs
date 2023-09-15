@@ -1,5 +1,4 @@
 module.exports = {
-  theme: 'markdown',
   readme: 'none',
   excludePrivate: true,
   excludeInternal: true,
