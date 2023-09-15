@@ -24,7 +24,10 @@ describe('Class with scope: singleton', () => {
     class TestA {
       static inject = [keyB, keyC]
 
-      constructor(public keyB: TestB, public keyC: TestC) {}
+      constructor(
+        public keyB: TestB,
+        public keyC: TestC
+      ) {}
     }
     class TestB {}
     class TestC {}
@@ -52,7 +55,10 @@ describe('Class with scope: singleton', () => {
     class TestA {
       static inject = [keyB, keyC]
 
-      constructor(public keyB: TestB, public keyC: TestC) {}
+      constructor(
+        public keyB: TestB,
+        public keyC: TestC
+      ) {}
     }
     class TestB {}
     class TestC {}

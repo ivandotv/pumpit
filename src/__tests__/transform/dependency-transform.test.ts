@@ -54,7 +54,11 @@ describe('Transform dependencies', () => {
       const transformFn = jest.fn().mockReturnValue([valueA, valueB, valueC])
 
       class TestA {
-        constructor(public a: any, public b: any, public c: any) {}
+        constructor(
+          public a: any,
+          public b: any,
+          public c: any
+        ) {}
       }
 
       pumpIt
@@ -160,7 +164,11 @@ describe('Transform dependencies', () => {
       class TestA {
         static inject = transform([keyA, keyB, keyC], injectTransform)
 
-        constructor(public keyA: any, public keyB: any, public keyC: any) {}
+        constructor(
+          public keyA: any,
+          public keyB: any,
+          public keyC: any
+        ) {}
       }
 
       pumpIt
@@ -201,7 +209,11 @@ describe('Transform dependencies', () => {
           injectTransform
         )
 
-        constructor(public keyA: any, public keyB: any, public keyC: any) {}
+        constructor(
+          public keyA: any,
+          public keyB: any,
+          public keyC: any
+        ) {}
       }
 
       pumpIt
@@ -239,7 +251,6 @@ describe('Transform dependencies', () => {
         .fn()
         .mockReturnValue([valueA, valueB, valueC])
 
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
       const factory = () => {}
       factory.inject = transform([keyA, keyB, keyC], injectTransform)
 

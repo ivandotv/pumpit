@@ -174,7 +174,10 @@ describe('Class transform', () => {
       class TestC {
         static inject = [keyA, keyB]
 
-        constructor(public keyA: TestA, public keyB: TestB) {}
+        constructor(
+          public keyA: TestA,
+          public keyB: TestB
+        ) {}
       }
 
       pumpIt.bindClass(keyB, TestB)
@@ -220,7 +223,10 @@ describe('Class transform', () => {
       class TestC {
         static inject = [keyA, keyB]
 
-        constructor(public keyA: TestA, public keyB: TestB) {}
+        constructor(
+          public keyA: TestA,
+          public keyB: TestB
+        ) {}
       }
 
       pumpIt.bindClass(keyB, TestB)
@@ -340,7 +346,10 @@ describe('Class transform', () => {
       class TestC {
         static inject = [keyA, keyB]
 
-        constructor(public keyA: TestA, public keyB: TestB) {}
+        constructor(
+          public keyA: TestA,
+          public keyB: TestB
+        ) {}
       }
 
       pumpIt.bindClass(keyB, TestB)
@@ -384,7 +393,10 @@ describe('Class transform', () => {
       class TestC {
         static inject = [keyA, keyB]
 
-        constructor(public keyA: TestA, public keyB: TestB) {}
+        constructor(
+          public keyA: TestA,
+          public keyB: TestB
+        ) {}
       }
 
       pumpIt.bindClass(keyB, TestB)

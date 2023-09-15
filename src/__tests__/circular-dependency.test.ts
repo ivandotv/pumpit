@@ -147,7 +147,10 @@ describe('Circular dependency', () => {
       class TestB {
         static inject = [get(keyC, { lazy: true }), get(keyA)]
 
-        constructor(public keyC: TestC, public keyA: TestA) {}
+        constructor(
+          public keyC: TestC,
+          public keyA: TestA
+        ) {}
       }
 
       class TestC {

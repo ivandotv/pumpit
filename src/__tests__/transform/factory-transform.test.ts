@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
 import { PumpIt, SCOPE } from '../../pumpit'
 
 describe('Resolve transform factory', () => {
@@ -115,7 +114,10 @@ describe('Resolve transform factory', () => {
       class TestC {
         static inject = [keyA, keyB]
 
-        constructor(public keyA: typeof factory, public keyB: TestB) {}
+        constructor(
+          public keyA: typeof factory,
+          public keyB: TestB
+        ) {}
       }
 
       pumpIt
@@ -152,7 +154,10 @@ describe('Resolve transform factory', () => {
       class TestC {
         static inject = [keyA, keyB]
 
-        constructor(public keyA: typeof factory, public keyB: TestB) {}
+        constructor(
+          public keyA: typeof factory,
+          public keyB: TestB
+        ) {}
       }
 
       pumpIt
@@ -247,7 +252,10 @@ describe('Resolve transform factory', () => {
       class TestC {
         static inject = [keyA, keyB]
 
-        constructor(public keyA: typeof factory, public keyB: TestB) {}
+        constructor(
+          public keyA: typeof factory,
+          public keyB: TestB
+        ) {}
       }
 
       pumpIt
@@ -280,7 +288,10 @@ describe('Resolve transform factory', () => {
       class TestC {
         static inject = [factoryKey, keyB]
 
-        constructor(public factoryKey: typeof factory, public keyB: TestB) {}
+        constructor(
+          public factoryKey: typeof factory,
+          public keyB: TestB
+        ) {}
       }
 
       pumpIt

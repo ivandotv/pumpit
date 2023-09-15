@@ -16,7 +16,10 @@ describe('Class with scope: transient', () => {
     class TestC {
       static inject = [key, key]
 
-      constructor(public testA: TestA, public testACopy: TestA) {}
+      constructor(
+        public testA: TestA,
+        public testACopy: TestA
+      ) {}
     }
 
     pumpIt.bindClass(key, TestA).bindClass(keyB, TestB).bindClass(keyC, TestC)
@@ -37,7 +40,10 @@ describe('Class with scope: transient', () => {
     class TestB {
       static inject = [key, key]
 
-      constructor(public testA: TestA, public testACopy: TestA) {}
+      constructor(
+        public testA: TestA,
+        public testACopy: TestA
+      ) {}
     }
 
     pumpIt

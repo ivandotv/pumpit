@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
 import { PumpIt } from '../pumpit'
 import { get, getArray } from '../utils'
 
@@ -185,7 +184,10 @@ describe('Optional injection', () => {
     const keyD = Symbol()
 
     class TestD {
-      constructor(public a: TestA, public bc: [TestB, TestC]) {}
+      constructor(
+        public a: TestA,
+        public bc: [TestB, TestC]
+      ) {}
 
       static inject = [
         get(classKeyA),
