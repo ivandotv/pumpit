@@ -424,7 +424,6 @@ export class PumpIt {
       return cachedProxy.proxy
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
     const proxyTarget = type === TYPE.CLASS ? {} : function () {}
     const proxy = createProxy(proxyTarget, type === TYPE.CLASS, key)
 
