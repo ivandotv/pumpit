@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest'
 import { PumpIt, SCOPE } from '../../pumpit'
 
 describe('Class with scope: request', () => {

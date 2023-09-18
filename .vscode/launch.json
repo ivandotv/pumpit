@@ -5,24 +5,11 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Main",
-      "type": "node",
-      "request": "launch",
-      "program": "${workspaceFolder}/src/index.ts",
-      // "preLaunchTask": "npm: build:cjs",
-      "outFiles": ["${workspaceFolder}/dist/cjs/**/*.js"],
-      "smartStep": true,
-      "skipFiles": [
-        "${workspaceFolder}/node_modules/**/*.js",
-        "<node_internals>/**/*.js"
-      ]
-    },
-    {
       "name": "Current test file",
       "type": "node",
       "request": "launch",
       "cwd": "${workspaceRoot}",
-      "program": "${workspaceFolder}/node_modules/jest/bin/jest.js", //pnpm fix
+      "program": "${workspaceRoot}/node_modules/vitest/vitest.mjs",
       "env": {
         "JEST_DEBUG": "true"
       },
@@ -33,29 +20,12 @@
         "--runInBand"
       ],
       "console": "integratedTerminal",
-      "protocol": "inspector",
       "internalConsoleOptions": "neverOpen",
-      "disableOptimisticBPs": true,
       "smartStep": true,
       "skipFiles": [
         "${workspaceFolder}/node_modules/**/*.js",
         "<node_internals>/**/*.js"
       ]
-    },
-    {
-      "name": "Nodemon",
-      "type": "node",
-      "request": "attach",
-      "processId": "${command:PickProcess}",
-      "restart": true,
-      "protocol": "inspector",
-      "skipFiles": [
-        "${workspaceFolder}/node_modules/**/*.js",
-        "<node_internals>/**/*.js"
-      ],
-      // "localRoot": "${workspaceFolder}/src/regexparam",
-      // "remoteRoot": "/",
-      "stopOnEntry": true
     }
   ]
 }

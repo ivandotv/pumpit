@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest'
 import { PROXY_TARGET } from '../proxy'
 import { PumpIt, SCOPE } from '../pumpit'
 import { get, getArray } from '../utils'

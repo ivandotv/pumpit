@@ -1,3 +1,4 @@
+import { describe, expect, test, vi } from 'vitest'
 import { PumpIt } from '../pumpit'
 
 describe('Unbind', () => {
@@ -13,7 +14,7 @@ describe('Unbind', () => {
 
     const factoryReturnValue = 'hello'
     const factory = () => () => factoryReturnValue
-    factory.dispose = jest.fn()
+    factory.dispose = vi.fn()
 
     pumpIt.bindFactory(keyA, factory)
     pumpIt.unbind(keyA)
@@ -25,7 +26,7 @@ describe('Unbind', () => {
     const pumpIt = new PumpIt()
     const keyA = Symbol('key_a')
 
-    const disposeCall = jest.fn()
+    const disposeCall = vi.fn()
     const factory = () => {
       const functionToReturn = () => {}
 
@@ -52,7 +53,7 @@ describe('Unbind', () => {
       return {}
     }
 
-    const unbindCallback = jest.fn()
+    const unbindCallback = vi.fn()
 
     pumpIt.bindFactory(keyA, factory, {
       scope: 'SINGLETON',
@@ -78,7 +79,7 @@ describe('Unbind', () => {
       return {}
     }
 
-    const unbindCallback = jest.fn()
+    const unbindCallback = vi.fn()
 
     pumpIt.bindFactory(keyA, factory, {
       unbind: unbindCallback
@@ -98,7 +99,7 @@ describe('Unbind', () => {
     const pumpIt = new PumpIt()
     const keyA = Symbol('key_a')
 
-    const disposeCall = jest.fn()
+    const disposeCall = vi.fn()
     const factory = () => {
       const functionToReturn = () => {}
 
@@ -133,7 +134,7 @@ describe('Unbind', () => {
     const pumpIt = new PumpIt()
     const keyA = Symbol('key_a')
 
-    const disposeCall = jest.fn()
+    const disposeCall = vi.fn()
     class TestA {
       dispose() {
         disposeCall()
@@ -156,7 +157,7 @@ describe('Unbind', () => {
 
     class TestA {}
 
-    const unbindCallback = jest.fn()
+    const unbindCallback = vi.fn()
 
     pumpIt.bindClass(keyA, TestA, {
       scope: 'SINGLETON',
@@ -184,7 +185,7 @@ describe('Unbind', () => {
       }
     }
 
-    const unbindCallback = jest.fn()
+    const unbindCallback = vi.fn()
 
     pumpIt.bindClass(keyA, TestA, {
       scope: 'TRANSIENT',
@@ -205,7 +206,7 @@ describe('Unbind', () => {
     const pumpIt = new PumpIt()
     const keyA = Symbol('key_a')
 
-    const disposeCall = jest.fn()
+    const disposeCall = vi.fn()
     class TestA {
       dispose() {
         disposeCall()
@@ -229,14 +230,14 @@ describe('Unbind', () => {
       const classKey = Symbol('b')
       const valueKey = Symbol('c')
 
-      const classDisposeCall = jest.fn()
+      const classDisposeCall = vi.fn()
       class TestA {
         dispose() {
           classDisposeCall()
         }
       }
 
-      const factoryDisposeCall = jest.fn()
+      const factoryDisposeCall = vi.fn()
       const factory = () => {
         const functionToReturn = () => {}
 
@@ -270,14 +271,14 @@ describe('Unbind', () => {
       const classKey = Symbol('b')
       const valueKey = Symbol('c')
 
-      const classDisposeCall = jest.fn()
+      const classDisposeCall = vi.fn()
       class TestA {
         dispose() {
           classDisposeCall()
         }
       }
 
-      const factoryDisposeCall = jest.fn()
+      const factoryDisposeCall = vi.fn()
       const factory = () => {
         const functionToReturn = () => {}
 
@@ -304,7 +305,7 @@ describe('Unbind', () => {
     const pumpIt = new PumpIt()
     const keyA = Symbol('key_a')
 
-    const disposeCall = jest.fn()
+    const disposeCall = vi.fn()
     class TestA {
       static count = 0
 
@@ -317,7 +318,7 @@ describe('Unbind', () => {
       }
     }
 
-    const afterResolve = jest.fn()
+    const afterResolve = vi.fn()
     let beforeResolveCount = 0
     pumpIt.bindClass(keyA, TestA, {
       scope: 'SINGLETON',
@@ -344,7 +345,7 @@ describe('Unbind', () => {
     const pumpIt = new PumpIt()
     const keyA = Symbol('key_a')
 
-    const disposeCall = jest.fn()
+    const disposeCall = vi.fn()
     class TestA {
       static count = 0
 

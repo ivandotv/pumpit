@@ -1,3 +1,4 @@
+import { describe, expect, test, vi } from 'vitest'
 import { PumpIt, SCOPE } from '../../pumpit'
 
 describe('Resolve transform factory', () => {
@@ -181,7 +182,7 @@ describe('Resolve transform factory', () => {
       const keyA = 'key_a'
 
       const resolveCallbackData = { foo: 'bar' }
-      const afterResolve = jest.fn()
+      const afterResolve = vi.fn()
 
       const factoryReturnValue = {}
       const factory = () => factoryReturnValue
@@ -208,7 +209,7 @@ describe('Resolve transform factory', () => {
 
       const factory = () => {}
 
-      const afterResolve = jest.fn()
+      const afterResolve = vi.fn()
 
       class TestB {
         static inject = [keyA]
@@ -241,7 +242,7 @@ describe('Resolve transform factory', () => {
       const keyB = Symbol()
       const keyC = Symbol()
 
-      const afterResolve = jest.fn()
+      const afterResolve = vi.fn()
       const factory = () => {}
 
       class TestB {
@@ -277,7 +278,7 @@ describe('Resolve transform factory', () => {
       const keyB = Symbol()
       const keyC = Symbol()
 
-      const afterResolve = jest.fn()
+      const afterResolve = vi.fn()
       const factory = () => {}
 
       class TestB {
