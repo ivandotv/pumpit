@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: ['16', '18']
+        node: ['16', '18', '20']
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -22,7 +22,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.pnpm-store
-          key: ${{ runner.os }}-node${{ matrix.node-version }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-node${{ matrix.node }}-${{ hashFiles('**/pnpm-lock.yaml') }}
 
       - name: Setup node
         uses: actions/setup-node@v2
@@ -57,7 +57,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: 'Consume changesets'
-        if: github.event_name == 'push' && github.repository == 'ivandotv/pumpit' && matrix.node == 16 && github.ref == 'refs/heads/main'
+        if: github.event_name == 'push' && github.repository == 'ivandotv/pumpit' && matrix.node == 18 && github.ref == 'refs/heads/main'
         uses: changesets/action@v1
         id: 'changesets'
         with:
