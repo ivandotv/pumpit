@@ -1,8 +1,11 @@
 name: Test
+concurrency:
+  group: tests-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
 on:
-  push:
-    branches:
-      - '*'
+  # push:
+  #   branches:
+  #     - '*'
   pull_request:
     branches:
       - main
