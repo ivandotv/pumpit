@@ -22,8 +22,8 @@
   "module": "./dist/my-lib.js",
   "exports": {
     "types": "./dist/index.d.ts",
-    "import": "./dist/pumpit.mjs",
-    "require": "./dist/counter.umd.cjs"
+    "import": "./dist/pumpit.js",
+    "require": "./dist/pumpit.umd.cjs"
   },
   "scripts": {
     "lint": "eslint --fix \"src/**/\"",
