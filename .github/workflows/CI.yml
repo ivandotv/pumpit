@@ -3,9 +3,9 @@ concurrency:
   group: tests-${{ github.ref || github.run_id }}
   cancel-in-progress: true
 on:
-  # push:
-  #   branches:
-  #     - '*'
+  push:
+    branches:
+      - '*'
   pull_request:
     branches:
       - main
@@ -54,7 +54,7 @@ jobs:
 
       - name: Generate Code Coverage
         # only when running in node v16
-        if: matrix.node == 16
+        if: matrix.node == 20
         uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
