@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest'
 import { PROXY_TARGET } from '../proxy'
 import { PumpIt, SCOPE } from '../pumpit'
 import { get, getArray } from '../utils'
@@ -147,7 +148,10 @@ describe('Circular dependency', () => {
       class TestB {
         static inject = [get(keyC, { lazy: true }), get(keyA)]
 
-        constructor(public keyC: TestC, public keyA: TestA) {}
+        constructor(
+          public keyC: TestC,
+          public keyA: TestA
+        ) {}
       }
 
       class TestC {

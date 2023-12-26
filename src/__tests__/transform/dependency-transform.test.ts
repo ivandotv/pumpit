@@ -1,3 +1,4 @@
+import { describe, expect, test, vi } from 'vitest'
 import { PumpIt } from '../../pumpit'
 import { get, getArray, isProxy, transform } from '../../utils'
 
@@ -16,7 +17,7 @@ describe('Transform dependencies', () => {
       const valueB = { name: 'b' }
       const valueC = { name: 'c' }
 
-      const transformFn = jest.fn().mockReturnValue([valueA, valueB, valueC])
+      const transformFn = vi.fn().mockReturnValue([valueA, valueB, valueC])
 
       class TestA {
         static inject = transform([keyA, keyB, keyC], transformFn)
@@ -51,10 +52,14 @@ describe('Transform dependencies', () => {
       const valueB = { name: 'b' }
       const valueC = { name: 'c' }
 
-      const transformFn = jest.fn().mockReturnValue([valueA, valueB, valueC])
+      const transformFn = vi.fn().mockReturnValue([valueA, valueB, valueC])
 
       class TestA {
-        constructor(public a: any, public b: any, public c: any) {}
+        constructor(
+          public a: any,
+          public b: any,
+          public c: any
+        ) {}
       }
 
       pumpIt
@@ -94,7 +99,7 @@ describe('Transform dependencies', () => {
       const valueB = { b: 'b' }
       const valueC = { c: 'c' }
 
-      const transformFn = jest.fn().mockReturnValue([valueA, valueB, valueC])
+      const transformFn = vi.fn().mockReturnValue([valueA, valueB, valueC])
 
       class TestA {
         static inject = transform([getArray([keyA, keyB, keyC])], transformFn)
@@ -153,14 +158,18 @@ describe('Transform dependencies', () => {
       const transformedB = {}
       const transformedC = {}
 
-      const injectTransform = jest
+      const injectTransform = vi
         .fn()
         .mockReturnValue([transformedA, transformedB, transformedC])
 
       class TestA {
         static inject = transform([keyA, keyB, keyC], injectTransform)
 
-        constructor(public keyA: any, public keyB: any, public keyC: any) {}
+        constructor(
+          public keyA: any,
+          public keyB: any,
+          public keyC: any
+        ) {}
       }
 
       pumpIt
@@ -193,7 +202,7 @@ describe('Transform dependencies', () => {
       const valueA = {}
       const valueC = {}
 
-      const injectTransform = jest.fn().mockReturnValue([])
+      const injectTransform = vi.fn().mockReturnValue([])
 
       class TestA {
         static inject = transform(
@@ -201,7 +210,11 @@ describe('Transform dependencies', () => {
           injectTransform
         )
 
-        constructor(public keyA: any, public keyB: any, public keyC: any) {}
+        constructor(
+          public keyA: any,
+          public keyB: any,
+          public keyC: any
+        ) {}
       }
 
       pumpIt
@@ -235,11 +248,8 @@ describe('Transform dependencies', () => {
       const valueB = {}
       const valueC = {}
 
-      const injectTransform = jest
-        .fn()
-        .mockReturnValue([valueA, valueB, valueC])
+      const injectTransform = vi.fn().mockReturnValue([valueA, valueB, valueC])
 
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
       const factory = () => {}
       factory.inject = transform([keyA, keyB, keyC], injectTransform)
 
@@ -278,8 +288,8 @@ describe('Transform dependencies', () => {
       const transformedB = {}
       const transformedC = {}
 
-      const factory = jest.fn()
-      // @ts-expect-error - there is no inject on jest.fn
+      const factory = vi.fn()
+      // @ts-expect-error - there is no inject on vi.fn
       factory.inject = transform([keyA, keyB, keyC], () => [
         transformedA,
         transformedB,

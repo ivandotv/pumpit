@@ -49,7 +49,6 @@ export function get(
     }
   }
 
-  // @ts-expect-error -  using symbol as index type
   getCall[INJECTION_FN] = INJECTION_FN
 
   return getCall
@@ -82,7 +81,6 @@ export function getArray(
     }
   }
 
-  // @ts-expect-error -  using symbol as index type
   getArrayCall[INJECTION_FN] = INJECTION_FN
 
   return getArrayCall

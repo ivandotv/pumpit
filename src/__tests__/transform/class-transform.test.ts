@@ -1,3 +1,4 @@
+import { describe, expect, test, vi } from 'vitest'
 import { PumpIt, SCOPE } from '../../pumpit'
 import { transform } from '../../utils'
 
@@ -174,7 +175,10 @@ describe('Class transform', () => {
       class TestC {
         static inject = [keyA, keyB]
 
-        constructor(public keyA: TestA, public keyB: TestB) {}
+        constructor(
+          public keyA: TestA,
+          public keyB: TestB
+        ) {}
       }
 
       pumpIt.bindClass(keyB, TestB)
@@ -220,7 +224,10 @@ describe('Class transform', () => {
       class TestC {
         static inject = [keyA, keyB]
 
-        constructor(public keyA: TestA, public keyB: TestB) {}
+        constructor(
+          public keyA: TestA,
+          public keyB: TestB
+        ) {}
       }
 
       pumpIt.bindClass(keyB, TestB)
@@ -255,7 +262,7 @@ describe('Class transform', () => {
         constructor(public keyB: typeof valueB) {}
       }
 
-      const afterResolve = jest.fn()
+      const afterResolve = vi.fn()
 
       pumpIt.bindValue(keyB, valueB)
       pumpIt.bindClass(keyA, TestA, {
@@ -340,7 +347,10 @@ describe('Class transform', () => {
       class TestC {
         static inject = [keyA, keyB]
 
-        constructor(public keyA: TestA, public keyB: TestB) {}
+        constructor(
+          public keyA: TestA,
+          public keyB: TestB
+        ) {}
       }
 
       pumpIt.bindClass(keyB, TestB)
@@ -384,7 +394,10 @@ describe('Class transform', () => {
       class TestC {
         static inject = [keyA, keyB]
 
-        constructor(public keyA: TestA, public keyB: TestB) {}
+        constructor(
+          public keyA: TestA,
+          public keyB: TestB
+        ) {}
       }
 
       pumpIt.bindClass(keyB, TestB)

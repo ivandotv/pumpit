@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest'
 import { PumpIt, SCOPE } from '../../pumpit'
 
 describe('Factory with the scope: request', () => {
@@ -35,7 +36,11 @@ describe('Factory with the scope: request', () => {
     class TestC {
       static inject = [keyA, keyB, request_key]
 
-      constructor(public keyA: TestA, public keyB: TestB, public request: Fn) {}
+      constructor(
+        public keyA: TestA,
+        public keyB: TestB,
+        public request: Fn
+      ) {}
     }
 
     pumpIt

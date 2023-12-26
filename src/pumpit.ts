@@ -402,9 +402,9 @@ export class PumpIt {
           nested.length
             ? nested
             : // @ts-expect-error needs type narrowing for "setToUndefinedIfEmpty"
-            options.setToUndefinedIfEmpty
-            ? undefined
-            : nested
+              options.setToUndefinedIfEmpty
+              ? undefined
+              : nested
         )
       } else {
         let doneDep = ctx.singletonCache.get(key)
@@ -424,7 +424,6 @@ export class PumpIt {
       return cachedProxy.proxy
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
     const proxyTarget = type === TYPE.CLASS ? {} : function () {}
     const proxy = createProxy(proxyTarget, type === TYPE.CLASS, key)
 

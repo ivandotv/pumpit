@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest'
 import { PumpIt, SCOPE } from '../../pumpit'
 
 describe('Factory with scope: transient', () => {
@@ -27,7 +28,11 @@ describe('Factory with scope: transient', () => {
     class TestC {
       static inject = [key, key, keyB]
 
-      constructor(public fn: Fn, public fnCopy: Fn, public b: TestB) {}
+      constructor(
+        public fn: Fn,
+        public fnCopy: Fn,
+        public b: TestB
+      ) {}
     }
 
     pumpIt
@@ -67,7 +72,11 @@ describe('Factory with scope: transient', () => {
     class TestC {
       static inject = [key, key, keyB]
 
-      constructor(public fn: Fn, public fnCopy: Fn, public b: TestB) {}
+      constructor(
+        public fn: Fn,
+        public fnCopy: Fn,
+        public b: TestB
+      ) {}
     }
 
     pumpIt

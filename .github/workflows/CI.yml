@@ -1,8 +1,11 @@
 name: Test
+concurrency:
+  group: tests-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
 on:
-  push:
-    branches:
-      - '*'
+  # push:
+  #   branches:
+  #     - '*'
   pull_request:
     branches:
       - main
@@ -13,26 +16,26 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: ['16', '18']
+        node: ['18', '20', '21']
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Cache .pnpm-store
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.pnpm-store
-          key: ${{ runner.os }}-node${{ matrix.node-version }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-node${{ matrix.node }}-${{ hashFiles('**/pnpm-lock.yaml') }}
 
       - name: Setup node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
 
       - name: Install dependencies
         uses: pnpm/action-setup@v2.4.0
         with:
-          version: 6.23.6
+          version: 8.12.1
           run_install: true
 
       - name: Lint source
@@ -45,7 +48,7 @@ jobs:
 
       - name: Run tests
         run: |
-          pnpm test:ci
+          pnpm test
         env:
           CI: true
 
@@ -57,7 +60,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: 'Consume changesets'
-        if: github.event_name == 'push' && github.repository == 'ivandotv/pumpit' && matrix.node == 16 && github.ref == 'refs/heads/main'
+        if: github.event_name == 'push' && github.repository == 'ivandotv/pumpit' && matrix.node == 18 && github.ref == 'refs/heads/main'
         uses: changesets/action@v1
         id: 'changesets'
         with:

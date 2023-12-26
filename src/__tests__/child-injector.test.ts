@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest'
 import { PumpIt, SCOPE } from '../pumpit'
 import { get } from '../utils'
 
@@ -343,7 +344,10 @@ describe('Child container', () => {
 
           static inject = [keyA, get(keyC, { lazy: true })]
 
-          constructor(public keyA: TestA, public keyC: TestC) {
+          constructor(
+            public keyA: TestA,
+            public keyC: TestC
+          ) {
             TestB.count++
           }
         }
@@ -353,7 +357,10 @@ describe('Child container', () => {
 
           static inject = [keyA, get(keyB, { lazy: true })]
 
-          constructor(public keyA: TestA, public keyB: TestB) {
+          constructor(
+            public keyA: TestA,
+            public keyB: TestB
+          ) {
             TestC.count++
           }
         }
@@ -397,7 +404,10 @@ describe('Child container', () => {
 
           static inject = [keyA, get(keyC, { lazy: true })]
 
-          constructor(public keyA: TestA, public keyC: TestC) {
+          constructor(
+            public keyA: TestA,
+            public keyC: TestC
+          ) {
             TestB.count++
           }
         }
@@ -407,7 +417,10 @@ describe('Child container', () => {
 
           static inject = [keyA, get(keyB, { lazy: true })]
 
-          constructor(public keyA: TestA, public keyB: TestB) {
+          constructor(
+            public keyA: TestA,
+            public keyB: TestB
+          ) {
             TestC.count++
           }
         }

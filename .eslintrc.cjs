@@ -1,10 +1,8 @@
 module.exports = {
   root: true,
   env: {
-    // commonjs: true,
     es6: true,
-    node: true,
-    jest: true
+    node: true
   },
   globals: {
     __DEV__: true,
@@ -20,8 +18,6 @@ module.exports = {
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
-    'plugin:jest/recommended',
-    'plugin:jest/style',
     'prettier'
   ],
   parser: '@typescript-eslint/parser',

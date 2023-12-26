@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
+import { describe, expect, test, vi } from 'vitest'
 import { PumpIt, SCOPE } from '../../pumpit'
 
 describe('Resolve transform factory', () => {
@@ -115,7 +115,10 @@ describe('Resolve transform factory', () => {
       class TestC {
         static inject = [keyA, keyB]
 
-        constructor(public keyA: typeof factory, public keyB: TestB) {}
+        constructor(
+          public keyA: typeof factory,
+          public keyB: TestB
+        ) {}
       }
 
       pumpIt
@@ -152,7 +155,10 @@ describe('Resolve transform factory', () => {
       class TestC {
         static inject = [keyA, keyB]
 
-        constructor(public keyA: typeof factory, public keyB: TestB) {}
+        constructor(
+          public keyA: typeof factory,
+          public keyB: TestB
+        ) {}
       }
 
       pumpIt
@@ -176,7 +182,7 @@ describe('Resolve transform factory', () => {
       const keyA = 'key_a'
 
       const resolveCallbackData = { foo: 'bar' }
-      const afterResolve = jest.fn()
+      const afterResolve = vi.fn()
 
       const factoryReturnValue = {}
       const factory = () => factoryReturnValue
@@ -203,7 +209,7 @@ describe('Resolve transform factory', () => {
 
       const factory = () => {}
 
-      const afterResolve = jest.fn()
+      const afterResolve = vi.fn()
 
       class TestB {
         static inject = [keyA]
@@ -236,7 +242,7 @@ describe('Resolve transform factory', () => {
       const keyB = Symbol()
       const keyC = Symbol()
 
-      const afterResolve = jest.fn()
+      const afterResolve = vi.fn()
       const factory = () => {}
 
       class TestB {
@@ -247,7 +253,10 @@ describe('Resolve transform factory', () => {
       class TestC {
         static inject = [keyA, keyB]
 
-        constructor(public keyA: typeof factory, public keyB: TestB) {}
+        constructor(
+          public keyA: typeof factory,
+          public keyB: TestB
+        ) {}
       }
 
       pumpIt
@@ -269,7 +278,7 @@ describe('Resolve transform factory', () => {
       const keyB = Symbol()
       const keyC = Symbol()
 
-      const afterResolve = jest.fn()
+      const afterResolve = vi.fn()
       const factory = () => {}
 
       class TestB {
@@ -280,7 +289,10 @@ describe('Resolve transform factory', () => {
       class TestC {
         static inject = [factoryKey, keyB]
 
-        constructor(public factoryKey: typeof factory, public keyB: TestB) {}
+        constructor(
+          public factoryKey: typeof factory,
+          public keyB: TestB
+        ) {}
       }
 
       pumpIt
