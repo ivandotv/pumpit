@@ -41,7 +41,7 @@ Available scopes that can be used
 
 #### Defined in
 
-[types.ts:9](https://github.com/ivandotv/pumpit/blob/4d88227/src/types.ts#L9)
+[types.ts:9](https://github.com/ivandotv/pumpit/blob/cb35004/src/types.ts#L9)
 
 ___
 
@@ -53,25 +53,25 @@ Available types that can be binded
 
 #### Defined in
 
-[types.ts:6](https://github.com/ivandotv/pumpit/blob/4d88227/src/types.ts#L6)
+[types.ts:6](https://github.com/ivandotv/pumpit/blob/cb35004/src/types.ts#L6)
 
 ___
 
 ### BindKey
 
-Ƭ **BindKey**: `string` \| `symbol` \| `Record`<`string`, `any`\>
+Ƭ **BindKey**: `string` \| `symbol` \| `Record`\<`string`, `any`\>
 
 Type of values that can be used for the bind key
 
 #### Defined in
 
-[types.ts:15](https://github.com/ivandotv/pumpit/blob/4d88227/src/types.ts#L15)
+[types.ts:15](https://github.com/ivandotv/pumpit/blob/cb35004/src/types.ts#L15)
 
 ___
 
 ### ClassOptions
 
-Ƭ **ClassOptions**<`T`, `K`\>: `Object`
+Ƭ **ClassOptions**\<`T`, `K`\>: `Object`
 
 Class bind options
 
@@ -86,31 +86,31 @@ Class bind options
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `afterResolve?` | (`data`: { `container`: [`PumpIt`](classes/PumpIt.md) ; `ctx?`: [`ResolveCtx`](README.md#resolvectx) ; `value`: `any`  }) => `void` | callback that is called after the value is resolved, number of calls depends on scope used when registering |
-| `beforeResolve?` | (`data`: { `container`: [`PumpIt`](classes/PumpIt.md) ; `ctx?`: [`ResolveCtx`](README.md#resolvectx) ; `value`: `T` extends (...`args`: `any`[]) => `any` ? (...`args`: `ConstructorParameters`<`T`\>) => `T` : (...`args`: `ConstructorParameters`<`T`[``"value"``]\>) => `T`[``"value"``]  }, ...`deps`: `T` extends (...`args`: `any`[]) => `any` ? `ConstructorParameters`<`T`\> : `ConstructorParameters`<`T`[``"value"``]\>) => `any` | callback that is called before the value is resolved, number of calls depends on scope used when registering |
+| `afterResolve?` | (`data`: \{ `container`: [`PumpIt`](classes/PumpIt.md) ; `ctx?`: [`ResolveCtx`](README.md#resolvectx) ; `value`: `any`  }) => `void` | callback that is called after the value is resolved, number of calls depends on scope used when registering |
+| `beforeResolve?` | (`data`: \{ `container`: [`PumpIt`](classes/PumpIt.md) ; `ctx?`: [`ResolveCtx`](README.md#resolvectx) ; `value`: `T` extends (...`args`: `any`[]) => `any` ? (...`args`: `ConstructorParameters`\<`T`\>) => `T` : (...`args`: `ConstructorParameters`\<`T`[``"value"``]\>) => `T`[``"value"``]  }, ...`deps`: `T` extends (...`args`: `any`[]) => `any` ? `ConstructorParameters`\<`T`\> : `ConstructorParameters`\<`T`[``"value"``]\>) => `any` | callback that is called before the value is resolved, number of calls depends on scope used when registering |
 | `scope` | `K` | Scope that is going to be used [AvailableScopes](README.md#availablescopes) |
 | `type` | typeof [`CLASS`](README.md#class) | Class constant type [AvailableTypes](README.md#availabletypes) |
-| `unbind?` | (`data`: { `container`: [`PumpIt`](classes/PumpIt.md) ; `dispose`: `boolean` ; `value`: `K` extends ``"SINGLETON"`` ? `any` : `undefined`  }) => `void` | callback that is called before the value is removed from the container. This is only executed for values that are SINGLETONS |
+| `unbind?` | (`data`: \{ `container`: [`PumpIt`](classes/PumpIt.md) ; `dispose`: `boolean` ; `value`: `K` extends ``"SINGLETON"`` ? `any` : `undefined`  }) => `void` | callback that is called before the value is removed from the container. This is only executed for values that are SINGLETONS |
 
 #### Defined in
 
-[types.ts:26](https://github.com/ivandotv/pumpit/blob/4d88227/src/types.ts#L26)
+[types.ts:26](https://github.com/ivandotv/pumpit/blob/cb35004/src/types.ts#L26)
 
 ___
 
 ### ClassValue
 
-Ƭ **ClassValue**: (...`args`: `any`[]) => `any` \| { `inject`: `InjectionData` ; `value`: (...`args`: `any`[]) => `any`  }
+Ƭ **ClassValue**: (...`args`: `any`[]) => `any` \| \{ `inject`: `InjectionData` ; `value`: (...`args`: `any`[]) => `any`  }
 
 #### Defined in
 
-[types.ts:21](https://github.com/ivandotv/pumpit/blob/4d88227/src/types.ts#L21)
+[types.ts:21](https://github.com/ivandotv/pumpit/blob/cb35004/src/types.ts#L21)
 
 ___
 
 ### FactoryOptions
 
-Ƭ **FactoryOptions**<`T`, `K`\>: `Object`
+Ƭ **FactoryOptions**\<`T`, `K`\>: `Object`
 
 #### Type parameters
 
@@ -123,37 +123,37 @@ ___
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `afterResolve?` | (`data`: { `container`: [`PumpIt`](classes/PumpIt.md) ; `ctx?`: [`ResolveCtx`](README.md#resolvectx) ; `value`: `any`  }) => `void` | callback that is called after the value is resolved, number of calls depends on scope used when registering |
-| `beforeResolve?` | (`data`: { `container`: [`PumpIt`](classes/PumpIt.md) ; `ctx?`: [`ResolveCtx`](README.md#resolvectx) ; `value`: `T` extends (...`args`: `any`[]) => `any` ? `T` : `T`[``"value"``]  }, ...`deps`: `T` extends (...`args`: `any`[]) => `any` ? `Parameters`<`T`\> : `Parameters`<`T`[``"value"``]\>) => `any` | callback that is called before the value is resolved, number of calls depends on scope used when registering |
+| `afterResolve?` | (`data`: \{ `container`: [`PumpIt`](classes/PumpIt.md) ; `ctx?`: [`ResolveCtx`](README.md#resolvectx) ; `value`: `any`  }) => `void` | callback that is called after the value is resolved, number of calls depends on scope used when registering |
+| `beforeResolve?` | (`data`: \{ `container`: [`PumpIt`](classes/PumpIt.md) ; `ctx?`: [`ResolveCtx`](README.md#resolvectx) ; `value`: `T` extends (...`args`: `any`[]) => `any` ? `T` : `T`[``"value"``]  }, ...`deps`: `T` extends (...`args`: `any`[]) => `any` ? `Parameters`\<`T`\> : `Parameters`\<`T`[``"value"``]\>) => `any` | callback that is called before the value is resolved, number of calls depends on scope used when registering |
 | `scope` | `K` | Scope that is going to be used [AvailableScopes](README.md#availablescopes) |
 | `type` | typeof [`FACTORY`](README.md#factory) | Factory constant type |
-| `unbind?` | (`data`: { `container`: [`PumpIt`](classes/PumpIt.md) ; `dispose`: `boolean` ; `value`: `K` extends ``"SINGLETON"`` ? `any` : `undefined`  }) => `void` | callback that is called before the value is removed from the container. This is only executed for values that are SINGLETONS |
+| `unbind?` | (`data`: \{ `container`: [`PumpIt`](classes/PumpIt.md) ; `dispose`: `boolean` ; `value`: `K` extends ``"SINGLETON"`` ? `any` : `undefined`  }) => `void` | callback that is called before the value is removed from the container. This is only executed for values that are SINGLETONS |
 
 #### Defined in
 
-[types.ts:73](https://github.com/ivandotv/pumpit/blob/4d88227/src/types.ts#L73)
+[types.ts:73](https://github.com/ivandotv/pumpit/blob/cb35004/src/types.ts#L73)
 
 ___
 
 ### FactoryValue
 
-Ƭ **FactoryValue**: (...`args`: `any`[]) => `any` \| { `inject`: `InjectionData` ; `value`: (...`args`: `any`[]) => `any`  }
+Ƭ **FactoryValue**: (...`args`: `any`[]) => `any` \| \{ `inject`: `InjectionData` ; `value`: (...`args`: `any`[]) => `any`  }
 
 #### Defined in
 
-[types.ts:17](https://github.com/ivandotv/pumpit/blob/4d88227/src/types.ts#L17)
+[types.ts:17](https://github.com/ivandotv/pumpit/blob/cb35004/src/types.ts#L17)
 
 ___
 
 ### ResolveCtx
 
-Ƭ **ResolveCtx**: `Record`<`string`, `any`\>
+Ƭ **ResolveCtx**: `Record`\<`string`, `any`\>
 
 Resolve context that is used per request and passed to the callbacks
 
 #### Defined in
 
-[types.ts:12](https://github.com/ivandotv/pumpit/blob/4d88227/src/types.ts#L12)
+[types.ts:12](https://github.com/ivandotv/pumpit/blob/cb35004/src/types.ts#L12)
 
 ## Variables
 
@@ -177,7 +177,7 @@ REQUEST - value is resolved once per request [PumpIt.resolve()](classes/PumpIt.m
 
 #### Defined in
 
-[pumpit.ts:37](https://github.com/ivandotv/pumpit/blob/4d88227/src/pumpit.ts#L37)
+[pumpit.ts:37](https://github.com/ivandotv/pumpit/blob/cb35004/src/pumpit.ts#L37)
 
 ___
 
@@ -197,13 +197,13 @@ Constants that represent the type of values that can be binded
 
 #### Defined in
 
-[pumpit.ts:26](https://github.com/ivandotv/pumpit/blob/4d88227/src/pumpit.ts#L26)
+[pumpit.ts:26](https://github.com/ivandotv/pumpit/blob/cb35004/src/pumpit.ts#L26)
 
 ## Functions
 
 ### get
 
-▸ **get**(`key`, `options?`): () => { `key`: [`BindKey`](README.md#bindkey) ; `options`: { `lazy?`: `boolean` ; `optional?`: `boolean`  }  }
+▸ **get**(`key`, `options?`): () => \{ `key`: [`BindKey`](README.md#bindkey) ; `options`: \{ `lazy?`: `boolean` ; `optional?`: `boolean`  }  }
 
 get dependency by key
 
@@ -229,19 +229,23 @@ get dependency by key
 | Name | Type |
 | :------ | :------ |
 | `key` | [`BindKey`](README.md#bindkey) |
-| `options` | { `lazy?`: `boolean` ; `optional?`: `boolean`  } |
+| `options` | \{ `lazy?`: `boolean` ; `optional?`: `boolean`  } |
 | `options.lazy?` | `boolean` |
 | `options.optional?` | `boolean` |
 
+| Name | Type |
+| :------ | :------ |
+| `[INJECTION_FN]` | typeof `INJECTION_FN` |
+
 #### Defined in
 
-[utils.ts:36](https://github.com/ivandotv/pumpit/blob/4d88227/src/utils.ts#L36)
+[utils.ts:36](https://github.com/ivandotv/pumpit/blob/cb35004/src/utils.ts#L36)
 
 ___
 
 ### getArray
 
-▸ **getArray**(`deps`, `options?`): () => { `key`: ({ `key`: [`BindKey`](README.md#bindkey) ; `options`: { `lazy?`: `boolean` ; `optional?`: `boolean`  }  } \| { `key`: { `key`: [`BindKey`](README.md#bindkey) ; `options`: { `optional?`: `boolean`  }  }[] ; `options`: { `optional?`: `boolean` ; `removeUndefined?`: `boolean` ; `setToUndefinedIfEmpty?`: `boolean`  }  })[] = result; `options`: { `optional`: `boolean` = true; `removeUndefined?`: `boolean` ; `setToUndefinedIfEmpty?`: `boolean`  }  }
+▸ **getArray**(`deps`, `options?`): () => \{ `key`: (\{ `key`: [`BindKey`](README.md#bindkey) ; `options`: \{ `lazy?`: `boolean` ; `optional?`: `boolean`  }  } \| \{ `key`: \{ `key`: [`BindKey`](README.md#bindkey) ; `options`: \{ `optional?`: `boolean`  }  }[] ; `options`: \{ `optional?`: `boolean` ; `removeUndefined?`: `boolean` ; `setToUndefinedIfEmpty?`: `boolean`  }  })[] = result; `options`: \{ `optional`: `boolean` = true; `removeUndefined?`: `boolean` ; `setToUndefinedIfEmpty?`: `boolean`  }  }
 
 Get an array of dependencies
 
@@ -249,7 +253,7 @@ Get an array of dependencies
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `deps` | ([`BindKey`](README.md#bindkey) \| () => { `key`: [`BindKey`](README.md#bindkey) ; `options`: { `lazy?`: `boolean` ; `optional?`: `boolean`  }  })[] | dependencies to be injected see: [BindKey](README.md#bindkey) [get()](README.md#get) |
+| `deps` | ([`BindKey`](README.md#bindkey) \| () => \{ `key`: [`BindKey`](README.md#bindkey) ; `options`: \{ `lazy?`: `boolean` ; `optional?`: `boolean`  }  })[] | dependencies to be injected see: [BindKey](README.md#bindkey) [get()](README.md#get) |
 | `options?` | `Object` | - |
 | `options.removeUndefined?` | `boolean` | if dependency in the array cannot be resolved, nothing will be added to the array in it's place |
 | `options.setToUndefinedIfEmpty?` | `boolean` | if the whole array is empty it will be set to **undefined**, otherwise an empty array will be injected |
@@ -266,15 +270,19 @@ Get an array of dependencies
 
 | Name | Type |
 | :------ | :------ |
-| `key` | ({ `key`: [`BindKey`](README.md#bindkey) ; `options`: { `lazy?`: `boolean` ; `optional?`: `boolean`  }  } \| { `key`: { `key`: [`BindKey`](README.md#bindkey) ; `options`: { `optional?`: `boolean`  }  }[] ; `options`: { `optional?`: `boolean` ; `removeUndefined?`: `boolean` ; `setToUndefinedIfEmpty?`: `boolean`  }  })[] |
-| `options` | { `optional`: `boolean` = true; `removeUndefined?`: `boolean` ; `setToUndefinedIfEmpty?`: `boolean`  } |
+| `key` | (\{ `key`: [`BindKey`](README.md#bindkey) ; `options`: \{ `lazy?`: `boolean` ; `optional?`: `boolean`  }  } \| \{ `key`: \{ `key`: [`BindKey`](README.md#bindkey) ; `options`: \{ `optional?`: `boolean`  }  }[] ; `options`: \{ `optional?`: `boolean` ; `removeUndefined?`: `boolean` ; `setToUndefinedIfEmpty?`: `boolean`  }  })[] |
+| `options` | \{ `optional`: `boolean` = true; `removeUndefined?`: `boolean` ; `setToUndefinedIfEmpty?`: `boolean`  } |
 | `options.optional` | `boolean` |
 | `options.removeUndefined?` | `boolean` |
 | `options.setToUndefinedIfEmpty?` | `boolean` |
 
+| Name | Type |
+| :------ | :------ |
+| `[INJECTION_FN]` | typeof `INJECTION_FN` |
+
 #### Defined in
 
-[utils.ts:61](https://github.com/ivandotv/pumpit/blob/4d88227/src/utils.ts#L61)
+[utils.ts:60](https://github.com/ivandotv/pumpit/blob/cb35004/src/utils.ts#L60)
 
 ___
 
@@ -288,7 +296,7 @@ Helper function to detect if the object passed in is wrapped in injection proxy
 
 | Name | Type |
 | :------ | :------ |
-| `target` | `Record`<`string`, `any`\> |
+| `target` | `Record`\<`string`, `any`\> |
 
 #### Returns
 
@@ -296,7 +304,7 @@ Helper function to detect if the object passed in is wrapped in injection proxy
 
 #### Defined in
 
-[utils.ts:130](https://github.com/ivandotv/pumpit/blob/4d88227/src/utils.ts#L130)
+[utils.ts:128](https://github.com/ivandotv/pumpit/blob/cb35004/src/utils.ts#L128)
 
 ___
 
@@ -311,8 +319,8 @@ It gets an array of dependencies in injection order, and it should return an arr
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `deps` | ([`BindKey`](README.md#bindkey) \| (`key`: [`BindKey`](README.md#bindkey), `options?`: { `lazy?`: `boolean` ; `optional?`: `boolean`  }) => () => { `key`: [`BindKey`](README.md#bindkey) ; `options`: { `lazy?`: `boolean` ; `optional?`: `boolean`  }  } \| (`deps`: ([`BindKey`](README.md#bindkey) \| () => { `key`: [`BindKey`](README.md#bindkey) ; `options`: { `lazy?`: `boolean` ; `optional?`: `boolean`  }  })[], `options?`: { `removeUndefined?`: `boolean` ; `setToUndefinedIfEmpty?`: `boolean`  }) => () => { `key`: ({ `key`: [`BindKey`](README.md#bindkey) ; `options`: { `lazy?`: `boolean` ; `optional?`: `boolean`  }  } \| { `key`: { `key`: [`BindKey`](README.md#bindkey) ; `options`: { `optional?`: `boolean`  }  }[] ; `options`: { `optional?`: `boolean` ; `removeUndefined?`: `boolean` ; `setToUndefinedIfEmpty?`: `boolean`  }  })[] = result; `options`: { `optional`: `boolean` = true; `removeUndefined?`: `boolean` ; `setToUndefinedIfEmpty?`: `boolean`  }  })[] | array of dependencies that need to be satisfied see: [BindKey](README.md#bindkey) [get()](README.md#get) [getArray()](README.md#getarray) |
-| `fn` | (`data`: { `container`: [`PumpIt`](classes/PumpIt.md) ; `ctx`: [`ResolveCtx`](README.md#resolvectx)  }, ...`deps`: `any`[]) => `any`[] | function that will be called with the resolved dependencies |
+| `deps` | ([`BindKey`](README.md#bindkey) \| (`key`: [`BindKey`](README.md#bindkey), `options?`: \{ `lazy?`: `boolean` ; `optional?`: `boolean`  }) => () => \{ `key`: [`BindKey`](README.md#bindkey) ; `options`: \{ `lazy?`: `boolean` ; `optional?`: `boolean`  }  } \| (`deps`: ([`BindKey`](README.md#bindkey) \| () => \{ `key`: [`BindKey`](README.md#bindkey) ; `options`: \{ `lazy?`: `boolean` ; `optional?`: `boolean`  }  })[], `options?`: \{ `removeUndefined?`: `boolean` ; `setToUndefinedIfEmpty?`: `boolean`  }) => () => \{ `key`: (\{ `key`: [`BindKey`](README.md#bindkey) ; `options`: \{ `lazy?`: `boolean` ; `optional?`: `boolean`  }  } \| \{ `key`: \{ `key`: [`BindKey`](README.md#bindkey) ; `options`: \{ `optional?`: `boolean`  }  }[] ; `options`: \{ `optional?`: `boolean` ; `removeUndefined?`: `boolean` ; `setToUndefinedIfEmpty?`: `boolean`  }  })[] = result; `options`: \{ `optional`: `boolean` = true; `removeUndefined?`: `boolean` ; `setToUndefinedIfEmpty?`: `boolean`  }  })[] | array of dependencies that need to be satisfied see: [BindKey](README.md#bindkey) [get()](README.md#get) [getArray()](README.md#getarray) |
+| `fn` | (`data`: \{ `container`: [`PumpIt`](classes/PumpIt.md) ; `ctx`: [`ResolveCtx`](README.md#resolvectx)  }, ...`deps`: `any`[]) => `any`[] | function that will be called with the resolved dependencies |
 
 #### Returns
 
@@ -321,9 +329,9 @@ It gets an array of dependencies in injection order, and it should return an arr
 | Name | Type |
 | :------ | :------ |
 | `action` | `symbol` |
-| `deps` | ([`BindKey`](README.md#bindkey) \| (`key`: [`BindKey`](README.md#bindkey), `options?`: { `lazy?`: `boolean` ; `optional?`: `boolean`  }) => () => { `key`: [`BindKey`](README.md#bindkey) ; `options`: { `lazy?`: `boolean` ; `optional?`: `boolean`  }  } \| (`deps`: ([`BindKey`](README.md#bindkey) \| () => { `key`: [`BindKey`](README.md#bindkey) ; `options`: { `lazy?`: `boolean` ; `optional?`: `boolean`  }  })[], `options?`: { `removeUndefined?`: `boolean` ; `setToUndefinedIfEmpty?`: `boolean`  }) => () => { `key`: ({ `key`: [`BindKey`](README.md#bindkey) ; `options`: { `lazy?`: `boolean` ; `optional?`: `boolean`  }  } \| { `key`: { `key`: [`BindKey`](README.md#bindkey) ; `options`: { `optional?`: `boolean`  }  }[] ; `options`: { `optional?`: `boolean` ; `removeUndefined?`: `boolean` ; `setToUndefinedIfEmpty?`: `boolean`  }  })[] = result; `options`: { `optional`: `boolean` = true; `removeUndefined?`: `boolean` ; `setToUndefinedIfEmpty?`: `boolean`  }  })[] |
-| `fn` | (`data`: { `container`: [`PumpIt`](classes/PumpIt.md) ; `ctx`: [`ResolveCtx`](README.md#resolvectx)  }, ...`deps`: `any`[]) => `any`[] |
+| `deps` | ([`BindKey`](README.md#bindkey) \| (`key`: [`BindKey`](README.md#bindkey), `options?`: \{ `lazy?`: `boolean` ; `optional?`: `boolean`  }) => () => \{ `key`: [`BindKey`](README.md#bindkey) ; `options`: \{ `lazy?`: `boolean` ; `optional?`: `boolean`  }  } \| (`deps`: ([`BindKey`](README.md#bindkey) \| () => \{ `key`: [`BindKey`](README.md#bindkey) ; `options`: \{ `lazy?`: `boolean` ; `optional?`: `boolean`  }  })[], `options?`: \{ `removeUndefined?`: `boolean` ; `setToUndefinedIfEmpty?`: `boolean`  }) => () => \{ `key`: (\{ `key`: [`BindKey`](README.md#bindkey) ; `options`: \{ `lazy?`: `boolean` ; `optional?`: `boolean`  }  } \| \{ `key`: \{ `key`: [`BindKey`](README.md#bindkey) ; `options`: \{ `optional?`: `boolean`  }  }[] ; `options`: \{ `optional?`: `boolean` ; `removeUndefined?`: `boolean` ; `setToUndefinedIfEmpty?`: `boolean`  }  })[] = result; `options`: \{ `optional`: `boolean` = true; `removeUndefined?`: `boolean` ; `setToUndefinedIfEmpty?`: `boolean`  }  })[] |
+| `fn` | (`data`: \{ `container`: [`PumpIt`](classes/PumpIt.md) ; `ctx`: [`ResolveCtx`](README.md#resolvectx)  }, ...`deps`: `any`[]) => `any`[] |
 
 #### Defined in
 
-[utils.ts:116](https://github.com/ivandotv/pumpit/blob/4d88227/src/utils.ts#L116)
+[utils.ts:114](https://github.com/ivandotv/pumpit/blob/cb35004/src/utils.ts#L114)
