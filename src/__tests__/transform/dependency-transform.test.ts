@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest'
 import { PumpIt } from '../../pumpit'
-import { get, getArray, transform } from '../../utils'
+import { get, transform } from '../../utils'
 
 describe('Transform dependencies', () => {
   describe('Class', () => {
@@ -102,7 +102,7 @@ describe('Transform dependencies', () => {
       const transformFn = vi.fn().mockReturnValue([valueA, valueB, valueC])
 
       class TestA {
-        static inject = transform([getArray([keyA, keyB, keyC])], transformFn)
+        static inject = transform([keyA, keyB, keyC], transformFn)
       }
 
       pumpIt
@@ -114,7 +114,9 @@ describe('Transform dependencies', () => {
 
       expect(transformFn).toHaveBeenCalledWith(
         { container: pumpIt, ctx: undefined },
-        [valueA, valueB, valueC]
+        valueA,
+        valueB,
+        valueC
       )
     })
 

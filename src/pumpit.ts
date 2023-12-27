@@ -352,35 +352,11 @@ export class PumpIt {
     const finalDeps = []
     for (const dep of deps) {
       const { key, options } = parseInjectionData(dep)
-      if (Array.isArray(key)) {
-        //resolve array of injection keys
-        const nested = []
-        for (const k of key) {
-          let doneDep = ctx.singletonCache.get(k.key)
-          if (doneDep === undefined) {
-            doneDep = this._resolve(k.key, { ...k.options }, ctx)
-          }
-          // @ts-expect-error needs type narrowing for "removeUndefined"
-          if (doneDep === undefined && options.removeUndefined) {
-            continue
-          }
-          nested.push(doneDep)
-        }
-        finalDeps.push(
-          nested.length
-            ? nested
-            : // @ts-expect-error needs type narrowing for "setToUndefinedIfEmpty"
-              options.setToUndefinedIfEmpty
-              ? undefined
-              : nested
-        )
-      } else {
-        let doneDep = ctx.singletonCache.get(key)
-        if (doneDep === undefined) {
-          doneDep = this._resolve(key, { ...options }, ctx)
-        }
-        finalDeps.push(doneDep)
+      let doneDep = ctx.singletonCache.get(key)
+      if (doneDep === undefined) {
+        doneDep = this._resolve(key, { ...options }, ctx)
       }
+      finalDeps.push(doneDep)
     }
 
     return finalDeps
