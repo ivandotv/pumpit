@@ -1,5 +1,11 @@
 # pumpa
 
+## 5.0.0
+
+### Major Changes
+
+- 4324109: switch to vite build process
+
 ## 4.1.1
 
 ### Patch Changes
