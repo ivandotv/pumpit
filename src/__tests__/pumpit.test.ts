@@ -59,6 +59,29 @@ describe('Optional injection', () => {
     expect(instance.optionalProp).toBeUndefined()
   })
 
+  test('throw when circular reference is detected', () => {
+    const pumpIt = new PumpIt()
+    const keyA = 'key_a'
+    const keyB = Symbol('key_b')
+    const keyC = 'key_c'
+
+    class TestA {
+      static inject = [keyB]
+    }
+    class TestB {
+      static inject = [keyC]
+    }
+    class TestC {
+      static inject = [keyA]
+    }
+
+    pumpIt.bindClass(keyA, TestA).bindClass(keyB, TestB).bindClass(keyC, TestC)
+
+    expect(() => pumpIt.resolve<TestA>(keyA)).toThrow(
+      'Circular reference detected'
+    )
+  })
+
   test('injection can be at in any position', () => {
     const pumpIt = new PumpIt()
 

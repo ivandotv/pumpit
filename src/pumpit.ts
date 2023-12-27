@@ -1,7 +1,5 @@
-import { createProxy } from './proxy'
 import type {
   AvailableScopes,
-  AvailableTypes,
   BindKey,
   ClassOptions,
   ClassValue,
@@ -246,32 +244,16 @@ export class PumpIt {
       transientCache: new Map(),
       requestCache: new Map(),
       requestedKeys: new Map(),
-      delayed: new Map(),
       postConstruct: [],
       ctx: opts
     }
 
     const result = this._resolve(key, { optional: false }, ctx)
 
-    //TODO - make a for loop
-    ctx.delayed.forEach((value, key) => {
-      const resolvedValue =
-        ctx.singletonCache.get(key) ||
-        ctx.requestCache.get(key) ||
-        ctx.transientCache.get(key)
-
-      if (resolvedValue) {
-        value.proxyTarget.current = resolvedValue
-
-        return
-      }
-
-      // throw new Error(`Can't resolve lazy key: ${keyToString(key)}`)
-    })
-
-    ctx.postConstruct.forEach((value) => {
+    // Execute postConstruct functions
+    for (const value of ctx.postConstruct) {
       value.postConstruct()
-    })
+    }
 
     this.currentCtx = null
 
@@ -316,7 +298,7 @@ export class PumpIt {
 
   protected _resolve(
     key: BindKey,
-    options: { optional?: boolean; lazy?: boolean },
+    options: { optional?: boolean },
     ctx: RequestCtx
   ): any {
     const data = this.getInjectable(key)
@@ -330,11 +312,8 @@ export class PumpIt {
     }
 
     const {
-      value: { value, scope, type },
-      fromParent
+      value: { value, scope, type }
     } = data
-
-    let useLazy = false
 
     if (type === TYPE.VALUE) {
       // resolve immediately - value type has no dependencies
@@ -346,36 +325,25 @@ export class PumpIt {
       if (keySeen) {
         //check if it is constructed
         if (!keySeen.constructed) {
-          // check if using lazy or key is on the parent, then it's ok
-          if (options.lazy || fromParent) {
-            //delay construction
-            useLazy = true
-          } else {
-            //throw circular reference error
-            const previous = Array.from(ctx.requestedKeys.entries()).pop()
-            const path = previous
-              ? `[ ${String(previous[0])}: ${previous[1].value.name} ]`
-              : ''
+          //throw circular reference error
+          const previous = Array.from(ctx.requestedKeys.entries()).pop()
+          const path = previous
+            ? `[ ${String(previous[0])}: ${previous[1].value.name} ]`
+            : ''
 
-            throw new Error(
-              `Circular reference detected: ${path} -> [ ${keyToString(key)}: ${
-                value.name
-              } ]`
-            )
-          }
+          throw new Error(
+            `Circular reference detected: ${path} -> [ ${keyToString(key)}: ${
+              value.name
+            } ]`
+          )
         }
       } else {
         ctx.requestedKeys.set(key, { constructed: false, value })
       }
     }
 
-    let fn
-    if (useLazy) {
-      fn = () => this.createLazy(key, type, ctx)
-    } else {
-      fn = () =>
-        this.create(key, data.value as ClassPoolData | FactoryPoolData, ctx)
-    }
+    const fn = () =>
+      this.create(key, data.value as ClassPoolData | FactoryPoolData, ctx)
 
     return this.run(scope, key, fn, ctx)
   }
@@ -416,23 +384,6 @@ export class PumpIt {
     }
 
     return finalDeps
-  }
-
-  protected createLazy(key: BindKey, type: AvailableTypes, ctx: RequestCtx) {
-    const cachedProxy = ctx.delayed.get(key)
-    if (cachedProxy) {
-      return cachedProxy.proxy
-    }
-
-    const proxyTarget = type === TYPE.CLASS ? {} : function () {}
-    const proxy = createProxy(proxyTarget, type === TYPE.CLASS, key)
-
-    ctx.delayed.set(key, {
-      proxy,
-      proxyTarget
-    })
-
-    return proxy
   }
 
   protected create(

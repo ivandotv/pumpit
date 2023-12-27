@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest'
 import { PumpIt } from '../../pumpit'
-import { get, getArray, isProxy, transform } from '../../utils'
+import { get, getArray, transform } from '../../utils'
 
 describe('Transform dependencies', () => {
   describe('Class', () => {
@@ -116,31 +116,6 @@ describe('Transform dependencies', () => {
         { container: pumpIt, ctx: undefined },
         [valueA, valueB, valueC]
       )
-    })
-
-    test('transform function receives proxy dependency', () => {
-      const pumpIt = new PumpIt()
-      const keyA = Symbol('keyA')
-      const keyB = Symbol('keyB')
-
-      class TestA {
-        static inject = [get(keyB)]
-      }
-
-      class TestB {
-        static inject = transform(
-          [get(keyA, { lazy: true })],
-          (_, keyA: TestA) => {
-            expect(isProxy(keyA)).toBe(true)
-
-            return [keyA]
-          }
-        )
-      }
-
-      pumpIt.bindClass(keyA, TestA).bindClass(keyB, TestB).resolve<TestA>(keyA)
-
-      expect.assertions(1)
     })
 
     test('transform function can replace dependencies', () => {

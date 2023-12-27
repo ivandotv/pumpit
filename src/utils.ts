@@ -1,4 +1,3 @@
-import { IS_PROXY } from './proxy'
 import type { PumpIt } from './pumpit'
 import { BindKey, ResolveCtx } from './types'
 
@@ -38,8 +37,6 @@ export function get(
   options?: {
     /** if the dependency cannot be resolved *undefined* will be used */
     optional?: boolean
-    /** in case of circular dependency proxy object will be used*/
-    lazy?: boolean
   }
 ) {
   const getCall = () => {
@@ -120,14 +117,6 @@ export function transform(
     fn: fn,
     deps
   }
-}
-
-/**
- * Helper function to detect if the object passed in is wrapped in injection proxy
- */
-export function isProxy(target: Record<string, any>) {
-  // @ts-expect-error - using symbol as index signature for object
-  return !!target[IS_PROXY]
 }
 
 export function keyToString(key: BindKey) {
