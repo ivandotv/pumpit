@@ -27,8 +27,6 @@ pumpit
 ### Functions
 
 - [get](README.md#get)
-- [getArray](README.md#getarray)
-- [isProxy](README.md#isproxy)
 - [transform](README.md#transform)
 
 ## Type Aliases
@@ -41,7 +39,7 @@ Available scopes that can be used
 
 #### Defined in
 
-[types.ts:9](https://github.com/ivandotv/pumpit/blob/cb35004/src/types.ts#L9)
+[types.ts:9](https://github.com/ivandotv/pumpit/blob/2c93450/src/types.ts#L9)
 
 ___
 
@@ -53,7 +51,7 @@ Available types that can be binded
 
 #### Defined in
 
-[types.ts:6](https://github.com/ivandotv/pumpit/blob/cb35004/src/types.ts#L6)
+[types.ts:6](https://github.com/ivandotv/pumpit/blob/2c93450/src/types.ts#L6)
 
 ___
 
@@ -65,7 +63,7 @@ Type of values that can be used for the bind key
 
 #### Defined in
 
-[types.ts:15](https://github.com/ivandotv/pumpit/blob/cb35004/src/types.ts#L15)
+[types.ts:15](https://github.com/ivandotv/pumpit/blob/2c93450/src/types.ts#L15)
 
 ___
 
@@ -94,7 +92,7 @@ Class bind options
 
 #### Defined in
 
-[types.ts:26](https://github.com/ivandotv/pumpit/blob/cb35004/src/types.ts#L26)
+[types.ts:26](https://github.com/ivandotv/pumpit/blob/2c93450/src/types.ts#L26)
 
 ___
 
@@ -104,7 +102,7 @@ ___
 
 #### Defined in
 
-[types.ts:21](https://github.com/ivandotv/pumpit/blob/cb35004/src/types.ts#L21)
+[types.ts:21](https://github.com/ivandotv/pumpit/blob/2c93450/src/types.ts#L21)
 
 ___
 
@@ -131,7 +129,7 @@ ___
 
 #### Defined in
 
-[types.ts:73](https://github.com/ivandotv/pumpit/blob/cb35004/src/types.ts#L73)
+[types.ts:73](https://github.com/ivandotv/pumpit/blob/2c93450/src/types.ts#L73)
 
 ___
 
@@ -141,7 +139,7 @@ ___
 
 #### Defined in
 
-[types.ts:17](https://github.com/ivandotv/pumpit/blob/cb35004/src/types.ts#L17)
+[types.ts:17](https://github.com/ivandotv/pumpit/blob/2c93450/src/types.ts#L17)
 
 ___
 
@@ -153,7 +151,7 @@ Resolve context that is used per request and passed to the callbacks
 
 #### Defined in
 
-[types.ts:12](https://github.com/ivandotv/pumpit/blob/cb35004/src/types.ts#L12)
+[types.ts:12](https://github.com/ivandotv/pumpit/blob/2c93450/src/types.ts#L12)
 
 ## Variables
 
@@ -177,7 +175,7 @@ REQUEST - value is resolved once per request [PumpIt.resolve()](classes/PumpIt.m
 
 #### Defined in
 
-[pumpit.ts:37](https://github.com/ivandotv/pumpit/blob/cb35004/src/pumpit.ts#L37)
+[pumpit.ts:35](https://github.com/ivandotv/pumpit/blob/2c93450/src/pumpit.ts#L35)
 
 ___
 
@@ -197,13 +195,13 @@ Constants that represent the type of values that can be binded
 
 #### Defined in
 
-[pumpit.ts:26](https://github.com/ivandotv/pumpit/blob/cb35004/src/pumpit.ts#L26)
+[pumpit.ts:24](https://github.com/ivandotv/pumpit/blob/2c93450/src/pumpit.ts#L24)
 
 ## Functions
 
 ### get
 
-▸ **get**(`key`, `options?`): () => \{ `key`: [`BindKey`](README.md#bindkey) ; `options`: \{ `lazy?`: `boolean` ; `optional?`: `boolean`  }  }
+▸ **get**(`key`, `options?`): () => \{ `key`: [`BindKey`](README.md#bindkey) ; `options`: \{ `optional?`: `boolean`  }  }
 
 get dependency by key
 
@@ -213,7 +211,6 @@ get dependency by key
 | :------ | :------ | :------ |
 | `key` | [`BindKey`](README.md#bindkey) | dependency [BindKey](README.md#bindkey) |
 | `options?` | `Object` | options for the resove process |
-| `options.lazy?` | `boolean` | in case of circular dependency proxy object will be used |
 | `options.optional?` | `boolean` | if the dependency cannot be resolved *undefined* will be used |
 
 #### Returns
@@ -229,8 +226,7 @@ get dependency by key
 | Name | Type |
 | :------ | :------ |
 | `key` | [`BindKey`](README.md#bindkey) |
-| `options` | \{ `lazy?`: `boolean` ; `optional?`: `boolean`  } |
-| `options.lazy?` | `boolean` |
+| `options` | \{ `optional?`: `boolean`  } |
 | `options.optional?` | `boolean` |
 
 | Name | Type |
@@ -239,72 +235,7 @@ get dependency by key
 
 #### Defined in
 
-[utils.ts:36](https://github.com/ivandotv/pumpit/blob/cb35004/src/utils.ts#L36)
-
-___
-
-### getArray
-
-▸ **getArray**(`deps`, `options?`): () => \{ `key`: (\{ `key`: [`BindKey`](README.md#bindkey) ; `options`: \{ `lazy?`: `boolean` ; `optional?`: `boolean`  }  } \| \{ `key`: \{ `key`: [`BindKey`](README.md#bindkey) ; `options`: \{ `optional?`: `boolean`  }  }[] ; `options`: \{ `optional?`: `boolean` ; `removeUndefined?`: `boolean` ; `setToUndefinedIfEmpty?`: `boolean`  }  })[] = result; `options`: \{ `optional`: `boolean` = true; `removeUndefined?`: `boolean` ; `setToUndefinedIfEmpty?`: `boolean`  }  }
-
-Get an array of dependencies
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `deps` | ([`BindKey`](README.md#bindkey) \| () => \{ `key`: [`BindKey`](README.md#bindkey) ; `options`: \{ `lazy?`: `boolean` ; `optional?`: `boolean`  }  })[] | dependencies to be injected see: [BindKey](README.md#bindkey) [get()](README.md#get) |
-| `options?` | `Object` | - |
-| `options.removeUndefined?` | `boolean` | if dependency in the array cannot be resolved, nothing will be added to the array in it's place |
-| `options.setToUndefinedIfEmpty?` | `boolean` | if the whole array is empty it will be set to **undefined**, otherwise an empty array will be injected |
-
-#### Returns
-
-`fn`
-
-▸ (): `Object`
-
-##### Returns
-
-`Object`
-
-| Name | Type |
-| :------ | :------ |
-| `key` | (\{ `key`: [`BindKey`](README.md#bindkey) ; `options`: \{ `lazy?`: `boolean` ; `optional?`: `boolean`  }  } \| \{ `key`: \{ `key`: [`BindKey`](README.md#bindkey) ; `options`: \{ `optional?`: `boolean`  }  }[] ; `options`: \{ `optional?`: `boolean` ; `removeUndefined?`: `boolean` ; `setToUndefinedIfEmpty?`: `boolean`  }  })[] |
-| `options` | \{ `optional`: `boolean` = true; `removeUndefined?`: `boolean` ; `setToUndefinedIfEmpty?`: `boolean`  } |
-| `options.optional` | `boolean` |
-| `options.removeUndefined?` | `boolean` |
-| `options.setToUndefinedIfEmpty?` | `boolean` |
-
-| Name | Type |
-| :------ | :------ |
-| `[INJECTION_FN]` | typeof `INJECTION_FN` |
-
-#### Defined in
-
-[utils.ts:60](https://github.com/ivandotv/pumpit/blob/cb35004/src/utils.ts#L60)
-
-___
-
-### isProxy
-
-▸ **isProxy**(`target`): `boolean`
-
-Helper function to detect if the object passed in is wrapped in injection proxy
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `target` | `Record`\<`string`, `any`\> |
-
-#### Returns
-
-`boolean`
-
-#### Defined in
-
-[utils.ts:128](https://github.com/ivandotv/pumpit/blob/cb35004/src/utils.ts#L128)
+[utils.ts:32](https://github.com/ivandotv/pumpit/blob/2c93450/src/utils.ts#L32)
 
 ___
 
@@ -319,7 +250,7 @@ It gets an array of dependencies in injection order, and it should return an arr
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `deps` | ([`BindKey`](README.md#bindkey) \| (`key`: [`BindKey`](README.md#bindkey), `options?`: \{ `lazy?`: `boolean` ; `optional?`: `boolean`  }) => () => \{ `key`: [`BindKey`](README.md#bindkey) ; `options`: \{ `lazy?`: `boolean` ; `optional?`: `boolean`  }  } \| (`deps`: ([`BindKey`](README.md#bindkey) \| () => \{ `key`: [`BindKey`](README.md#bindkey) ; `options`: \{ `lazy?`: `boolean` ; `optional?`: `boolean`  }  })[], `options?`: \{ `removeUndefined?`: `boolean` ; `setToUndefinedIfEmpty?`: `boolean`  }) => () => \{ `key`: (\{ `key`: [`BindKey`](README.md#bindkey) ; `options`: \{ `lazy?`: `boolean` ; `optional?`: `boolean`  }  } \| \{ `key`: \{ `key`: [`BindKey`](README.md#bindkey) ; `options`: \{ `optional?`: `boolean`  }  }[] ; `options`: \{ `optional?`: `boolean` ; `removeUndefined?`: `boolean` ; `setToUndefinedIfEmpty?`: `boolean`  }  })[] = result; `options`: \{ `optional`: `boolean` = true; `removeUndefined?`: `boolean` ; `setToUndefinedIfEmpty?`: `boolean`  }  })[] | array of dependencies that need to be satisfied see: [BindKey](README.md#bindkey) [get()](README.md#get) [getArray()](README.md#getarray) |
+| `deps` | ([`BindKey`](README.md#bindkey) \| (`key`: [`BindKey`](README.md#bindkey), `options?`: \{ `optional?`: `boolean`  }) => () => \{ `key`: [`BindKey`](README.md#bindkey) ; `options`: \{ `optional?`: `boolean`  }  })[] | array of dependencies that need to be satisfied see: [BindKey](README.md#bindkey) [get()](README.md#get) |
 | `fn` | (`data`: \{ `container`: [`PumpIt`](classes/PumpIt.md) ; `ctx`: [`ResolveCtx`](README.md#resolvectx)  }, ...`deps`: `any`[]) => `any`[] | function that will be called with the resolved dependencies |
 
 #### Returns
@@ -329,9 +260,9 @@ It gets an array of dependencies in injection order, and it should return an arr
 | Name | Type |
 | :------ | :------ |
 | `action` | `symbol` |
-| `deps` | ([`BindKey`](README.md#bindkey) \| (`key`: [`BindKey`](README.md#bindkey), `options?`: \{ `lazy?`: `boolean` ; `optional?`: `boolean`  }) => () => \{ `key`: [`BindKey`](README.md#bindkey) ; `options`: \{ `lazy?`: `boolean` ; `optional?`: `boolean`  }  } \| (`deps`: ([`BindKey`](README.md#bindkey) \| () => \{ `key`: [`BindKey`](README.md#bindkey) ; `options`: \{ `lazy?`: `boolean` ; `optional?`: `boolean`  }  })[], `options?`: \{ `removeUndefined?`: `boolean` ; `setToUndefinedIfEmpty?`: `boolean`  }) => () => \{ `key`: (\{ `key`: [`BindKey`](README.md#bindkey) ; `options`: \{ `lazy?`: `boolean` ; `optional?`: `boolean`  }  } \| \{ `key`: \{ `key`: [`BindKey`](README.md#bindkey) ; `options`: \{ `optional?`: `boolean`  }  }[] ; `options`: \{ `optional?`: `boolean` ; `removeUndefined?`: `boolean` ; `setToUndefinedIfEmpty?`: `boolean`  }  })[] = result; `options`: \{ `optional`: `boolean` = true; `removeUndefined?`: `boolean` ; `setToUndefinedIfEmpty?`: `boolean`  }  })[] |
+| `deps` | ([`BindKey`](README.md#bindkey) \| (`key`: [`BindKey`](README.md#bindkey), `options?`: \{ `optional?`: `boolean`  }) => () => \{ `key`: [`BindKey`](README.md#bindkey) ; `options`: \{ `optional?`: `boolean`  }  })[] |
 | `fn` | (`data`: \{ `container`: [`PumpIt`](classes/PumpIt.md) ; `ctx`: [`ResolveCtx`](README.md#resolvectx)  }, ...`deps`: `any`[]) => `any`[] |
 
 #### Defined in
 
-[utils.ts:114](https://github.com/ivandotv/pumpit/blob/cb35004/src/utils.ts#L114)
+[utils.ts:74](https://github.com/ivandotv/pumpit/blob/2c93450/src/utils.ts#L74)
