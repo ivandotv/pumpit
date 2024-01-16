@@ -37,13 +37,6 @@ export type RequestCtx = {
   requestCache: Map<BindKey, any>
   transientCache: Map<BindKey, any>
   requestedKeys: Map<BindKey, { constructed: boolean; value: any }>
-  delayed: Map<
-    BindKey,
-    {
-      proxy: Record<string, any>
-      proxyTarget: Record<string, { current: any }> | { (): any; current: any }
-    }
-  >
   ctx?: InternalResolveCtx
   postConstruct: { postConstruct: () => void }[]
 }

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import { PumpIt } from '../pumpit'
-import { get, getArray } from '../utils'
+import { get } from '../utils'
 
 describe('Optional injection', () => {
   test('injection does not throw', () => {
@@ -57,6 +57,29 @@ describe('Optional injection', () => {
 
     expect(instance.keyOne).toBe(valueOne)
     expect(instance.optionalProp).toBeUndefined()
+  })
+
+  test('throw when circular reference is detected', () => {
+    const pumpIt = new PumpIt()
+    const keyA = 'key_a'
+    const keyB = Symbol('key_b')
+    const keyC = 'key_c'
+
+    class TestA {
+      static inject = [keyB]
+    }
+    class TestB {
+      static inject = [keyC]
+    }
+    class TestC {
+      static inject = [keyA]
+    }
+
+    pumpIt.bindClass(keyA, TestA).bindClass(keyB, TestB).bindClass(keyC, TestC)
+
+    expect(() => pumpIt.resolve<TestA>(keyA)).toThrow(
+      'Circular reference detected'
+    )
   })
 
   test('injection can be at in any position', () => {
@@ -177,35 +200,28 @@ describe('Optional injection', () => {
 
     class TestA {}
     class TestB {}
-    class TestC {}
 
     const classKeyA = TestA
     const objectKeyB = {}
-    const functionKeyC = () => {}
     const keyD = Symbol()
 
     class TestD {
       constructor(
         public a: TestA,
-        public bc: [TestB, TestC]
+        public bc: TestB
       ) {}
 
-      static inject = [
-        get(classKeyA),
-        getArray([get(objectKeyB), functionKeyC])
-      ]
+      static inject = [get(classKeyA), objectKeyB]
     }
 
     pumpIt.bindClass(classKeyA, TestA)
     pumpIt.bindClass(objectKeyB, TestB)
-    pumpIt.bindClass(functionKeyC, TestC)
     pumpIt.bindClass(keyD, TestD)
 
     const instance = pumpIt.resolve<TestD>(keyD)
 
     expect(instance.a).toBeInstanceOf(TestA)
-    expect(instance.bc[0]).toBeInstanceOf(TestB)
-    expect(instance.bc[1]).toBeInstanceOf(TestC)
+    expect(instance.bc).toBeInstanceOf(TestB)
   })
 
   test('injection with object - key - value', () => {
@@ -213,13 +229,11 @@ describe('Optional injection', () => {
     const classKeyA = 'a'
     const objectKeyB = {}
     const functionKeyC = () => {}
-    const keyD = Symbol()
 
     class TestA {}
     class TestB {}
-    class TestD {}
 
-    const factory = (a: TestA, bd: [TestB, TestD]) => {
+    const factory = (a: TestA, bd: TestB) => {
       return {
         a,
         bd
@@ -231,17 +245,12 @@ describe('Optional injection', () => {
       .bindClass(objectKeyB, TestB)
       .bindFactory(functionKeyC, {
         value: factory,
-        inject: [
-          get(classKeyA, { lazy: true }),
-          getArray([get(objectKeyB, { lazy: true }), get(keyD, { lazy: true })])
-        ]
+        inject: [get(classKeyA), objectKeyB]
       })
-      .bindClass(keyD, TestD)
 
     const instance = pumpIt.resolve<ReturnType<typeof factory>>(functionKeyC)
 
     expect(instance.a).toBeInstanceOf(TestA)
-    expect(instance.bd[0]).toBeInstanceOf(TestB)
-    expect(instance.bd[1]).toBeInstanceOf(TestD)
+    expect(instance.bd).toBeInstanceOf(TestB)
   })
 })

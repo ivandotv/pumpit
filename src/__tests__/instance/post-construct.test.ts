@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'vitest'
 import { PumpIt } from '../../pumpit'
-import { get } from '../../utils'
 
 describe('Post construct', () => {
   test('Run post construct method on the class', () => {
@@ -90,43 +89,5 @@ describe('Post construct', () => {
     pumpIt.resolve<TestB>(TestB)
 
     expect(count).toBe(1)
-  })
-
-  test('with circular injection', () => {
-    const pumpIt = new PumpIt()
-    const keyA = 'key_a'
-    const keyB = Symbol('key_b')
-
-    const staticResult = 'hello'
-    let postConstructOrder = ''
-    class TestA {
-      static inject = [get(keyB, { lazy: true })]
-
-      static hello() {
-        return staticResult
-      }
-
-      constructor(public keyB: TestB) {}
-
-      postConstruct() {
-        postConstructOrder += 'A'
-      }
-    }
-
-    class TestB {
-      static inject = [get(keyA, { lazy: true })]
-
-      constructor(public keyA: TestA) {}
-
-      postConstruct() {
-        postConstructOrder += 'B'
-      }
-    }
-
-    pumpIt.bindClass(keyA, TestA).bindClass(keyB, TestB)
-
-    pumpIt.resolve<TestA>(keyA)
-
-    expect(postConstructOrder).toBe('BA')
   })
 })
