@@ -15,16 +15,18 @@
   "author": "Ivan Vlatkovic",
   "license": "MIT",
   "main": "./dist/pumpit.umd.cjs",
+  "module": "./dist/pumpit.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/pumpit.js",
+      "require": "./dist/pumpit.umd.cjs"
+    }
+  },
   "files": [
     "dist"
   ],
-  "types": "./dist/index.d.ts",
-  "module": "./dist/my-lib.js",
-  "exports": {
-    "types": "./dist/index.d.ts",
-    "import": "./dist/pumpit.js",
-    "require": "./dist/pumpit.umd.cjs"
-  },
   "scripts": {
     "lint": "eslint --fix \"src/**/\"",
     "lint:ci": "eslint \"src/**/\"",
