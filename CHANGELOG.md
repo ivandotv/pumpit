@@ -1,5 +1,12 @@
 # pumpa
 
+## 6.0.0
+
+### Major Changes
+
+- 073c0b8: remove circular dependency functionality
+- e92fde3: remove the possibility to inject dependency as array of dependencies
+
 ## 5.0.0
 
 ### Major Changes
