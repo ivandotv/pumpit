@@ -4,8 +4,8 @@
 [![Codecov](https://img.shields.io/codecov/c/gh/ivandotv/pumpit)](https://app.codecov.io/gh/ivandotv/pumpit)
 [![GitHub license](https://img.shields.io/github/license/ivandotv/pumpit)](https://github.com/ivandotv/pumpit/blob/main/LICENSE)
 
-`PumpIt` is a small [(~2KB)](https://bundlephobia.com/package/pumpit) dependency injection container without the decorators, suitable for the browser.
-It supports circular dependencies (via Proxy), injecting arrays of dependencies as a single property, different injection scopes, child containers, etc...
+`PumpIt` is a small [(~2KB)](https://bundlephobia.com/package/pumpit) dependency injection container without the decorators and zero dependencies, suitable for the browser.
+It supports different injection scopes, child containers, hooks etc...
 
 <!-- toc -->
 
@@ -24,8 +24,8 @@ It supports circular dependencies (via Proxy), injecting arrays of dependencies 
     - [Request](#request)
     - [Container singleton](#container-singleton)
   - [Optional injections](#optional-injections)
-  - [Circular dependencies](#circular-dependencies)
-  - [Injecting arrays](#injecting-arrays)
+  - [~~Circular dependencies~~ (deprecated)](#circular-dependencies)
+  - [~~Injecting arrays~~](#injecting-arrays)
   - [Transforming dependencies (hooks)](#transforming-dependencies-hooks)
     - [Transforming injected dependencies](#transforming-injected-dependencies)
     - [Post construct method](#post-construct-method)
@@ -243,7 +243,10 @@ container = new PumpIt()
 
 class A {
   static inject = [C, B]
-  constructor(public c: C, public b: B) {}
+  constructor(
+    public c: C,
+    public b: B
+  ) {}
 }
 class B {
   static inject = [C]
@@ -277,7 +280,10 @@ container = new PumpIt()
 
 class A {
   static inject = [C, B]
-  constructor(public c: C, public b: B) {}
+  constructor(
+    public c: C,
+    public b: B
+  ) {}
 }
 class B {
   static inject = [C]
@@ -311,7 +317,10 @@ container = new PumpIt()
 
 class A {
   static inject = [C, B]
-  constructor(public c: C, public b: B) {}
+  constructor(
+    public c: C,
+    public b: B
+  ) {}
 }
 class B {
   static inject = [C]
@@ -399,157 +408,15 @@ const instanceA = container.resolve(A)
 instanceA.b // undefined
 ```
 
-## Circular dependencies
+## ~~Circular dependencies~~
 
-`PumpIt` supports circular dependencies. The container uses [`Proxy`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) under the hood, to handle circular dependency cases.
+> NOTE: Circular dependency functionality has been removed in version 6.
+> If you want to use circular dependency you can use [version 5](https://github.com/ivandotv/pumpit/tree/v5.0.0)
 
-For example: In case of circular dependency: `A -> B -> A`
+## ~~Injecting arrays~~
 
-`B` will be given a `proxy` object that will represent the `A` instance, and **after** the `B` constructor runs, the proxy will point to the instance of `A`. To do that we need to mark the `A` dependency as `lazy`. For this, we need to use the `get()` helper function.
-
-```ts
-import { PumpIt, get } from 'pumpit'
-
-const container = new PumpIt()
-
-class A {
-  //A wants B
-  static inject = [B]
-
-  constructor(public b: B) {}
-  hello() {
-    return 'hello'
-  }
-}
-
-class B {
-  //B wants A
-  static inject = [get(A, { lazy: true })]
-
-  constructor(public a: A) {
-    this.a // will be a proxy untill the constructor runs to completion
-    this.a.hello() //error!
-  }
-
-  someMethod() {
-    this.a.hello() //no error - proxy points to A
-  }
-}
-
-container.bindClass(A, A).bindClass(B, B)
-
-const instanceA = container.resolve(A)
-
-instanceA.b.a === instanceA
-```
-
-Please note that even though the dependency `A` in the class `B` is marked as `lazy`, it doesn't mean that the injected value will always be a proxy.
-If there is no circular dependency, then the regular `A` instance would be injected (which is not the case in the above example).
-
-> There is also a helper function `isProxy()` which could tell you if the injected dependency is a `Proxy`.
-
-```ts
-class B {
-  static inject = [get(A, { lazy: true })]
-
-  constructor(public a: A) {
-    this.a // will be a proxy until the constructor runs to completion
-    this.a.hello() //error!
-
-    // check if proxy
-    isProxy(this.a) //true
-  }
-}
-```
-
-## Injecting arrays
-
-You can inject arrays of dependencies as a single property. For this, to work we need to use the `getArray()` helper function.
-
-```ts
-import { PumpIt, getArray } from 'pumpit'
-
-const container = new PumpIt()
-
-const keyOne = 'key_one'
-const keyTwo = Symbol('key_two')
-
-const valueOne = 'hello'
-const valueTwo = 123
-
-class TestA {
-  static inject = [getArray([keyOne, keyTwo])]
-
-  constructor(public props: [string, number]) {
-    this.props[0] === 'hello'
-    this.props[1] === 123
-  }
-}
-```
-
-Injecting arrays covers some additional scenarios:
-
-- If the dependency is not found, inject `undefined` in its place.
-
-```ts
-const keyTwo = 'key_two'
-const valueTwo = 123
-
-class TestA {
-  static inject = [getArray([get('not_found', { optional: true }), keyTwo])]
-
-  constructor(public props: [string?, number]) {
-    this.props[0] === undefined
-    this.props[1] === 123
-
-    this.props.length === 2
-  }
-}
-```
-
--If the dependency is not found _ignore it_. The container will not inject `undefined` into the array, and that will affect the length of the array and the order of dependencies inside the array.
-
-```ts
-const keyTwo = 'key_two'
-const valueTwo = 123
-
-class TestA {
-  static inject = [
-    getArray([get('not_found', { optional: true }), keyTwo], {
-      removeUndefined: true // remove not found values
-    })
-  ]
-
-  constructor(public props: [string?, number?]) {
-    //second dependency is the only value in the array
-    this.props[0] === 123
-    this.props.length === 1
-  }
-}
-```
-
-If none of the dependencies can be resolved, set the whole array to undefined.
-
-```ts
-class TestA {
-  static inject = [
-    getArray(
-      [
-        get('not_found', { optional: true }),
-        get('not_found_2', { optional: true })
-      ],
-      {
-        removeUndefined: true,
-        setToUndefinedIfEmpty: true
-      }
-    )
-  ]
-
-  constructor(public props?: [string?, number?]) {
-    this.props === undefined
-  }
-}
-```
+> NOTE: Injecting array as a dependency has been removed in version 6.
+> If you want to use this feature you can use [version 5](https://github.com/ivandotv/pumpit/tree/v5.0.0)
 
 ## Transforming dependencies (hooks)
 
