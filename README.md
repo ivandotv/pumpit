@@ -9,37 +9,38 @@ It supports different injection scopes, child containers, hooks etc...
 
 <!-- toc -->
 
-- [PumpIt](#pumpit)
-  - [Motivation](#motivation)
-  - [Getting Started](#getting-started)
-    - [Registering classes](#registering-classes)
-    - [Registering factories](#registering-factories)
-    - [Registering values](#registering-values)
-  - [Resolving container data](#resolving-container-data)
-    - [Resolve context](#resolve-context)
-  - [Injection tokens](#injection-tokens)
-  - [Injection scopes](#injection-scopes)
-    - [Singleton](#singleton)
-    - [Transient](#transient)
-    - [Request](#request)
-    - [Container singleton](#container-singleton)
-  - [Optional injections](#optional-injections)
-  - [~~Circular dependencies~~ (deprecated)](#circular-dependencies)
-  - [~~Injecting arrays~~](#injecting-arrays)
-  - [Transforming dependencies (hooks)](#transforming-dependencies-hooks)
-    - [Transforming injected dependencies](#transforming-injected-dependencies)
-    - [Post construct method](#post-construct-method)
-  - [Removing values from the container](#removing-values-from-the-container)
-    - [Calling the dispose method](#calling-the-dispose-method)
-    - [Dispose callback](#dispose-callback)
-    - [Removing all the values from the container](#removing-all-the-values-from-the-container)
-    - [Clearing container values](#clearing-container-values)
-  - [Child containers](#child-containers)
-    - [Shadowing values](#shadowing-values)
-    - [Checking for values](#checking-for-values)
-    - [Child singletons](#child-singletons)
-  - [API docs](#api-docs)
-  - [License](#license)
+- [Motivation](#motivation)
+- [Getting Started](#getting-started)
+  * [Registering classes](#registering-classes)
+    + [Class injection inheritance](#class-injection-inheritance)
+      - [Combining injection dependencies](#combining-injection-dependencies)
+  * [Registering factories](#registering-factories)
+  * [Registering values](#registering-values)
+- [Resolving container data](#resolving-container-data)
+  * [Resolve context](#resolve-context)
+- [Injection tokens](#injection-tokens)
+- [Injection scopes](#injection-scopes)
+  * [Singleton](#singleton)
+  * [Transient](#transient)
+  * [Request](#request)
+  * [Container singleton](#container-singleton)
+- [Optional injections](#optional-injections)
+- [~~Circular dependencies~~](#circular-dependencies)
+- [~~Injecting arrays~~](#injecting-arrays)
+- [Transforming dependencies (hooks)](#transforming-dependencies-hooks)
+  * [Transforming injected dependencies](#transforming-injected-dependencies)
+  * [Post construct method](#post-construct-method)
+- [Removing values from the container](#removing-values-from-the-container)
+  * [Calling the dispose method](#calling-the-dispose-method)
+  * [Dispose callback](#dispose-callback)
+  * [Removing all the values from the container](#removing-all-the-values-from-the-container)
+  * [Clearing container values](#clearing-container-values)
+- [Child containers](#child-containers)
+  * [Shadowing values](#shadowing-values)
+  * [Checking for values](#checking-for-values)
+  * [Child singletons](#child-singletons)
+- [API docs](#api-docs)
+- [License](#license)
 
 <!-- tocstop -->
 
@@ -97,6 +98,72 @@ class TestB {}
 
 //`bind`(register)  classe to the injection container.
 container.bindClass(TestA, { value: TestA, inject: [TestB] })
+```
+
+#### Class injection inheritance
+
+Class injection inheritance is supported out of the box, which means that the child class will get dependencies that are set to be injected to the parent.
+
+```ts
+const pumpIt = new PumpIt()
+
+class TestB {}
+
+class TestA {
+  static inject = [TestB]
+}
+
+class TestC extends TestA {
+  //TestB will be injected by reading `inject` array from the parent (TestA)
+  constructor(public b: TestB) {
+    super()
+  }
+}
+
+pumpIt.bindClass(TestA, TestA)
+pumpIt.bindClass(TestB, TestB)
+pumpIt.bindClass(TestC, TestC)
+
+const instance = pumpIt.resolve<TestC>(TestC)
+
+expect(instance.b).toBeInstanceOf(TestB)
+```
+
+##### Combining injection dependencies
+
+Child class can define their own dependencies and combine them with the parent dependencies.
+
+```ts
+class TestB {}
+class TestD {}
+
+class TestA {
+  static inject = [TestB]
+
+  constructor(public b: TestB) {}
+}
+
+class TestC extends TestA {
+  // use dependencies from the parent and add your own (TestD class)
+  static inject = [...TestA.inject, TestD]
+
+  constructor(
+    public b: TestB,
+    public d: TestD
+  ) {
+    super()
+  }
+}
+
+pumpIt.bindClass(TestA, TestA)
+pumpIt.bindClass(TestB, TestB)
+pumpIt.bindClass(TestC, TestC)
+pumpIt.bindClass(TestD, TestD)
+
+const instance = pumpIt.resolve<TestC>(TestC)
+
+expect(instance.b).toBeInstanceOf(TestB)
+expect(instance.d).toBeInstanceOf(TestD)
 ```
 
 ### Registering factories
