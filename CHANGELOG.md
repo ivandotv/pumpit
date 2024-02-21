@@ -1,5 +1,16 @@
 # pumpa
 
+## 7.0.0
+
+### Major Changes
+
+- e2c941d: refactor package export fields to include separate require statements.
+
+  closes Support --moduleResolution node16 in typescript #38
+
+  more info on the problem:
+  https://github.com/arethetypeswrong/arethetypeswrong.github.io/blob/main/docs/problems/FalseESM.md
+
 ## 6.0.1
 
 ### Patch Changes
