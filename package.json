@@ -19,9 +19,14 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/pumpit.js",
-      "require": "./dist/pumpit.umd.cjs"
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/pumpit.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/pumpit.umd.cjs"
+      }
     }
   },
   "files": [
@@ -33,7 +38,7 @@
     "lint:ci": "eslint \"src/**/\"",
     "test": "vitest run --coverage",
     "test:watch": "vitest",
-    "build": "tsc && vite build",
+    "build": "tsc && vite build && shx cp  ./dist/index.d.ts ./dist/index.d.cts",
     "gen:docs": "rm -rf ./docs/api && typedoc --options typedoc.cjs  --plugin typedoc-plugin-markdown",
     "prepublishOnly": "pnpm build",
     "prepare": "husky install",
