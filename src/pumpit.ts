@@ -31,6 +31,7 @@ export const TYPE = {
  * SINGLETON - value is resolved only once
  * TRANSIENT - value is resolved everytime it is requested
  * REQUEST - value is resolved once per request {@link PumpIt.resolve | PumpIt.resolve()}
+ * CONTAINER_SINGLETON - the child container will create it's own version of the singleton instance
  */
 export const SCOPE = {
   SINGLETON: 'SINGLETON',
