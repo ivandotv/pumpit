@@ -301,13 +301,13 @@ container.bindClass(C, C, { scope: SCOPE.TRANSIENT })
 const instanceA = container.resolve(A)
 
 //C instance is created two times
-//A and B have different instance of C
+//A and B have different instances of C
 instanceA.c !== instanceA.b.c //C
 ```
 
 ### Request
 
-This is similar to the `singleton` scope except the value is resolved **once** per resolve request.
+This is similar to the `singleton` scope except the value is resolved **once** per resolve request chain.
 Every new call to `container.resolve()` will create a new value.
 
 ```ts
@@ -333,14 +333,13 @@ container.bindClass(A, A)
 container.bindClass(B, B)
 container.bindClass(C, C, { scope: SCOPE.REQUEST })
 
-const firstA = container.resolve(A) // new C
-const secondA = container.resolve(A) // new C
+const firstA = container.resolve(A)
+const secondA = container.resolve(A)
+firstA.c === firstA.b.c // A and B share C
 
-firstA.c === firstA.b.c
+secondA.c === secondA.b.c // A and B share C
 
-secondA.c === secondA.b.c
-
-secondA.c !== firstA.c
+secondA.c !== firstA.c //C from first request is different to the C from the second request
 ```
 
 ### Container singleton
