@@ -1,5 +1,13 @@
 # pumpa
 
+## 6.0.1
+
+### Patch Changes
+
+- 27f4119: update readme
+- fd2f690: add class inheritance documentation
+- 0a3e663: mark package side effects free
+
 ## 6.0.0
 
 ### Major Changes
