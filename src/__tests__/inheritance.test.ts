@@ -26,6 +26,33 @@ describe('Class Inheritance', () => {
     expect(instance.b).toBeInstanceOf(TestB)
   })
 
+  test('child class inherits parent dependencies two levels deep', () => {
+    const pumpIt = new PumpIt()
+
+    class DepOne {}
+
+    class TestA {
+      static inject = [DepOne]
+    }
+
+    class TestB extends TestA {}
+
+    class TestC extends TestB {
+      constructor(public depOne: DepOne) {
+        super()
+      }
+    }
+
+    pumpIt.bindClass(DepOne, DepOne)
+    pumpIt.bindClass(TestA, TestA)
+    // no need to bind TestB, it will inherit from TestA
+
+    pumpIt.bindClass(TestC, TestC)
+    const instance = pumpIt.resolve<TestC>(TestC)
+
+    expect(instance.depOne).toBeInstanceOf(DepOne)
+  })
+
   test('child class combines injection parameters from the parent', () => {
     const pumpIt = new PumpIt()
 
