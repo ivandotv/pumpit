@@ -39,7 +39,7 @@ Available scopes that can be used
 
 #### Defined in
 
-[types.ts:9](https://github.com/ivandotv/pumpit/blob/73b3cd4/src/types.ts#L9)
+[types.ts:9](https://github.com/ivandotv/pumpit/blob/d102f9f/src/types.ts#L9)
 
 ___
 
@@ -51,7 +51,7 @@ Available types that can be binded
 
 #### Defined in
 
-[types.ts:6](https://github.com/ivandotv/pumpit/blob/73b3cd4/src/types.ts#L6)
+[types.ts:6](https://github.com/ivandotv/pumpit/blob/d102f9f/src/types.ts#L6)
 
 ___
 
@@ -63,7 +63,7 @@ Type of values that can be used for the bind key
 
 #### Defined in
 
-[types.ts:15](https://github.com/ivandotv/pumpit/blob/73b3cd4/src/types.ts#L15)
+[types.ts:15](https://github.com/ivandotv/pumpit/blob/d102f9f/src/types.ts#L15)
 
 ___
 
@@ -92,7 +92,7 @@ Class bind options
 
 #### Defined in
 
-[types.ts:26](https://github.com/ivandotv/pumpit/blob/73b3cd4/src/types.ts#L26)
+[types.ts:26](https://github.com/ivandotv/pumpit/blob/d102f9f/src/types.ts#L26)
 
 ___
 
@@ -102,7 +102,7 @@ ___
 
 #### Defined in
 
-[types.ts:21](https://github.com/ivandotv/pumpit/blob/73b3cd4/src/types.ts#L21)
+[types.ts:21](https://github.com/ivandotv/pumpit/blob/d102f9f/src/types.ts#L21)
 
 ___
 
@@ -129,7 +129,7 @@ ___
 
 #### Defined in
 
-[types.ts:73](https://github.com/ivandotv/pumpit/blob/73b3cd4/src/types.ts#L73)
+[types.ts:73](https://github.com/ivandotv/pumpit/blob/d102f9f/src/types.ts#L73)
 
 ___
 
@@ -139,7 +139,7 @@ ___
 
 #### Defined in
 
-[types.ts:17](https://github.com/ivandotv/pumpit/blob/73b3cd4/src/types.ts#L17)
+[types.ts:17](https://github.com/ivandotv/pumpit/blob/d102f9f/src/types.ts#L17)
 
 ___
 
@@ -151,7 +151,7 @@ Resolve context that is used per request and passed to the callbacks
 
 #### Defined in
 
-[types.ts:12](https://github.com/ivandotv/pumpit/blob/73b3cd4/src/types.ts#L12)
+[types.ts:12](https://github.com/ivandotv/pumpit/blob/d102f9f/src/types.ts#L12)
 
 ## Variables
 
@@ -176,7 +176,7 @@ CONTAINER_SINGLETON - the child container will create it's own version of the si
 
 #### Defined in
 
-[pumpit.ts:36](https://github.com/ivandotv/pumpit/blob/73b3cd4/src/pumpit.ts#L36)
+[pumpit.ts:36](https://github.com/ivandotv/pumpit/blob/d102f9f/src/pumpit.ts#L36)
 
 ___
 
@@ -196,7 +196,7 @@ Constants that represent the type of values that can be binded
 
 #### Defined in
 
-[pumpit.ts:24](https://github.com/ivandotv/pumpit/blob/73b3cd4/src/pumpit.ts#L24)
+[pumpit.ts:24](https://github.com/ivandotv/pumpit/blob/d102f9f/src/pumpit.ts#L24)
 
 ## Functions
 
@@ -236,7 +236,7 @@ get dependency by key
 
 #### Defined in
 
-[utils.ts:32](https://github.com/ivandotv/pumpit/blob/73b3cd4/src/utils.ts#L32)
+[utils.ts:32](https://github.com/ivandotv/pumpit/blob/d102f9f/src/utils.ts#L32)
 
 ___
 
@@ -266,4 +266,4 @@ It gets an array of dependencies in injection order, and it should return an arr
 
 #### Defined in
 
-[utils.ts:74](https://github.com/ivandotv/pumpit/blob/73b3cd4/src/utils.ts#L74)
+[utils.ts:74](https://github.com/ivandotv/pumpit/blob/d102f9f/src/utils.ts#L74)
