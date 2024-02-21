@@ -61,7 +61,7 @@ depends on the scope used.
 
 #### Defined in
 
-[pumpit.ts:210](https://github.com/ivandotv/pumpit/blob/2c93450/src/pumpit.ts#L210)
+[pumpit.ts:211](https://github.com/ivandotv/pumpit/blob/73b3cd4/src/pumpit.ts#L211)
 
 ___
 
@@ -92,7 +92,7 @@ Number of executions depends on the scope used.
 
 #### Defined in
 
-[pumpit.ts:158](https://github.com/ivandotv/pumpit/blob/2c93450/src/pumpit.ts#L158)
+[pumpit.ts:159](https://github.com/ivandotv/pumpit/blob/73b3cd4/src/pumpit.ts#L159)
 
 ___
 
@@ -123,7 +123,7 @@ current pumpIt instance
 
 #### Defined in
 
-[pumpit.ts:140](https://github.com/ivandotv/pumpit/blob/2c93450/src/pumpit.ts#L140)
+[pumpit.ts:141](https://github.com/ivandotv/pumpit/blob/73b3cd4/src/pumpit.ts#L141)
 
 ___
 
@@ -140,7 +140,7 @@ parent singleton values.
 
 #### Defined in
 
-[pumpit.ts:268](https://github.com/ivandotv/pumpit/blob/2c93450/src/pumpit.ts#L268)
+[pumpit.ts:269](https://github.com/ivandotv/pumpit/blob/73b3cd4/src/pumpit.ts#L269)
 
 ___
 
@@ -154,7 +154,7 @@ ___
 
 #### Defined in
 
-[pumpit.ts:96](https://github.com/ivandotv/pumpit/blob/2c93450/src/pumpit.ts#L96)
+[pumpit.ts:97](https://github.com/ivandotv/pumpit/blob/73b3cd4/src/pumpit.ts#L97)
 
 ___
 
@@ -174,7 +174,7 @@ ___
 
 #### Defined in
 
-[pumpit.ts:103](https://github.com/ivandotv/pumpit/blob/2c93450/src/pumpit.ts#L103)
+[pumpit.ts:104](https://github.com/ivandotv/pumpit/blob/73b3cd4/src/pumpit.ts#L104)
 
 ___
 
@@ -190,7 +190,7 @@ Gets parent injector instance
 
 #### Defined in
 
-[pumpit.ts:278](https://github.com/ivandotv/pumpit/blob/2c93450/src/pumpit.ts#L278)
+[pumpit.ts:279](https://github.com/ivandotv/pumpit/blob/73b3cd4/src/pumpit.ts#L279)
 
 ___
 
@@ -211,7 +211,7 @@ ___
 
 #### Defined in
 
-[pumpit.ts:125](https://github.com/ivandotv/pumpit/blob/2c93450/src/pumpit.ts#L125)
+[pumpit.ts:126](https://github.com/ivandotv/pumpit/blob/73b3cd4/src/pumpit.ts#L126)
 
 ___
 
@@ -240,7 +240,7 @@ Resolve value that has previously been binded.
 
 #### Defined in
 
-[pumpit.ts:241](https://github.com/ivandotv/pumpit/blob/2c93450/src/pumpit.ts#L241)
+[pumpit.ts:242](https://github.com/ivandotv/pumpit/blob/73b3cd4/src/pumpit.ts#L242)
 
 ___
 
@@ -261,7 +261,7 @@ ___
 
 #### Defined in
 
-[pumpit.ts:60](https://github.com/ivandotv/pumpit/blob/2c93450/src/pumpit.ts#L60)
+[pumpit.ts:61](https://github.com/ivandotv/pumpit/blob/73b3cd4/src/pumpit.ts#L61)
 
 ___
 
@@ -281,4 +281,4 @@ ___
 
 #### Defined in
 
-[pumpit.ts:88](https://github.com/ivandotv/pumpit/blob/2c93450/src/pumpit.ts#L88)
+[pumpit.ts:89](https://github.com/ivandotv/pumpit/blob/73b3cd4/src/pumpit.ts#L89)
