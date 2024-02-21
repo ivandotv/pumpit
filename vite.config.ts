@@ -15,5 +15,5 @@ export default defineConfig({
     minifyWhitespace: true,
     legalComments: 'none'
   },
-  plugins: [dts()]
+  plugins: [dts({ rollupTypes: true })]
 })
