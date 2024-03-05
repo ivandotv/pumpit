@@ -43,7 +43,7 @@
     "build": "shx rm -rf ./dist && NODE_ENV=production microbundle --tsconfig ./tsconfig.json  --format modern,cjs  --output dist/index.js && shx cp  ./dist/index.d.ts ./dist/index.d.cts",
     "gen:docs": "rm -rf ./docs/api && typedoc --options typedoc.cjs  --plugin typedoc-plugin-markdown",
     "prepublishOnly": "pnpm build",
-    "prepare": "husky install",
+    "prepare": "lefthook install",
     "release": "pnpm run prepublishOnly && pnpm changeset publish"
   },
   "repository": {
@@ -59,8 +59,7 @@
     "@vitest/coverage-v8": "^1.1.0",
     "biome": "0.3.3",
     "eslint": "^8.56.0",
-    "husky": "^8.0.3",
-    "lint-staged": "^15.2.0",
+    "lefthook": "^1.6.5",
     "microbundle": "^0.15.1",
     "prettier": "^3.1.1",
     "shx": "^0.3.4",
