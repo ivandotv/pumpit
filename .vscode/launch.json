@@ -5,27 +5,27 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Current test file",
+      "name": "Debug Current Test File",
       "type": "node",
       "request": "launch",
-      "cwd": "${workspaceRoot}",
-      "program": "${workspaceRoot}/node_modules/vitest/vitest.mjs",
-      "env": {
-        "JEST_DEBUG": "true"
-      },
-      "args": [
-        "${relativeFile}",
-        "--no-cache",
-        "--watchAll=false",
-        "--runInBand"
-      ],
-      "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen",
-      "smartStep": true,
+      "autoAttachChildProcesses": true,
       "skipFiles": [
-        "${workspaceFolder}/node_modules/**/*.js",
-        "<node_internals>/**/*.js"
-      ]
+        "<node_internals>/**",
+        "**/node_modules/**"
+      ],
+      "program": "${workspaceRoot}/node_modules/vitest/vitest.mjs",
+      "args": [
+        "run",
+        "${relativeFile}"
+      ],
+      "env": {
+        "VITEST_DEBUG": "true"
+      },
+      "runtimeArgs": [
+        "--no-lazy"
+      ],
+      "smartStep": true,
+      "console": "integratedTerminal"
     }
   ]
 }

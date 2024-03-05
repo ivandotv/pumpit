@@ -1,14 +1,14 @@
-import { describe, expect, test } from 'vitest'
-import { PumpIt, SCOPE } from '../../pumpit'
+import { describe, expect, test } from "vitest"
+import { PumpIt, SCOPE } from "../../pumpit"
 
-describe('Class with scope: request', () => {
-  test('return the same instance for a single resolve call', () => {
+describe("Class with scope: request", () => {
+  test("return the same instance for a single resolve call", () => {
     const pumpIt = new PumpIt()
 
-    const keyA = 'key_a'
-    const keyB = 'key_b'
-    const keyC = 'key_c'
-    const request_key = 'request'
+    const keyA = "key_a"
+    const keyB = "key_b"
+    const keyC = "key_c"
+    const request_key = "request"
 
     class RequestTest {}
     class TestA {
@@ -27,7 +27,7 @@ describe('Class with scope: request', () => {
       constructor(
         public keyA: TestA,
         public keyB: TestB,
-        public request: RequestTest
+        public request: RequestTest,
       ) {}
     }
 
@@ -48,9 +48,9 @@ describe('Class with scope: request', () => {
     expect(instanceC.keyA.request).toBe(instanceC.keyB.request)
   })
 
-  test('multiple resolve calls return different instances', () => {
+  test("multiple resolve calls return different instances", () => {
     const pumpIt = new PumpIt()
-    const key = 'some_key'
+    const key = "some_key"
     class TestA {}
 
     pumpIt.bindClass(key, TestA, { scope: SCOPE.REQUEST })
@@ -62,11 +62,11 @@ describe('Class with scope: request', () => {
     expect(instanceA).not.toBe(instanceB)
   })
 
-  test('multiple resolve calls return different injected instances', () => {
+  test("multiple resolve calls return different injected instances", () => {
     const pumpIt = new PumpIt()
 
-    const keyC = 'key_c'
-    const request_key = 'request'
+    const keyC = "key_c"
+    const request_key = "request"
 
     class RequestTest {}
     class TestC {

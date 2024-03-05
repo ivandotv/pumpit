@@ -1,15 +1,15 @@
-import { describe, expect, test, vi } from 'vitest'
-import { PumpIt, SCOPE } from '../../pumpit'
-import { transform } from '../../utils'
+import { describe, expect, test, vi } from "vitest"
+import { PumpIt, SCOPE } from "../../pumpit"
+import { transform } from "../../utils"
 
-describe('Class transform', () => {
-  describe('Before resolve', () => {
-    test('receives correct parameters', () => {
+describe("Class transform", () => {
+  describe("Before resolve", () => {
+    test("receives correct parameters", () => {
       const pumpIt = new PumpIt()
-      const keyA = 'key_a'
+      const keyA = "key_a"
       const keyB = Symbol()
-      const valueB = { name: 'Ivan' }
-      const resolveCallbackData = { foo: 'bar' }
+      const valueB = { name: "Ivan" }
+      const resolveCallbackData = { foo: "bar" }
 
       class TestA {
         static inject = [keyB]
@@ -30,23 +30,23 @@ describe('Class transform', () => {
           expect(ctx.data).toBe(resolveCallbackData)
 
           return new constructor(...deps)
-        }
+        },
       })
 
       const instance = pumpIt.resolve<TestA>(keyA, {
-        data: resolveCallbackData
+        data: resolveCallbackData,
       })
 
       expect.assertions(5)
       expect(instance.keyB).toBe(valueB)
     })
 
-    test('receives correct parameters after injection transformation', () => {
+    test("receives correct parameters after injection transformation", () => {
       const pumpIt = new PumpIt()
-      const keyA = 'key_a'
+      const keyA = "key_a"
       const keyB = Symbol()
-      const valueB = { name: 'Ivan' }
-      const transformedValue = { name: 'Marco' }
+      const valueB = { name: "Ivan" }
+      const transformedValue = { name: "Marco" }
 
       class TestA {
         static inject = transform([keyB], (_keyB) => {
@@ -67,7 +67,7 @@ describe('Class transform', () => {
           expect(deps).toEqual([transformedValue])
 
           return new constructor(...deps)
-        }
+        },
       })
 
       const instance = pumpIt.resolve<TestA>(keyA)
@@ -76,13 +76,13 @@ describe('Class transform', () => {
       expect(instance.keyB).toBe(transformedValue)
     })
 
-    test('Creates new instance', () => {
+    test("Creates new instance", () => {
       const pumpIt = new PumpIt()
-      const keyA = 'key_a'
+      const keyA = "key_a"
       const keyB = Symbol()
 
-      const valueB = { name: 'Ivan' }
-      const substituteValue = { name: 'Marco' }
+      const valueB = { name: "Ivan" }
+      const substituteValue = { name: "Marco" }
       class TestA {
         static inject = [keyB]
 
@@ -93,7 +93,7 @@ describe('Class transform', () => {
       pumpIt.bindClass(keyA, TestA, {
         beforeResolve: ({ value: constructor }) => {
           return new constructor(substituteValue)
-        }
+        },
       })
 
       const instance = pumpIt.resolve<TestA>(keyA)
@@ -104,7 +104,7 @@ describe('Class transform', () => {
 
     test('Runs once when the scope is "singleton"', () => {
       const pumpIt = new PumpIt()
-      const keyA = 'key_a'
+      const keyA = "key_a"
       const keyB = Symbol()
       const keyC = Symbol()
 
@@ -137,7 +137,7 @@ describe('Class transform', () => {
 
           return new constructor()
         },
-        scope: SCOPE.SINGLETON
+        scope: SCOPE.SINGLETON,
       })
 
       const instance = pumpIt.resolve<TestA>(keyA)
@@ -152,7 +152,7 @@ describe('Class transform', () => {
 
     test('Runs every time when the scope is "transient"', () => {
       const pumpIt = new PumpIt()
-      const keyA = 'key_a'
+      const keyA = "key_a"
       const keyB = Symbol()
       const keyC = Symbol()
 
@@ -177,7 +177,7 @@ describe('Class transform', () => {
 
         constructor(
           public keyA: TestA,
-          public keyB: TestB
+          public keyB: TestB,
         ) {}
       }
 
@@ -189,7 +189,7 @@ describe('Class transform', () => {
 
           return new constructor()
         },
-        scope: SCOPE.TRANSIENT
+        scope: SCOPE.TRANSIENT,
       })
 
       pumpIt.resolve<TestA>(keyA)
@@ -201,7 +201,7 @@ describe('Class transform', () => {
 
     test('Run once per resolve request when this scope is "request"', () => {
       const pumpIt = new PumpIt()
-      const keyA = 'key_a'
+      const keyA = "key_a"
       const keyB = Symbol()
       const keyC = Symbol()
 
@@ -226,7 +226,7 @@ describe('Class transform', () => {
 
         constructor(
           public keyA: TestA,
-          public keyB: TestB
+          public keyB: TestB,
         ) {}
       }
 
@@ -238,7 +238,7 @@ describe('Class transform', () => {
 
           return new constructor()
         },
-        scope: SCOPE.REQUEST
+        scope: SCOPE.REQUEST,
       })
 
       pumpIt.resolve<TestA>(keyA)
@@ -248,13 +248,13 @@ describe('Class transform', () => {
       expect(resolveCount).toBe(2)
     })
   })
-  describe('After resolve', () => {
-    test('Receives correct parameters', () => {
+  describe("After resolve", () => {
+    test("Receives correct parameters", () => {
       const pumpIt = new PumpIt()
-      const keyA = 'key_a'
+      const keyA = "key_a"
       const keyB = Symbol()
-      const valueB = { name: 'Ivan' }
-      const resolveCallbackData = { foo: 'bar' }
+      const valueB = { name: "Ivan" }
+      const resolveCallbackData = { foo: "bar" }
 
       class TestA {
         static inject = [keyB]
@@ -266,7 +266,7 @@ describe('Class transform', () => {
 
       pumpIt.bindValue(keyB, valueB)
       pumpIt.bindClass(keyA, TestA, {
-        afterResolve
+        afterResolve,
       })
 
       const instance = pumpIt.resolve<TestA>(keyA, resolveCallbackData)
@@ -274,13 +274,13 @@ describe('Class transform', () => {
       expect(afterResolve).toHaveBeenCalledWith({
         container: pumpIt,
         value: instance,
-        ctx: resolveCallbackData
+        ctx: resolveCallbackData,
       })
     })
 
     test('Runs once when the scope is "singleton"', () => {
       const pumpIt = new PumpIt()
-      const keyA = 'key_a'
+      const keyA = "key_a"
       const keyB = Symbol()
       const keyC = Symbol()
 
@@ -311,7 +311,7 @@ describe('Class transform', () => {
         afterResolve: () => {
           resolveCount = resolveCount + 1
         },
-        scope: SCOPE.SINGLETON
+        scope: SCOPE.SINGLETON,
       })
 
       pumpIt.resolve<TestA>(keyA)
@@ -324,7 +324,7 @@ describe('Class transform', () => {
 
     test('Runs every time when the scope is "transient"', () => {
       const pumpIt = new PumpIt()
-      const keyA = 'key_a'
+      const keyA = "key_a"
       const keyB = Symbol()
       const keyC = Symbol()
 
@@ -349,7 +349,7 @@ describe('Class transform', () => {
 
         constructor(
           public keyA: TestA,
-          public keyB: TestB
+          public keyB: TestB,
         ) {}
       }
 
@@ -359,7 +359,7 @@ describe('Class transform', () => {
         afterResolve: () => {
           resolveCount = resolveCount + 1
         },
-        scope: SCOPE.TRANSIENT
+        scope: SCOPE.TRANSIENT,
       })
 
       pumpIt.resolve<TestA>(keyA)
@@ -371,7 +371,7 @@ describe('Class transform', () => {
 
     test('Runs once per resolve request when the scope is "request"', () => {
       const pumpIt = new PumpIt()
-      const keyA = 'key_a'
+      const keyA = "key_a"
       const keyB = Symbol()
       const keyC = Symbol()
 
@@ -396,7 +396,7 @@ describe('Class transform', () => {
 
         constructor(
           public keyA: TestA,
-          public keyB: TestB
+          public keyB: TestB,
         ) {}
       }
 
@@ -406,7 +406,7 @@ describe('Class transform', () => {
         afterResolve: () => {
           resolveCount = resolveCount + 1
         },
-        scope: SCOPE.REQUEST
+        scope: SCOPE.REQUEST,
       })
 
       pumpIt.resolve<TestA>(keyA)

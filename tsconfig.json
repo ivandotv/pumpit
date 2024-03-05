@@ -1,25 +1,30 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "useDefineForClassFields": true,
     "module": "ESNext",
-    "lib": ["ESNext"],
-    "skipLibCheck": true,
-
-    /* Bundler mode */
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-
-    /* Linting */
+    // "lib": ["ESNext"],
     "strict": true,
+    "noImplicitOverride": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "stripInternal": true,
+    "esModuleInterop": true,
+    "skipDefaultLibCheck": false,
+    "skipLibCheck": false,
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "moduleResolution": "node",
+    "isolatedModules": true,
+    "incremental": true,
+    "jsx": "preserve",
+    "baseUrl": ".",
+    "forceConsistentCasingInFileNames": true
   },
-  "include": ["src"],
+  "include": [
+    "src/**/*"
+  ],
   "exclude": [
     "**/node_modules",
     "src/**/__tests__",

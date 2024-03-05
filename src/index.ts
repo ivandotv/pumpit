@@ -1,5 +1,5 @@
-export * from './pumpit'
-export * from './types'
+export * from "./pumpit"
+export * from "./types"
 
-import { get, transform } from './utils'
+import { get, transform } from "./utils"
 export { get, transform }

@@ -1,11 +1,9 @@
 name: Test
-concurrency:
-  group: tests-${{ github.ref || github.run_id }}
-  cancel-in-progress: true
 on:
   push:
     branches:
-      - '*'
+      - main
+      - develop
   pull_request:
     branches:
       - main
@@ -16,31 +14,39 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: ['18', '20', '21']
+        node: [ '21']
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Cache .pnpm-store
-        uses: actions/cache@v3
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-node${{ matrix.node }}-${{ hashFiles('**/pnpm-lock.yaml') }}
 
       - name: Setup node
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
 
-      - name: Install dependencies
-        uses: pnpm/action-setup@v2.4.0
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3.0.0
         with:
-          version: 8.12.1
-          run_install: true
+          version: 8
+          run_install: false
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+           echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ matrix.node }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+
+      - name: Install dependencies
+        run: pnpm install
 
       - name: Lint source
         run: |
-          pnpm lint:ci
+          pnpm check:ci
 
       - name: Build package
         run: |
@@ -52,15 +58,8 @@ jobs:
         env:
           CI: true
 
-      - name: Generate Code Coverage
-        # only when running in node v16
-        if: matrix.node == 20
-        uses: codecov/codecov-action@v3
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-
       - name: 'Consume changesets'
-        if: github.event_name == 'push' && github.repository == 'ivandotv/pumpit' && matrix.node == 20 && github.ref == 'refs/heads/main'
+        if: github.event_name == 'push' && github.repository == 'ivandotv/pumpit' && matrix.node == 21 && github.ref == 'refs/heads/main'
         uses: changesets/action@v1
         id: 'changesets'
         with:
@@ -71,13 +70,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: 'Generate docs'
-        if: steps.changesets.outputs.published == 'true'
-        run: pnpm gen:docs
-
-      - name: Commit docs
-        if: steps.changesets.outputs.published == 'true'
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: 'Generate docs'

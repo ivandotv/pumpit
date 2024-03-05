@@ -1,14 +1,14 @@
-import { describe, expect, test, vi } from 'vitest'
-import { PumpIt, SCOPE } from '../../pumpit'
+import { describe, expect, test, vi } from "vitest"
+import { PumpIt, SCOPE } from "../../pumpit"
 
-describe('Resolve transform factory', () => {
-  describe('Before resolve', () => {
-    test('receives correct parameters', () => {
+describe("Resolve transform factory", () => {
+  describe("Before resolve", () => {
+    test("receives correct parameters", () => {
       const pumpIt = new PumpIt()
-      const keyA = 'key_a'
+      const keyA = "key_a"
       const keyB = Symbol()
-      const valueB = { name: 'Ivan' }
-      const callbackResolveData = { foo: 'bar' }
+      const valueB = { name: "Ivan" }
+      const callbackResolveData = { foo: "bar" }
 
       const factoryValue = (keyB: typeof valueB) => keyB
 
@@ -26,28 +26,28 @@ describe('Resolve transform factory', () => {
           expect(ctx.data).toBe(callbackResolveData)
 
           return factory(...deps)
-        }
+        },
       })
 
       const resolved = pumpIt.resolve<typeof factoryValue>(keyA, {
-        data: callbackResolveData
+        data: callbackResolveData,
       })
 
       expect.assertions(5)
       expect(resolved).toBe(valueB)
     })
 
-    test('returns custom value', () => {
+    test("returns custom value", () => {
       const pumpIt = new PumpIt()
-      const keyA = 'key_a'
-      const substituteValue = { name: 'Marco' }
+      const keyA = "key_a"
+      const substituteValue = { name: "Marco" }
 
       const factoryValue = () => {}
 
       pumpIt.bindFactory(keyA, factoryValue, {
         beforeResolve: () => {
           return substituteValue
-        }
+        },
       })
 
       const instance = pumpIt.resolve(keyA)
@@ -57,7 +57,7 @@ describe('Resolve transform factory', () => {
 
     test('runs once when the scope is "singleton"', () => {
       const pumpIt = new PumpIt()
-      const keyA = 'key_a'
+      const keyA = "key_a"
       const keyB = Symbol()
       const keyC = Symbol()
 
@@ -84,7 +84,7 @@ describe('Resolve transform factory', () => {
         beforeResolve: ({ value: factory }) => {
           return factory()
         },
-        scope: SCOPE.SINGLETON
+        scope: SCOPE.SINGLETON,
       })
 
       const factoryResolved = pumpIt.resolve<ReturnType<typeof factory>>(keyA)
@@ -98,7 +98,7 @@ describe('Resolve transform factory', () => {
 
     test('runs every time when the scope is "transient"', () => {
       const pumpIt = new PumpIt()
-      const keyA = 'key_a'
+      const keyA = "key_a"
       const keyB = Symbol()
       const keyC = Symbol()
 
@@ -117,7 +117,7 @@ describe('Resolve transform factory', () => {
 
         constructor(
           public keyA: typeof factory,
-          public keyB: TestB
+          public keyB: TestB,
         ) {}
       }
 
@@ -128,7 +128,7 @@ describe('Resolve transform factory', () => {
           beforeResolve: ({ value: factory }) => {
             return factory()
           },
-          scope: SCOPE.TRANSIENT
+          scope: SCOPE.TRANSIENT,
         })
 
       pumpIt.resolve<TestC>(keyC)
@@ -138,7 +138,7 @@ describe('Resolve transform factory', () => {
 
     test('runs once per resolve request when the scope is "request"', () => {
       const pumpIt = new PumpIt()
-      const keyA = 'key_a'
+      const keyA = "key_a"
       const keyB = Symbol()
       const keyC = Symbol()
 
@@ -157,7 +157,7 @@ describe('Resolve transform factory', () => {
 
         constructor(
           public keyA: typeof factory,
-          public keyB: TestB
+          public keyB: TestB,
         ) {}
       }
 
@@ -168,7 +168,7 @@ describe('Resolve transform factory', () => {
           beforeResolve: ({ value: factory }) => {
             return factory()
           },
-          scope: SCOPE.REQUEST
+          scope: SCOPE.REQUEST,
         })
 
       pumpIt.resolve<TestC>(keyC)
@@ -176,18 +176,18 @@ describe('Resolve transform factory', () => {
       expect(resolveCount).toBe(1)
     })
   })
-  describe('After resolve', () => {
-    test('receives correct parameters', () => {
+  describe("After resolve", () => {
+    test("receives correct parameters", () => {
       const pumpIt = new PumpIt()
-      const keyA = 'key_a'
+      const keyA = "key_a"
 
-      const resolveCallbackData = { foo: 'bar' }
+      const resolveCallbackData = { foo: "bar" }
       const afterResolve = vi.fn()
 
       const factoryReturnValue = {}
       const factory = () => factoryReturnValue
       pumpIt.bindFactory(keyA, factory, {
-        afterResolve
+        afterResolve,
       })
 
       pumpIt.resolve(keyA, { data: resolveCallbackData })
@@ -196,14 +196,14 @@ describe('Resolve transform factory', () => {
         container: pumpIt,
         value: factoryReturnValue,
         ctx: {
-          data: resolveCallbackData
-        }
+          data: resolveCallbackData,
+        },
       })
     })
 
     test('runs once when the scope is "singleton"', () => {
       const pumpIt = new PumpIt()
-      const keyA = 'key_a'
+      const keyA = "key_a"
       const keyB = Symbol()
       const keyC = Symbol()
 
@@ -226,7 +226,7 @@ describe('Resolve transform factory', () => {
       pumpIt.bindClass(keyC, TestC)
       pumpIt.bindFactory(keyA, factory, {
         afterResolve,
-        scope: SCOPE.SINGLETON
+        scope: SCOPE.SINGLETON,
       })
 
       pumpIt.resolve<ReturnType<typeof factory>>(keyA)
@@ -238,7 +238,7 @@ describe('Resolve transform factory', () => {
 
     test('runs every time when the scope is "transient"', () => {
       const pumpIt = new PumpIt()
-      const keyA = 'key_a'
+      const keyA = "key_a"
       const keyB = Symbol()
       const keyC = Symbol()
 
@@ -255,7 +255,7 @@ describe('Resolve transform factory', () => {
 
         constructor(
           public keyA: typeof factory,
-          public keyB: TestB
+          public keyB: TestB,
         ) {}
       }
 
@@ -264,7 +264,7 @@ describe('Resolve transform factory', () => {
         .bindClass(keyC, TestC)
         .bindFactory(keyA, factory, {
           afterResolve,
-          scope: SCOPE.TRANSIENT
+          scope: SCOPE.TRANSIENT,
         })
 
       pumpIt.resolve<TestC>(keyC)
@@ -274,7 +274,7 @@ describe('Resolve transform factory', () => {
 
     test('runs once per resolve request when the scope is "request"', () => {
       const pumpIt = new PumpIt()
-      const factoryKey = 'key_a'
+      const factoryKey = "key_a"
       const keyB = Symbol()
       const keyC = Symbol()
 
@@ -291,7 +291,7 @@ describe('Resolve transform factory', () => {
 
         constructor(
           public factoryKey: typeof factory,
-          public keyB: TestB
+          public keyB: TestB,
         ) {}
       }
 
@@ -300,7 +300,7 @@ describe('Resolve transform factory', () => {
         .bindClass(keyC, TestC)
         .bindFactory(factoryKey, factory, {
           afterResolve,
-          scope: SCOPE.REQUEST
+          scope: SCOPE.REQUEST,
         })
 
       pumpIt.resolve<TestC>(keyC)
