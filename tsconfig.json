@@ -12,14 +12,12 @@
     "stripInternal": true,
     "esModuleInterop": true,
     "skipDefaultLibCheck": false,
-    "skipLibCheck": false,
+    "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
-    "moduleResolution": "node",
+    "moduleResolution": "Bundler",
     "isolatedModules": true,
     "incremental": true,
-    "jsx": "preserve",
-    "baseUrl": ".",
     "forceConsistentCasingInFileNames": true
   },
   "include": [
