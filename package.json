@@ -38,7 +38,7 @@
     "lint:ci": "eslint \"src/**/\"",
     "test": "vitest run --coverage",
     "test:watch": "vitest",
-    "build": "tsc && vite build && shx cp  ./dist/index.d.ts ./dist/index.d.cts",
+    "build": "shx rm -rf ./dist && NODE_ENV=production microbundle --tsconfig ./tsconfig.json  --format modern,cjs  --output dist/index.js && shx cp  ./dist/index.d.ts ./dist/index.d.cts",
     "gen:docs": "rm -rf ./docs/api && typedoc --options typedoc.cjs  --plugin typedoc-plugin-markdown",
     "prepublishOnly": "pnpm build",
     "prepare": "husky install",
@@ -56,7 +56,6 @@
     "@changesets/cli": "^2.27.1",
     "@typescript-eslint/eslint-plugin": "^6.15.0",
     "@typescript-eslint/parser": "^6.15.0",
-    "@vitest/coverage-istanbul": "^1.1.0",
     "@vitest/coverage-v8": "^1.1.0",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
@@ -65,13 +64,12 @@
     "eslint-plugin-tsdoc": "^0.2.17",
     "husky": "^8.0.3",
     "lint-staged": "^15.2.0",
+    "microbundle": "^0.15.1",
     "prettier": "^3.1.1",
     "shx": "^0.3.4",
     "typedoc": "^0.25.4",
     "typedoc-plugin-markdown": "^3.17.1",
     "typescript": "^5.3.3",
-    "vite": "^5.0.10",
-    "vite-plugin-dts": "^3.6.4",
     "vitest": "^1.1.0"
   }
 }
