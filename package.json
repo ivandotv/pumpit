@@ -34,7 +34,6 @@
   ],
   "sideEffects": false,
   "scripts": {
-    "lint:ci": "eslint \"src/**/\"",
     "test": "vitest run --coverage",
     "test:watch": "vitest",
     "lint": "biome lint ./src",
