@@ -1,5 +1,6 @@
-export * from "./pumpit"
-export * from "./types"
+//TS problem: https://github.com/microsoft/TypeScript/issues/50152]
+export * from "./pumpit.js"
+export * from "./types.js"
 
-import { get, transform } from "./utils"
+import { get, transform } from "./utils.js"
 export { get, transform }
