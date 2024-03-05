@@ -1,5 +1,11 @@
 # pumpa
 
+## 7.0.2
+
+### Patch Changes
+
+- c7e4157: ts config import issue
+
 ## 7.0.1
 
 ### Patch Changes
