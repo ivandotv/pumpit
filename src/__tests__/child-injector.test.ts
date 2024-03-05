@@ -1,8 +1,8 @@
-import { describe, expect, test } from 'vitest'
-import { PumpIt, SCOPE } from '../pumpit'
+import { describe, expect, test } from "vitest"
+import { PumpIt, SCOPE } from "../pumpit"
 
-describe('Child container', () => {
-  test('create child container', () => {
+describe("Child container", () => {
+  test("create child container", () => {
     const parent = new PumpIt()
     const child = parent.child()
 
@@ -11,13 +11,13 @@ describe('Child container', () => {
     expect(child.getParent()).toBe(parent)
   })
 
-  test('child container inherits parent values', () => {
+  test("child container inherits parent values", () => {
     const parent = new PumpIt()
     const child = parent.child()
     const classKey = Symbol()
     const factoryKey = Symbol()
     const valueKey = Symbol()
-    const factoryResult = 'hello'
+    const factoryResult = "hello"
     const factory = () => () => factoryResult
     const value = {}
     class TestA {}
@@ -34,7 +34,7 @@ describe('Child container', () => {
     expect(resolveValue).toBe(value)
   })
 
-  test('child container keys shadow parent keys', () => {
+  test("child container keys shadow parent keys", () => {
     const parent = new PumpIt()
     const child = parent.child()
     const classKey = Symbol()
@@ -50,7 +50,7 @@ describe('Child container', () => {
     expect(resolveClass).toBeInstanceOf(ChildClass)
   })
 
-  test('removing the value from child container does not remove it from the parent', () => {
+  test("removing the value from child container does not remove it from the parent", () => {
     const parent = new PumpIt()
     const child = parent.child()
     const classKey = Symbol()
@@ -67,18 +67,18 @@ describe('Child container', () => {
     expect(parent.resolve(classKey)).toBeInstanceOf(ParentClass)
   })
 
-  test('if the value is not present at all, return false', () => {
+  test("if the value is not present at all, return false", () => {
     const parent = new PumpIt()
     const child = parent.child()
 
-    expect(child.has('no_found', true)).toBe(false)
+    expect(child.has("no_found", true)).toBe(false)
   })
 
-  describe('Singletons', () => {
-    test('when the key is on the parent, singleton is created on the parent', () => {
+  describe("Singletons", () => {
+    test("when the key is on the parent, singleton is created on the parent", () => {
       const parent = new PumpIt()
       const child = parent.child()
-      const key = Symbol('key')
+      const key = Symbol("key")
 
       class TestA {
         static count = 0
@@ -87,7 +87,7 @@ describe('Child container', () => {
           TestA.count++
         }
       }
-      parent.bindClass(key, TestA, { scope: 'SINGLETON' })
+      parent.bindClass(key, TestA, { scope: "SINGLETON" })
 
       const childInstance = child.resolve<TestA>(key)
       const parentInstance = parent.resolve<TestA>(key)
@@ -96,10 +96,10 @@ describe('Child container', () => {
       expect(TestA.count).toBe(1)
     })
 
-    test('when the key is on the child, singleton is created on the child', () => {
+    test("when the key is on the child, singleton is created on the child", () => {
       const parent = new PumpIt()
       const child = parent.child()
-      const key = Symbol('key')
+      const key = Symbol("key")
 
       class TestA {
         static count = 0
@@ -108,8 +108,8 @@ describe('Child container', () => {
           TestA.count++
         }
       }
-      parent.bindClass(key, TestA, { scope: 'SINGLETON' })
-      child.bindClass(key, TestA, { scope: 'SINGLETON' })
+      parent.bindClass(key, TestA, { scope: "SINGLETON" })
+      child.bindClass(key, TestA, { scope: "SINGLETON" })
 
       const childInstance = child.resolve<TestA>(key)
       const parentInstance = parent.resolve<TestA>(key)
@@ -118,32 +118,32 @@ describe('Child container', () => {
       expect(TestA.count).toBe(2)
     })
 
-    test('dependency is picked up from child', () => {
+    test("dependency is picked up from child", () => {
       const parentContainer = new PumpIt()
       const childContainer = parentContainer.child()
-      const parentConfig = { name: 'Ivan' }
-      const childConfig = { name: 'Leonardo' }
+      const parentConfig = { name: "Ivan" }
+      const childConfig = { name: "Leonardo" }
 
       class TestA {
-        static inject = ['config']
+        static inject = ["config"]
 
         constructor(public config: any) {}
       }
 
       parentContainer.bindClass(TestA, TestA)
-      parentContainer.bindValue('config', parentConfig)
-      childContainer.bindValue('config', childConfig)
+      parentContainer.bindValue("config", parentConfig)
+      childContainer.bindValue("config", childConfig)
 
       const instance = childContainer.resolve<TestA>(TestA)
 
       expect(instance.config).toBe(childConfig)
     })
 
-    describe('Container scoped (CONTAINER_SINGLETON)', () => {
-      test('when the the key is on the parent, singleton is created on the child', () => {
+    describe("Container scoped (CONTAINER_SINGLETON)", () => {
+      test("when the the key is on the parent, singleton is created on the child", () => {
         const parent = new PumpIt()
         const child = parent.child()
-        const key = Symbol('key')
+        const key = Symbol("key")
 
         class TestA {
           static count = 0
@@ -163,7 +163,7 @@ describe('Child container', () => {
         expect(TestA.count).toBe(2)
       })
 
-      test('when the dependency is created on the parent, child will still create a new singleton instance', () => {
+      test("when the dependency is created on the parent, child will still create a new singleton instance", () => {
         const parent = new PumpIt()
         const child = parent.child()
 
@@ -186,14 +186,14 @@ describe('Child container', () => {
         expect(childInstanceTwo).toBe(childInstance)
       })
 
-      test('parent value resolves with child dependency', () => {
+      test("parent value resolves with child dependency", () => {
         const parentContainer = new PumpIt()
         const childContainer = parentContainer.child()
-        const parentConfig = { name: 'Ivan' }
-        const childConfig = { name: 'Leonardo' }
+        const parentConfig = { name: "Ivan" }
+        const childConfig = { name: "Leonardo" }
 
         class TestB {
-          static inject = ['config']
+          static inject = ["config"]
 
           constructor(public config: any) {}
         }
@@ -205,16 +205,16 @@ describe('Child container', () => {
         }
 
         class TestBShadow {
-          static inject = ['config']
+          static inject = ["config"]
         }
 
         parentContainer.bindClass(TestA, TestA)
         parentContainer.bindClass(TestB, TestB)
-        parentContainer.bindValue('config', parentConfig)
+        parentContainer.bindValue("config", parentConfig)
 
-        childContainer.bindValue('config', childConfig)
+        childContainer.bindValue("config", childConfig)
         childContainer.bindClass(TestB, TestBShadow, {
-          scope: SCOPE.CONTAINER_SINGLETON
+          scope: SCOPE.CONTAINER_SINGLETON,
         })
 
         const instance = childContainer.resolve<TestA>(TestA)
@@ -222,23 +222,23 @@ describe('Child container', () => {
         expect(instance.config).toBeInstanceOf(TestBShadow)
       })
 
-      test('dependency is picked up from parent', () => {
+      test("dependency is picked up from parent", () => {
         const parentContainer = new PumpIt()
         const childContainer = parentContainer.child()
-        const parentConfig = { name: 'Ivan' }
-        const childConfig = { name: 'Leonardo' }
+        const parentConfig = { name: "Ivan" }
+        const childConfig = { name: "Leonardo" }
 
         class TestA {
-          static inject = ['config']
+          static inject = ["config"]
 
           constructor(public config: any) {}
         }
 
         parentContainer.bindClass(TestA, TestA, {
-          scope: SCOPE.CONTAINER_SINGLETON
+          scope: SCOPE.CONTAINER_SINGLETON,
         })
-        parentContainer.bindValue('config', parentConfig)
-        childContainer.bindValue('config', childConfig)
+        parentContainer.bindValue("config", parentConfig)
+        childContainer.bindValue("config", childConfig)
 
         const instance = childContainer.resolve<TestA>(TestA)
 
@@ -246,12 +246,12 @@ describe('Child container', () => {
       })
     })
 
-    describe('Resolve dependency from the parent', () => {
-      test('singleton', () => {
+    describe("Resolve dependency from the parent", () => {
+      test("singleton", () => {
         const parent = new PumpIt()
         const child = parent.child()
-        const keyA = Symbol('keyA')
-        const keyB = Symbol('keyB')
+        const keyA = Symbol("keyA")
+        const keyB = Symbol("keyB")
 
         class TestA {
           static count = 0
@@ -271,8 +271,8 @@ describe('Child container', () => {
           }
         }
 
-        parent.bindClass(keyA, TestA, { scope: 'SINGLETON' })
-        child.bindClass(keyB, TestB, { scope: 'SINGLETON' })
+        parent.bindClass(keyA, TestA, { scope: "SINGLETON" })
+        child.bindClass(keyB, TestB, { scope: "SINGLETON" })
 
         const childB = child.resolve<TestB>(keyB)
         const parentA = parent.resolve<TestA>(keyA)
@@ -282,11 +282,11 @@ describe('Child container', () => {
         expect(childB.keyA).toBe(parentA)
       })
 
-      test('container scoped singleton', () => {
+      test("container scoped singleton", () => {
         const parent = new PumpIt()
         const child = parent.child()
-        const keyA = Symbol('keyA')
-        const keyB = Symbol('keyB')
+        const keyA = Symbol("keyA")
+        const keyB = Symbol("keyB")
 
         class TestA {
           static count = 0
@@ -307,7 +307,7 @@ describe('Child container', () => {
         }
 
         parent.bindClass(keyA, TestA, { scope: SCOPE.CONTAINER_SINGLETON })
-        child.bindClass(keyB, TestB, { scope: 'SINGLETON' })
+        child.bindClass(keyB, TestB, { scope: "SINGLETON" })
 
         const childB = child.resolve<TestB>(keyB)
         //second resolve

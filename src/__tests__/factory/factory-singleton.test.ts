@@ -1,10 +1,10 @@
-import { describe, expect, test } from 'vitest'
-import { PumpIt, SCOPE } from '../../pumpit'
+import { describe, expect, test } from "vitest"
+import { PumpIt, SCOPE } from "../../pumpit"
 
-describe('Factory with scope: singleton', () => {
-  test('same factory reference is always returned', () => {
+describe("Factory with scope: singleton", () => {
+  test("same factory reference is always returned", () => {
     const pumpIt = new PumpIt()
-    const key = 'some_key'
+    const key = "some_key"
 
     let count = 0
 
@@ -27,11 +27,11 @@ describe('Factory with scope: singleton', () => {
     expect(instanceA).toBe(instanceB)
   })
 
-  test('can register singleton with dependencies', () => {
+  test("can register singleton with dependencies", () => {
     const pumpIt = new PumpIt()
-    const key = 'some_key'
-    const keyB = 'key_b'
-    const keyC = 'key_c'
+    const key = "some_key"
+    const keyB = "key_b"
+    const keyC = "key_c"
     class TestB {}
     class TestC {}
 
@@ -45,7 +45,7 @@ describe('Factory with scope: singleton', () => {
         return {
           keyB,
           keyC,
-          count
+          count,
         }
       }
     }

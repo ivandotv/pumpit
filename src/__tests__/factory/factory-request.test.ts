@@ -1,14 +1,14 @@
-import { describe, expect, test } from 'vitest'
-import { PumpIt, SCOPE } from '../../pumpit'
+import { describe, expect, test } from "vitest"
+import { PumpIt, SCOPE } from "../../pumpit"
 
-describe('Factory with the scope: request', () => {
-  test('return the same factory for a single resolve call', () => {
+describe("Factory with the scope: request", () => {
+  test("return the same factory for a single resolve call", () => {
     const pumpIt = new PumpIt()
 
-    const keyA = 'key_a'
-    const keyB = 'key_b'
-    const keyC = 'key_c'
-    const request_key = 'request'
+    const keyA = "key_a"
+    const keyB = "key_b"
+    const keyC = "key_c"
+    const request_key = "request"
 
     let count = 0
 
@@ -39,7 +39,7 @@ describe('Factory with the scope: request', () => {
       constructor(
         public keyA: TestA,
         public keyB: TestB,
-        public request: Fn
+        public request: Fn,
       ) {}
     }
 
@@ -57,9 +57,9 @@ describe('Factory with the scope: request', () => {
     expect(instance.keyA.request).toBe(instance.keyB.request)
   })
 
-  test('multiple resolve calls return different factories', () => {
+  test("multiple resolve calls return different factories", () => {
     const pumpIt = new PumpIt()
-    const key = 'some_key'
+    const key = "some_key"
 
     let count = 0
 

@@ -1,18 +1,18 @@
-import { describe, expect, test, vi } from 'vitest'
-import { PumpIt } from '../pumpit'
+import { describe, expect, test, vi } from "vitest"
+import { PumpIt } from "../pumpit"
 
-describe('Unbind', () => {
-  test('throw if the key is not found', () => {
+describe("Unbind", () => {
+  test("throw if the key is not found", () => {
     const pumpIt = new PumpIt()
 
-    expect(() => pumpIt.unbind('does_not_exist')).toThrow('not found')
+    expect(() => pumpIt.unbind("does_not_exist")).toThrow("not found")
   })
 
-  test('unbind factory', () => {
+  test("unbind factory", () => {
     const pumpIt = new PumpIt()
-    const keyA = Symbol('key_a')
+    const keyA = Symbol("key_a")
 
-    const factoryReturnValue = 'hello'
+    const factoryReturnValue = "hello"
     const factory = () => () => factoryReturnValue
     factory.dispose = vi.fn()
 
@@ -24,7 +24,7 @@ describe('Unbind', () => {
 
   test('unbind factory and call the "dispose" method', () => {
     const pumpIt = new PumpIt()
-    const keyA = Symbol('key_a')
+    const keyA = Symbol("key_a")
 
     const disposeCall = vi.fn()
     const factory = () => {
@@ -35,19 +35,19 @@ describe('Unbind', () => {
       return functionToReturn
     }
 
-    pumpIt.bindFactory(keyA, factory, { scope: 'SINGLETON' })
+    pumpIt.bindFactory(keyA, factory, { scope: "SINGLETON" })
     pumpIt.resolve(keyA)
 
     pumpIt.unbind(keyA)
 
     expect(pumpIt.has(keyA)).toBe(false)
-    expect(() => pumpIt.resolve(keyA)).toThrow('not found')
+    expect(() => pumpIt.resolve(keyA)).toThrow("not found")
     expect(disposeCall).toHaveBeenCalled()
   })
 
   test('unbind factory and call the "dispose" callback', () => {
     const pumpIt = new PumpIt()
-    const keyA = Symbol('key_a')
+    const keyA = Symbol("key_a")
 
     const factory = () => {
       return {}
@@ -56,8 +56,8 @@ describe('Unbind', () => {
     const unbindCallback = vi.fn()
 
     pumpIt.bindFactory(keyA, factory, {
-      scope: 'SINGLETON',
-      unbind: unbindCallback
+      scope: "SINGLETON",
+      unbind: unbindCallback,
     })
 
     const factoryValue = pumpIt.resolve(keyA)
@@ -67,13 +67,13 @@ describe('Unbind', () => {
     expect(unbindCallback).toHaveBeenCalledWith({
       container: pumpIt,
       dispose: true,
-      value: factoryValue
+      value: factoryValue,
     })
   })
 
-  test('dispose callback value is empty when the bound value is not a singleton', () => {
+  test("dispose callback value is empty when the bound value is not a singleton", () => {
     const pumpIt = new PumpIt()
-    const keyA = Symbol('key_a')
+    const keyA = Symbol("key_a")
 
     const factory = () => {
       return {}
@@ -82,7 +82,7 @@ describe('Unbind', () => {
     const unbindCallback = vi.fn()
 
     pumpIt.bindFactory(keyA, factory, {
-      unbind: unbindCallback
+      unbind: unbindCallback,
     })
     pumpIt.resolve(keyA)
 
@@ -91,13 +91,13 @@ describe('Unbind', () => {
     expect(unbindCallback).toHaveBeenCalledWith({
       container: pumpIt,
       dispose: true,
-      value: undefined
+      value: undefined,
     })
   })
 
   test('unbind factory and do not call the "dispose" method', () => {
     const pumpIt = new PumpIt()
-    const keyA = Symbol('key_a')
+    const keyA = Symbol("key_a")
 
     const disposeCall = vi.fn()
     const factory = () => {
@@ -108,19 +108,19 @@ describe('Unbind', () => {
       return functionToReturn
     }
 
-    pumpIt.bindFactory(keyA, factory, { scope: 'SINGLETON' })
+    pumpIt.bindFactory(keyA, factory, { scope: "SINGLETON" })
     pumpIt.resolve(keyA)
 
     pumpIt.unbind(keyA, false)
 
     expect(pumpIt.has(keyA)).toBe(false)
-    expect(() => pumpIt.resolve(keyA)).toThrow('not found')
+    expect(() => pumpIt.resolve(keyA)).toThrow("not found")
     expect(disposeCall).not.toHaveBeenCalled()
   })
 
-  test('unbind class', () => {
+  test("unbind class", () => {
     const pumpIt = new PumpIt()
-    const keyA = Symbol('key_a')
+    const keyA = Symbol("key_a")
 
     class TestA {}
 
@@ -132,7 +132,7 @@ describe('Unbind', () => {
 
   test('unbind class and call the "dispose" method', () => {
     const pumpIt = new PumpIt()
-    const keyA = Symbol('key_a')
+    const keyA = Symbol("key_a")
 
     const disposeCall = vi.fn()
     class TestA {
@@ -141,27 +141,27 @@ describe('Unbind', () => {
       }
     }
 
-    pumpIt.bindClass(keyA, TestA, { scope: 'SINGLETON' })
+    pumpIt.bindClass(keyA, TestA, { scope: "SINGLETON" })
     pumpIt.resolve(keyA)
 
     pumpIt.unbind(keyA)
 
     expect(pumpIt.has(keyA)).toBe(false)
-    expect(() => pumpIt.resolve(keyA)).toThrow('not found')
+    expect(() => pumpIt.resolve(keyA)).toThrow("not found")
     expect(disposeCall).toHaveBeenCalled()
   })
 
   test('unbind class and call the "dispose" callback', () => {
     const pumpIt = new PumpIt()
-    const keyA = Symbol('key_a')
+    const keyA = Symbol("key_a")
 
     class TestA {}
 
     const unbindCallback = vi.fn()
 
     pumpIt.bindClass(keyA, TestA, {
-      scope: 'SINGLETON',
-      unbind: unbindCallback
+      scope: "SINGLETON",
+      unbind: unbindCallback,
     })
 
     const instance = pumpIt.resolve(keyA)
@@ -171,25 +171,25 @@ describe('Unbind', () => {
     expect(unbindCallback).toHaveBeenCalledWith({
       container: pumpIt,
       dispose: true,
-      value: instance
+      value: instance,
     })
   })
 
-  test('dispose callback value is empty when the bound class is not a singleton', () => {
+  test("dispose callback value is empty when the bound class is not a singleton", () => {
     const pumpIt = new PumpIt()
-    const keyA = Symbol('key_a')
+    const keyA = Symbol("key_a")
 
     class TestA {
       hello() {
-        return 'hello'
+        return "hello"
       }
     }
 
     const unbindCallback = vi.fn()
 
     pumpIt.bindClass(keyA, TestA, {
-      scope: 'TRANSIENT',
-      unbind: unbindCallback
+      scope: "TRANSIENT",
+      unbind: unbindCallback,
     })
 
     pumpIt.resolve(keyA)
@@ -198,13 +198,13 @@ describe('Unbind', () => {
     expect(unbindCallback).toHaveBeenCalledWith({
       container: pumpIt,
       dispose: true,
-      value: undefined
+      value: undefined,
     })
   })
 
   test('unbind class and do not call the "dispose" method', () => {
     const pumpIt = new PumpIt()
-    const keyA = Symbol('key_a')
+    const keyA = Symbol("key_a")
 
     const disposeCall = vi.fn()
     class TestA {
@@ -213,22 +213,22 @@ describe('Unbind', () => {
       }
     }
 
-    pumpIt.bindClass(keyA, TestA, { scope: 'SINGLETON' })
+    pumpIt.bindClass(keyA, TestA, { scope: "SINGLETON" })
     pumpIt.resolve(keyA)
 
     pumpIt.unbind(keyA)
 
     expect(pumpIt.has(keyA)).toBe(false)
-    expect(() => pumpIt.resolve(keyA)).toThrow('not found')
+    expect(() => pumpIt.resolve(keyA)).toThrow("not found")
     expect(disposeCall).toHaveBeenCalled()
   })
 
-  describe('Unbind all', () => {
-    test('after removing all the keys, no keys can be retrieved', () => {
+  describe("Unbind all", () => {
+    test("after removing all the keys, no keys can be retrieved", () => {
       const pumpIt = new PumpIt()
-      const factoryKey = Symbol('a')
-      const classKey = Symbol('b')
-      const valueKey = Symbol('c')
+      const factoryKey = Symbol("a")
+      const classKey = Symbol("b")
+      const valueKey = Symbol("c")
 
       const classDisposeCall = vi.fn()
       class TestA {
@@ -246,9 +246,9 @@ describe('Unbind', () => {
         return functionToReturn
       }
 
-      const value = { name: 'ivan' }
+      const value = { name: "ivan" }
 
-      pumpIt.bindFactory(factoryKey, factory, { scope: 'SINGLETON' })
+      pumpIt.bindFactory(factoryKey, factory, { scope: "SINGLETON" })
       pumpIt.bindClass(classKey, TestA)
       pumpIt.bindValue(valueKey, value)
 
@@ -258,18 +258,18 @@ describe('Unbind', () => {
       expect(pumpIt.has(factoryKey)).toBe(false)
       expect(pumpIt.has(classKey)).toBe(false)
       expect(pumpIt.has(valueKey)).toBe(false)
-      expect(() => pumpIt.resolve(factoryKey)).toThrow('not found')
-      expect(() => pumpIt.resolve(classKey)).toThrow('not found')
-      expect(() => pumpIt.resolve(classKey)).toThrow('not found')
+      expect(() => pumpIt.resolve(factoryKey)).toThrow("not found")
+      expect(() => pumpIt.resolve(classKey)).toThrow("not found")
+      expect(() => pumpIt.resolve(classKey)).toThrow("not found")
       expect(factoryDisposeCall).toHaveBeenCalledTimes(1)
       expect(classDisposeCall).not.toHaveBeenCalled()
     })
 
-    test('do not call the dispose method', () => {
+    test("do not call the dispose method", () => {
       const pumpIt = new PumpIt()
-      const factoryKey = Symbol('a')
-      const classKey = Symbol('b')
-      const valueKey = Symbol('c')
+      const factoryKey = Symbol("a")
+      const classKey = Symbol("b")
+      const valueKey = Symbol("c")
 
       const classDisposeCall = vi.fn()
       class TestA {
@@ -287,10 +287,10 @@ describe('Unbind', () => {
         return functionToReturn
       }
 
-      const value = { name: 'ivan' }
+      const value = { name: "ivan" }
 
-      pumpIt.bindFactory(factoryKey, factory, { scope: 'SINGLETON' })
-      pumpIt.bindClass(classKey, TestA, { scope: 'SINGLETON' })
+      pumpIt.bindFactory(factoryKey, factory, { scope: "SINGLETON" })
+      pumpIt.bindClass(classKey, TestA, { scope: "SINGLETON" })
       pumpIt.bindValue(valueKey, value)
 
       pumpIt.resolve(factoryKey)
@@ -301,9 +301,9 @@ describe('Unbind', () => {
     })
   })
 
-  test('when singleton instances are cleared, singletons are created again', () => {
+  test("when singleton instances are cleared, singletons are created again", () => {
     const pumpIt = new PumpIt()
-    const keyA = Symbol('key_a')
+    const keyA = Symbol("key_a")
 
     const disposeCall = vi.fn()
     class TestA {
@@ -321,13 +321,13 @@ describe('Unbind', () => {
     const afterResolve = vi.fn()
     let beforeResolveCount = 0
     pumpIt.bindClass(keyA, TestA, {
-      scope: 'SINGLETON',
+      scope: "SINGLETON",
       beforeResolve: ({ value }, ...deps) => {
         beforeResolveCount++
 
         return new value(...deps)
       },
-      afterResolve
+      afterResolve,
     })
     const instanceOne = pumpIt.resolve(keyA)
 
@@ -341,9 +341,9 @@ describe('Unbind', () => {
     expect(afterResolve).toHaveBeenCalledTimes(2)
   })
 
-  test('clear a particular singleton', () => {
+  test("clear a particular singleton", () => {
     const pumpIt = new PumpIt()
-    const keyA = Symbol('key_a')
+    const keyA = Symbol("key_a")
 
     const disposeCall = vi.fn()
     class TestA {
@@ -359,7 +359,7 @@ describe('Unbind', () => {
     }
 
     pumpIt.bindClass(keyA, TestA, {
-      scope: 'SINGLETON'
+      scope: "SINGLETON",
     })
 
     const instanceOne = pumpIt.resolve(keyA)
@@ -374,28 +374,28 @@ describe('Unbind', () => {
     expect(disposeCall).toHaveBeenCalledTimes(1)
   })
 
-  test('return false when singleton to be cleared does not exist', () => {
+  test("return false when singleton to be cleared does not exist", () => {
     const pumpit = new PumpIt()
 
-    expect(pumpit.clearInstance('not_found')).toBe(false)
+    expect(pumpit.clearInstance("not_found")).toBe(false)
   })
 
-  test('unbind falsy values', () => {
+  test("unbind falsy values", () => {
     const pumpit = new PumpIt()
 
-    const stringValue = ''
+    const stringValue = ""
     const undefinedValue = undefined
     const nullValue = null
     const falseValue = false
-    pumpit.bindValue('string', stringValue)
-    pumpit.bindValue('undefined', undefinedValue)
-    pumpit.bindValue('null', nullValue)
-    pumpit.bindValue('false', falseValue)
+    pumpit.bindValue("string", stringValue)
+    pumpit.bindValue("undefined", undefinedValue)
+    pumpit.bindValue("null", nullValue)
+    pumpit.bindValue("false", falseValue)
 
-    expect(pumpit.resolve('string')).toBe(stringValue)
-    expect(pumpit.resolve('undefined')).toBe(undefinedValue)
-    expect(pumpit.resolve('null')).toBe(nullValue)
-    expect(pumpit.resolve('false')).toBe(falseValue)
+    expect(pumpit.resolve("string")).toBe(stringValue)
+    expect(pumpit.resolve("undefined")).toBe(undefinedValue)
+    expect(pumpit.resolve("null")).toBe(nullValue)
+    expect(pumpit.resolve("false")).toBe(falseValue)
 
     expect(() => {
       pumpit.unbindAll()

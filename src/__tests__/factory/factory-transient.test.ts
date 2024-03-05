@@ -1,12 +1,12 @@
-import { describe, expect, test } from 'vitest'
-import { PumpIt, SCOPE } from '../../pumpit'
+import { describe, expect, test } from "vitest"
+import { PumpIt, SCOPE } from "../../pumpit"
 
-describe('Factory with scope: transient', () => {
+describe("Factory with scope: transient", () => {
   test('default scope is "transient"', () => {
     const pumpIt = new PumpIt()
-    const key = 'some_key'
-    const keyB = 'key_b'
-    const keyC = 'key_c'
+    const key = "some_key"
+    const keyB = "key_b"
+    const keyC = "key_c"
 
     let count = 0
 
@@ -31,7 +31,7 @@ describe('Factory with scope: transient', () => {
       constructor(
         public fn: Fn,
         public fnCopy: Fn,
-        public b: TestB
+        public b: TestB,
       ) {}
     }
 
@@ -48,9 +48,9 @@ describe('Factory with scope: transient', () => {
 
   test('explicitly pass "transient" scope', () => {
     const pumpIt = new PumpIt()
-    const key = 'some_key'
-    const keyB = 'key_b'
-    const keyC = 'key_c'
+    const key = "some_key"
+    const keyB = "key_b"
+    const keyC = "key_c"
 
     let count = 0
 
@@ -75,7 +75,7 @@ describe('Factory with scope: transient', () => {
       constructor(
         public fn: Fn,
         public fnCopy: Fn,
-        public b: TestB
+        public b: TestB,
       ) {}
     }
 

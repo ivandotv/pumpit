@@ -1,10 +1,10 @@
-import { describe, expect, test } from 'vitest'
-import { PumpIt, SCOPE } from '../../pumpit'
+import { describe, expect, test } from "vitest"
+import { PumpIt, SCOPE } from "../../pumpit"
 
-describe('Class with scope: singleton', () => {
-  test('same class instance is always returned', () => {
+describe("Class with scope: singleton", () => {
+  test("same class instance is always returned", () => {
     const pumpIt = new PumpIt()
-    const key = 'some_key'
+    const key = "some_key"
     class TestA {}
 
     pumpIt.bindClass(key, TestA, { scope: SCOPE.SINGLETON })
@@ -16,18 +16,18 @@ describe('Class with scope: singleton', () => {
     expect(instanceA).toBe(instanceB)
   })
 
-  test('can register singleton with dependencies', () => {
+  test("can register singleton with dependencies", () => {
     const pumpIt = new PumpIt()
-    const key = 'some_key'
-    const keyB = 'key_b'
-    const keyC = 'key_c'
+    const key = "some_key"
+    const keyB = "key_b"
+    const keyC = "key_c"
 
     class TestA {
       static inject = [keyB, keyC]
 
       constructor(
         public keyB: TestB,
-        public keyC: TestC
+        public keyC: TestC,
       ) {}
     }
     class TestB {}
@@ -47,18 +47,18 @@ describe('Class with scope: singleton', () => {
     expect(instanceOne.keyC).toBeInstanceOf(TestC)
   })
 
-  test('singleton dependencies are cached', () => {
+  test("singleton dependencies are cached", () => {
     const pumpIt = new PumpIt()
-    const key = 'some_key'
-    const keyB = 'key_b'
-    const keyC = 'key_c'
+    const key = "some_key"
+    const keyB = "key_b"
+    const keyC = "key_c"
 
     class TestA {
       static inject = [keyB, keyC]
 
       constructor(
         public keyB: TestB,
-        public keyC: TestC
+        public keyC: TestC,
       ) {}
     }
     class TestB {}

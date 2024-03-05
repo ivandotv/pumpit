@@ -1,6 +1,6 @@
-import type { PumpIt } from './pumpit'
-import { SCOPE, TYPE } from './pumpit'
-import { InjectionData } from './utils'
+import type { PumpIt } from "./pumpit"
+import { SCOPE, TYPE } from "./pumpit"
+import { InjectionData } from "./utils"
 
 /** Available types that can be binded*/
 export type AvailableTypes = keyof typeof TYPE
@@ -19,13 +19,15 @@ export type FactoryValue =
   | { value: (...args: any[]) => any; inject: InjectionData }
 
 export type ClassValue =
-  | (new (...args: any[]) => any)
+  | (new (
+      ...args: any[]
+    ) => any)
   | { value: new (...args: any[]) => any; inject: InjectionData }
 
 /** Class bind options*/
 export type ClassOptions<
   T extends ClassValue,
-  K extends AvailableScopes = 'TRANSIENT'
+  K extends AvailableScopes = "TRANSIENT",
 > = {
   /** Class constant type {@link AvailableTypes} */
   type: typeof TYPE.CLASS
@@ -37,18 +39,27 @@ export type ClassOptions<
       /** injection container that holds the value*/
       container: PumpIt
       /** constructor that is going to be used */
-      value: T extends new (...args: any[]) => any
-        ? new (...args: ConstructorParameters<T>) => T
-        : // @ts-expect-error - index signature mismatch
-          new (...args: ConstructorParameters<T['value']>) => T['value']
+      value: T extends new (
+        ...args: any[]
+      ) => any
+        ? new (
+            ...args: ConstructorParameters<T>
+          ) => T
+        : new (
+            // @ts-expect-error - index signature mismatch
+            ...args: ConstructorParameters<T["value"]>
+            // @ts-expect-error - index signature mismatch
+          ) => T["value"]
       /** {@link ResolveCtx | context} object that was passed in with the {@link PumpIt.resolve | PumpIt.resolve} call*/
       ctx?: ResolveCtx
     },
     /** deps that are resolved and should be passed to the constructor*/
-    ...deps: T extends new (...args: any[]) => any
+    ...deps: T extends new (
+      ...args: any[]
+    ) => any
       ? ConstructorParameters<T>
       : // @ts-expect-error - index signature mismatch
-        ConstructorParameters<T['value']>
+        ConstructorParameters<T["value"]>
   ) => any
   /** callback that is called after the value is resolved, number of calls depends on scope used when registering*/
   afterResolve?: (data: {
@@ -66,13 +77,13 @@ export type ClassOptions<
     /** if dispose method will be called on the class instance*/
     dispose: boolean
     /** instance value that will be removed*/
-    value: K extends 'SINGLETON' ? any : undefined
+    value: K extends "SINGLETON" ? any : undefined
   }) => void
 }
 
 export type FactoryOptions<
   T extends FactoryValue,
-  K extends AvailableScopes
+  K extends AvailableScopes,
 > = {
   /** Factory constant type */
   type: typeof TYPE.FACTORY
@@ -85,7 +96,7 @@ export type FactoryOptions<
       container: PumpIt
       /** factory function that is going to be used */
       // @ts-expect-error index type mismatch
-      value: T extends (...args: any[]) => any ? T : T['value']
+      value: T extends (...args: any[]) => any ? T : T["value"]
       /** {@link ResolveCtx | context} object that was passed in with the {@link PumpIt.resolve | PumpIt.resolve} call*/
       ctx?: ResolveCtx
     },
@@ -93,7 +104,7 @@ export type FactoryOptions<
     ...deps: T extends (...args: any[]) => any
       ? Parameters<T>
       : // @ts-expect-error index type mismatch
-        Parameters<T['value']>
+        Parameters<T["value"]>
   ) => any
   /** callback that is called after the value is resolved, number of calls depends on scope used when registering*/
   afterResolve?: (data: {
@@ -111,6 +122,6 @@ export type FactoryOptions<
     /** if dispose method will be called on the class instance*/
     dispose: boolean
     /** value that is going to be removed*/
-    value: K extends 'SINGLETON' ? any : undefined
+    value: K extends "SINGLETON" ? any : undefined
   }) => void
 }

@@ -1,21 +1,21 @@
-import { describe, expect, test, vi } from 'vitest'
-import { PumpIt } from '../../pumpit'
-import { get, transform } from '../../utils'
+import { describe, expect, test, vi } from "vitest"
+import { PumpIt } from "../../pumpit"
+import { get, transform } from "../../utils"
 
-describe('Transform dependencies', () => {
-  describe('Class', () => {
-    test('transform function receives resolved dependencies', () => {
+describe("Transform dependencies", () => {
+  describe("Class", () => {
+    test("transform function receives resolved dependencies", () => {
       const pumpIt = new PumpIt()
       const classKey = Symbol()
       const keyA = Symbol()
       const keyB = Symbol()
       const keyC = Symbol()
 
-      const resolveCtx = { hello: 'world' }
+      const resolveCtx = { hello: "world" }
 
-      const valueA = { name: 'a' }
-      const valueB = { name: 'b' }
-      const valueC = { name: 'c' }
+      const valueA = { name: "a" }
+      const valueB = { name: "b" }
+      const valueC = { name: "c" }
 
       const transformFn = vi.fn().mockReturnValue([valueA, valueB, valueC])
 
@@ -33,24 +33,24 @@ describe('Transform dependencies', () => {
       expect(transformFn).toHaveBeenCalledWith(
         {
           container: pumpIt,
-          ctx: resolveCtx
+          ctx: resolveCtx,
         },
         valueA,
         valueB,
-        valueC
+        valueC,
       )
     })
 
-    test('transform function can be applied on object registration', () => {
+    test("transform function can be applied on object registration", () => {
       const pumpIt = new PumpIt()
       const classKey = Symbol()
       const keyA = Symbol()
       const keyB = Symbol()
       const keyC = Symbol()
 
-      const valueA = { name: 'a' }
-      const valueB = { name: 'b' }
-      const valueC = { name: 'c' }
+      const valueA = { name: "a" }
+      const valueB = { name: "b" }
+      const valueC = { name: "c" }
 
       const transformFn = vi.fn().mockReturnValue([valueA, valueB, valueC])
 
@@ -58,14 +58,14 @@ describe('Transform dependencies', () => {
         constructor(
           public a: any,
           public b: any,
-          public c: any
+          public c: any,
         ) {}
       }
 
       pumpIt
         .bindClass(classKey, {
           value: TestA,
-          inject: transform([keyA, keyB, keyC], transformFn)
+          inject: transform([keyA, keyB, keyC], transformFn),
         })
         .bindValue(keyA, valueA)
         .bindValue(keyB, valueB)
@@ -76,11 +76,11 @@ describe('Transform dependencies', () => {
       expect(transformFn).toHaveBeenCalledWith(
         {
           container: pumpIt,
-          ctx: undefined
+          ctx: undefined,
         },
         valueA,
         valueB,
-        valueC
+        valueC,
       )
 
       expect(instance.a).toBe(valueA)
@@ -88,16 +88,16 @@ describe('Transform dependencies', () => {
       expect(instance.c).toBe(valueC)
     })
 
-    test('transform function receives resolved dependency as an array', () => {
+    test("transform function receives resolved dependency as an array", () => {
       const pumpIt = new PumpIt()
       const classKey = Symbol()
       const keyA = Symbol()
       const keyB = Symbol()
       const keyC = Symbol()
 
-      const valueA = { a: 'a' }
-      const valueB = { b: 'b' }
-      const valueC = { c: 'c' }
+      const valueA = { a: "a" }
+      const valueB = { b: "b" }
+      const valueC = { c: "c" }
 
       const transformFn = vi.fn().mockReturnValue([valueA, valueB, valueC])
 
@@ -116,11 +116,11 @@ describe('Transform dependencies', () => {
         { container: pumpIt, ctx: undefined },
         valueA,
         valueB,
-        valueC
+        valueC,
       )
     })
 
-    test('transform function can replace dependencies', () => {
+    test("transform function can replace dependencies", () => {
       const pumpIt = new PumpIt()
       const classKey = Symbol()
       const keyA = Symbol()
@@ -145,7 +145,7 @@ describe('Transform dependencies', () => {
         constructor(
           public keyA: any,
           public keyB: any,
-          public keyC: any
+          public keyC: any,
         ) {}
       }
 
@@ -160,11 +160,11 @@ describe('Transform dependencies', () => {
       expect(injectTransform).toHaveBeenCalledWith(
         {
           container: pumpIt,
-          ctx: undefined
+          ctx: undefined,
         },
         valueA,
         valueB,
-        valueC
+        valueC,
       )
       expect(instance.keyA).toBe(transformedA)
       expect(instance.keyB).toBe(transformedB)
@@ -183,14 +183,14 @@ describe('Transform dependencies', () => {
 
       class TestA {
         static inject = transform(
-          [keyA, get('not_found', { optional: true }), keyC],
-          injectTransform
+          [keyA, get("not_found", { optional: true }), keyC],
+          injectTransform,
         )
 
         constructor(
           public keyA: any,
           public keyB: any,
-          public keyC: any
+          public keyC: any,
         ) {}
       }
 
@@ -203,23 +203,23 @@ describe('Transform dependencies', () => {
       expect(injectTransform).toHaveBeenCalledWith(
         {
           container: pumpIt,
-          ctx: undefined
+          ctx: undefined,
         },
         valueA,
         undefined,
-        valueC
+        valueC,
       )
     })
   })
 
-  describe('Factory', () => {
-    test('transform function receives resolved dependencies', () => {
+  describe("Factory", () => {
+    test("transform function receives resolved dependencies", () => {
       const pumpIt = new PumpIt()
       const factoryKey = Symbol()
       const keyA = Symbol()
       const keyB = Symbol()
       const keyC = Symbol()
-      const requestData = { foo: 'bar' }
+      const requestData = { foo: "bar" }
 
       const valueA = {}
       const valueB = {}
@@ -241,16 +241,16 @@ describe('Transform dependencies', () => {
         {
           container: pumpIt,
           ctx: {
-            data: requestData
-          }
+            data: requestData,
+          },
         },
         valueA,
         valueB,
-        valueC
+        valueC,
       )
     })
 
-    test('transform function can replace dependencies', () => {
+    test("transform function can replace dependencies", () => {
       const pumpIt = new PumpIt()
       const factoryKey = Symbol()
       const keyA = Symbol()
@@ -270,7 +270,7 @@ describe('Transform dependencies', () => {
       factory.inject = transform([keyA, keyB, keyC], () => [
         transformedA,
         transformedB,
-        transformedC
+        transformedC,
       ])
 
       pumpIt
@@ -283,7 +283,7 @@ describe('Transform dependencies', () => {
       expect(factory).toHaveBeenCalledWith(
         transformedA,
         transformedB,
-        transformedC
+        transformedC,
       )
     })
   })

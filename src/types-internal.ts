@@ -1,12 +1,12 @@
-import { SCOPE, TYPE } from './pumpit'
+import { SCOPE, TYPE } from "./pumpit"
 import type {
   AvailableScopes,
   BindKey,
   ClassOptions,
   ClassValue,
   FactoryOptions,
-  FactoryValue
-} from './types'
+  FactoryValue,
+} from "./types"
 
 type InternalResolveCtx = {
   data?: Record<string, any>

@@ -5,26 +5,26 @@ import type {
   ClassValue,
   FactoryOptions,
   FactoryValue,
-  ResolveCtx
-} from './types'
-import type { RequestCtx } from './types-internal'
-import { ClassPoolData, FactoryPoolData, PoolData } from './types-internal'
+  ResolveCtx,
+} from "./types"
+import type { RequestCtx } from "./types-internal"
+import { ClassPoolData, FactoryPoolData, PoolData } from "./types-internal"
 import {
   Injection,
   InjectionData,
   keyToString,
-  parseInjectionData
-} from './utils'
+  parseInjectionData,
+} from "./utils"
 
 //track undefined values from the factory
 const UNDEFINED_RESULT = Symbol()
 
-const DISPOSE_PROP = 'dispose'
+const DISPOSE_PROP = "dispose"
 /** Constants that represent the type of values that can be binded*/
 export const TYPE = {
-  VALUE: 'VALUE',
-  CLASS: 'CLASS',
-  FACTORY: 'FACTORY'
+  VALUE: "VALUE",
+  CLASS: "CLASS",
+  FACTORY: "FACTORY",
 } as const
 
 /** Constants that represent the type of scopes that can be used
@@ -34,10 +34,10 @@ export const TYPE = {
  * CONTAINER_SINGLETON - the child container will create it's own version of the singleton instance
  */
 export const SCOPE = {
-  SINGLETON: 'SINGLETON',
-  TRANSIENT: 'TRANSIENT',
-  REQUEST: 'REQUEST',
-  CONTAINER_SINGLETON: 'CONTAINER_SINGLETON'
+  SINGLETON: "SINGLETON",
+  TRANSIENT: "TRANSIENT",
+  REQUEST: "REQUEST",
+  CONTAINER_SINGLETON: "CONTAINER_SINGLETON",
 } as const
 
 export class PumpIt {
@@ -68,14 +68,14 @@ export class PumpIt {
       const payload = {
         dispose,
         container: this,
-        value: singleton
+        value: singleton,
       }
 
       this.pool.delete(key)
       this.singletonCache.delete(key)
 
       //call unbind callback
-      unbind && unbind(payload)
+      unbind?.(payload)
 
       if (singleton && dispose) {
         this.callDispose(singleton)
@@ -115,9 +115,9 @@ export class PumpIt {
 
   protected callDispose(value: any) {
     if (
-      typeof value !== 'symbol' &&
+      typeof value !== "symbol" &&
       DISPOSE_PROP in value &&
-      typeof value[DISPOSE_PROP] === 'function'
+      typeof value[DISPOSE_PROP] === "function"
     ) {
       value[DISPOSE_PROP]()
     }
@@ -142,7 +142,7 @@ export class PumpIt {
     this.add(key, value, {
       type: TYPE.VALUE,
       scope: SCOPE.SINGLETON,
-      value
+      value,
     })
 
     return this
@@ -159,11 +159,11 @@ export class PumpIt {
   bindFactory<T extends FactoryValue>(
     key: BindKey,
     value: T,
-    options?: Omit<Partial<FactoryOptions<T, AvailableScopes>>, 'type'>
+    options?: Omit<Partial<FactoryOptions<T, AvailableScopes>>, "type">,
   ): this {
     const { exec, inject } = this.parseValue(value)
 
-    const resolve = function (...args: any[]) {
+    const resolve = (...args: any[]) => {
       // @ts-expect-error - type narrow
       return exec(...args)
     }
@@ -175,7 +175,7 @@ export class PumpIt {
       ...options,
       type: TYPE.FACTORY,
       scope: options?.scope || SCOPE.TRANSIENT,
-      value
+      value,
     })
 
     return this
@@ -185,7 +185,7 @@ export class PumpIt {
     let exec: (new (...args: any) => any) | ((...args: any[]) => any)
     let inject: InjectionData
 
-    if (typeof value !== 'function') {
+    if (typeof value !== "function") {
       exec = value.value
       inject = value.inject
     } else {
@@ -196,7 +196,7 @@ export class PumpIt {
 
     return {
       exec,
-      inject
+      inject,
     }
   }
 
@@ -211,10 +211,10 @@ export class PumpIt {
   bindClass<T extends ClassValue>(
     key: BindKey,
     value: T,
-    options?: Omit<Partial<ClassOptions<T, AvailableScopes>>, 'type'>
+    options?: Omit<Partial<ClassOptions<T, AvailableScopes>>, "type">,
   ): this {
     const { exec, inject } = this.parseValue(value)
-    const resolve = function (...args: any[]) {
+    const resolve = (...args: any[]) => {
       // @ts-expect-error type narrow
       return new exec(...args)
     }
@@ -226,7 +226,7 @@ export class PumpIt {
       ...options,
       type: TYPE.CLASS,
       scope: options?.scope || SCOPE.TRANSIENT,
-      value
+      value,
     })
 
     return this
@@ -246,7 +246,7 @@ export class PumpIt {
       requestCache: new Map(),
       requestedKeys: new Map(),
       postConstruct: [],
-      ctx: opts
+      ctx: opts,
     }
 
     const result = this._resolve(key, { optional: false }, ctx)
@@ -281,8 +281,9 @@ export class PumpIt {
   }
 
   protected getInjectable(
-    key: BindKey
+    key: BindKey,
   ): { value: PoolData; fromParent: boolean } | undefined {
+    // biome-ignore lint/style/noNonNullAssertion: map
     const value = this.pool.get(key)!
     if (value) return { value, fromParent: false }
 
@@ -290,7 +291,7 @@ export class PumpIt {
     if (parentValue) {
       return {
         value: parentValue.value,
-        fromParent: true
+        fromParent: true,
       }
     }
 
@@ -300,7 +301,7 @@ export class PumpIt {
   protected _resolve(
     key: BindKey,
     options: { optional?: boolean },
-    ctx: RequestCtx
+    ctx: RequestCtx,
   ): any {
     const data = this.getInjectable(key)
 
@@ -313,34 +314,32 @@ export class PumpIt {
     }
 
     const {
-      value: { value, scope, type }
+      value: { value, scope, type },
     } = data
 
     if (type === TYPE.VALUE) {
       // resolve immediately - value type has no dependencies
       return value
-    } else {
-      const keySeen = ctx.requestedKeys.get(key)
+    }
+    const keySeen = ctx.requestedKeys.get(key)
 
-      //if key has been seen
-      if (keySeen) {
-        //check if it is constructed
-        if (!keySeen.constructed) {
-          //throw circular reference error
-          const previous = Array.from(ctx.requestedKeys.entries()).pop()
-          const path = previous
-            ? `[ ${String(previous[0])}: ${previous[1].value.name} ]`
-            : ''
+    //if key has been seen
+    if (keySeen) {
+      //check if it is constructed
+      if (!keySeen.constructed) {
+        //throw circular reference error
+        const previous = Array.from(ctx.requestedKeys.entries()).pop()
+        const path = previous
+          ? `[ ${String(previous[0])}: ${previous[1].value.name} ]`
+          : ""
 
-          throw new Error(
-            `Circular reference detected: ${path} -> [ ${keyToString(key)}: ${
-              value.name
-            } ]`
-          )
-        }
-      } else {
-        ctx.requestedKeys.set(key, { constructed: false, value })
+        throw new Error(
+          `Circular reference detected: ${path} -> [ ${keyToString(key)}: ${value.name
+          } ]`,
+        )
       }
+    } else {
+      ctx.requestedKeys.set(key, { constructed: false, value })
     }
 
     const fn = () =>
@@ -366,7 +365,7 @@ export class PumpIt {
   protected create(
     key: BindKey,
     data: FactoryPoolData | ClassPoolData,
-    ctx: RequestCtx
+    ctx: RequestCtx,
   ) {
     const { beforeResolve, afterResolve, value, type } = data
     // @ts-expect-error - inject
@@ -380,33 +379,34 @@ export class PumpIt {
         resolvedDeps = injectionData.fn(
           {
             container: this,
-            ctx: ctx.ctx
+            ctx: ctx.ctx,
           },
-          ...this.resolveDeps(injectionData.deps, ctx)
+          ...this.resolveDeps(injectionData.deps, ctx),
         )
       }
     }
 
     const result = beforeResolve
       ? beforeResolve(
-          {
-            container: this,
-            // @ts-expect-error type narrow between factory and class value
-            value: value.original,
-            ctx: ctx.ctx
-          },
-          ...resolvedDeps
-        )
+        {
+          container: this,
+          // @ts-expect-error type narrow between factory and class value
+          value: value.original,
+          ctx: ctx.ctx,
+        },
+        ...resolvedDeps,
+      )
       : // @ts-expect-error -type mismatch
-        value(...resolvedDeps)
+      value(...resolvedDeps)
 
     afterResolve
       ? afterResolve({ container: this, value: result, ctx: ctx.ctx })
       : null
 
+    // biome-ignore lint/style/noNonNullAssertion: map assertion
     ctx.requestedKeys.get(key)!.constructed = true
 
-    if (type === 'CLASS' && 'postConstruct' in result) {
+    if (type === "CLASS" && "postConstruct" in result) {
       ctx.postConstruct.push(result)
     }
 
@@ -417,7 +417,7 @@ export class PumpIt {
     scope: AvailableScopes,
     key: BindKey,
     fn: (...args: any[]) => any,
-    ctx: RequestCtx
+    ctx: RequestCtx,
   ) {
     if (scope === SCOPE.SINGLETON || scope === SCOPE.CONTAINER_SINGLETON) {
       //if singleton and key is on the parent resolve the key via parent
@@ -427,32 +427,30 @@ export class PumpIt {
       const cachedValue = ctx.singletonCache.get(key)
       if (cachedValue !== undefined) {
         return cachedValue === UNDEFINED_RESULT ? undefined : cachedValue
-      } else {
-        let result = fn()
-
-        if (result === undefined) {
-          result = UNDEFINED_RESULT
-        }
-        this.singletonCache.set(key, result)
-
-        return result
       }
+      let result = fn()
+
+      if (result === undefined) {
+        result = UNDEFINED_RESULT
+      }
+      this.singletonCache.set(key, result)
+
+      return result
     }
 
     if (SCOPE.REQUEST === scope) {
       const cachedValue = ctx.requestCache.get(key)
       if (cachedValue !== undefined) {
         return cachedValue === UNDEFINED_RESULT ? undefined : cachedValue
-      } else {
-        let result = fn()
-
-        if (result === undefined) {
-          result = UNDEFINED_RESULT
-        }
-        ctx.requestCache.set(key, result)
-
-        return result
       }
+      let result = fn()
+
+      if (result === undefined) {
+        result = UNDEFINED_RESULT
+      }
+      ctx.requestCache.set(key, result)
+
+      return result
     }
 
     //transient scope

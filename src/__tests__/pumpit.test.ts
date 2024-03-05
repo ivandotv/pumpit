@@ -1,13 +1,13 @@
-import { describe, expect, test } from 'vitest'
-import { PumpIt } from '../pumpit'
-import { get } from '../utils'
+import { describe, expect, test } from "vitest"
+import { PumpIt } from "../pumpit"
+import { get } from "../utils"
 
-describe('Optional injection', () => {
-  test('injection does not throw', () => {
+describe("Optional injection", () => {
+  test("injection does not throw", () => {
     const pumpIt = new PumpIt()
 
     class TestA {
-      static inject = [get('does_not_exist', { optional: true })]
+      static inject = [get("does_not_exist", { optional: true })]
 
       constructor(public optionalProp?: string) {}
     }
@@ -17,53 +17,54 @@ describe('Optional injection', () => {
     expect(() => pumpIt.resolve<TestA>(TestA)).not.toThrow()
   })
 
-  test('injection resolves to undefined', () => {
+  test("injection resolves to undefined", () => {
     const pumpIt = new PumpIt()
 
     class TestA {
-      static inject = [get('key_a', { optional: true })]
+      static inject = [get("key_a", { optional: true })]
 
       constructor(public optionalProp?: string) {}
     }
 
-    pumpIt.bindClass('class_a', TestA)
-    const instance = pumpIt.resolve<TestA>('class_a')
+    pumpIt.bindClass("class_a", TestA)
+    const instance = pumpIt.resolve<TestA>("class_a")
 
     expect(instance.optionalProp).toBeUndefined()
   })
 
-  test('injection can be at the last position', () => {
+  test("injection can be at the last position", () => {
     const pumpIt = new PumpIt()
 
-    const keyOne = 'key_one'
+    const keyOne = "key_one"
     const valueOne = 1
-    const keyTwo = 'undefined_key'
+    const keyTwo = "undefined_key"
 
     class TestA {
       static inject = [keyOne, get(keyTwo, { optional: true })]
 
       constructor(
         public keyOne: number,
+        // biome-ignore lint/style/useDefaultParameterLast: tests
         public optionalProp?: string,
         // @ts-expect-error for testing purposes
-        public keyThree: number
+        public keyThree: number,
       ) {}
     }
 
     pumpIt.bindValue(keyOne, valueOne)
-    pumpIt.bindClass('class_a', TestA)
+    pumpIt.bindClass("class_a", TestA)
 
-    const instance = pumpIt.resolve<TestA>('class_a')
+    const instance = pumpIt.resolve<TestA>("class_a")
 
     expect(instance.keyOne).toBe(valueOne)
     expect(instance.optionalProp).toBeUndefined()
   })
 
-  test('throw when circular reference is detected', () => {
+  test("throw when circular reference is detected", () => {
     const pumpIt = new PumpIt()
-    const keyA = 'key_a'
-    const keyB = Symbol('key_b')
-    const keyC = 'key_c'
+    const keyA = "key_a"
+    const keyB = Symbol("key_b")
+    const keyC = "key_c"
 
     class TestA {
       static inject = [keyB]
@@ -78,17 +79,17 @@ describe('Optional injection', () => {
     pumpIt.bindClass(keyA, TestA).bindClass(keyB, TestB).bindClass(keyC, TestC)
 
     expect(() => pumpIt.resolve<TestA>(keyA)).toThrow(
-      'Circular reference detected'
+      "Circular reference detected",
     )
   })
 
-  test('injection can be at in any position', () => {
+  test("injection can be at in any position", () => {
     const pumpIt = new PumpIt()
 
-    const keyOne = 'key_one'
+    const keyOne = "key_one"
     const valueOne = 1
-    const keyTwo = 'undefined_key'
-    const keyThree = 'key_two'
+    const keyTwo = "undefined_key"
+    const keyThree = "key_two"
     const valueThree = 2
 
     class TestA {
@@ -96,26 +97,27 @@ describe('Optional injection', () => {
 
       constructor(
         public keyOne: number,
+        // biome-ignore lint/style/useDefaultParameterLast: <explanation>
         public optionalProp?: string,
         // @ts-expect-error for testing purposes
-        public keyThree: number
+        public keyThree: number,
       ) {}
     }
 
     pumpIt.bindValue(keyOne, valueOne)
     pumpIt.bindValue(keyThree, valueThree)
-    pumpIt.bindClass('class_a', TestA)
+    pumpIt.bindClass("class_a", TestA)
 
-    const instance = pumpIt.resolve<TestA>('class_a')
+    const instance = pumpIt.resolve<TestA>("class_a")
 
     expect(instance.keyOne).toBe(valueOne)
     expect(instance.optionalProp).toBeUndefined()
     expect(instance.keyThree).toBe(valueThree)
   })
 
-  test('class - empty injection does not throw', () => {
+  test("class - empty injection does not throw", () => {
     const pumpIt = new PumpIt()
-    const key = 'some_key'
+    const key = "some_key"
 
     class TestA {
       static inject = []
@@ -126,9 +128,9 @@ describe('Optional injection', () => {
     expect(() => pumpIt.resolve(key)).not.toThrow()
   })
 
-  test('factory - empty injection does not throw', () => {
+  test("factory - empty injection does not throw", () => {
     const pumpIt = new PumpIt()
-    const key = 'some_key'
+    const key = "some_key"
 
     const factory = () => {}
     factory.inject = []
@@ -142,23 +144,23 @@ describe('Optional injection', () => {
     const pumpIt = new PumpIt()
 
     const ref = pumpIt
-      .bindClass('a', class {})
-      .bindFactory('b', () => () => {})
-      .bindValue('c', true)
+      .bindClass("a", class {})
+      .bindFactory("b", () => () => {})
+      .bindValue("c", true)
 
     expect(ref).toBe(pumpIt)
   })
 
-  test('values can be retrieved via symbols', () => {
+  test("values can be retrieved via symbols", () => {
     const pumpIt = new PumpIt()
-    const keyA = Symbol('key_a')
-    const keyB = Symbol('key_b')
+    const keyA = Symbol("key_a")
+    const keyB = Symbol("key_b")
     const keyC = Symbol()
 
     class TestA {}
-    const value = { hello: 'world' }
+    const value = { hello: "world" }
 
-    const factoryReturnValue = 'hello'
+    const factoryReturnValue = "hello"
     const factory = () => () => factoryReturnValue
 
     pumpIt.bindClass(keyA, TestA)
@@ -174,7 +176,7 @@ describe('Optional injection', () => {
     expect(resolvedValue).toBe(value)
   })
 
-  test('values can be bound via any object', () => {
+  test("values can be bound via any object", () => {
     const pumpIt = new PumpIt()
     class TestA {}
 
@@ -195,7 +197,7 @@ describe('Optional injection', () => {
     expect(functionKeyInstance).toBeInstanceOf(TestA)
   })
 
-  test('injection values can be any object', () => {
+  test("injection values can be any object", () => {
     const pumpIt = new PumpIt()
 
     class TestA {}
@@ -208,7 +210,7 @@ describe('Optional injection', () => {
     class TestD {
       constructor(
         public a: TestA,
-        public bc: TestB
+        public bc: TestB,
       ) {}
 
       static inject = [get(classKeyA), objectKeyB]
@@ -224,9 +226,9 @@ describe('Optional injection', () => {
     expect(instance.bc).toBeInstanceOf(TestB)
   })
 
-  test('injection with object - key - value', () => {
+  test("injection with object - key - value", () => {
     const pumpIt = new PumpIt()
-    const classKeyA = 'a'
+    const classKeyA = "a"
     const objectKeyB = {}
     const functionKeyC = () => {}
 
@@ -236,7 +238,7 @@ describe('Optional injection', () => {
     const factory = (a: TestA, bd: TestB) => {
       return {
         a,
-        bd
+        bd,
       }
     }
 
@@ -245,7 +247,7 @@ describe('Optional injection', () => {
       .bindClass(objectKeyB, TestB)
       .bindFactory(functionKeyC, {
         value: factory,
-        inject: [get(classKeyA), objectKeyB]
+        inject: [get(classKeyA), objectKeyB],
       })
 
     const instance = pumpIt.resolve<ReturnType<typeof factory>>(functionKeyC)

@@ -1,8 +1,8 @@
-import { describe, expect, test } from 'vitest'
-import { PumpIt } from '../pumpit'
+import { describe, expect, test } from "vitest"
+import { PumpIt } from "../pumpit"
 
-describe('Class Inheritance', () => {
-  test('child class inherits parent injection parameters ', () => {
+describe("Class Inheritance", () => {
+  test("child class inherits parent injection parameters ", () => {
     const pumpIt = new PumpIt()
 
     class TestB {}
@@ -26,7 +26,7 @@ describe('Class Inheritance', () => {
     expect(instance.b).toBeInstanceOf(TestB)
   })
 
-  test('child class inherits parent dependencies two levels deep', () => {
+  test("child class inherits parent dependencies two levels deep", () => {
     const pumpIt = new PumpIt()
 
     class DepOne {}
@@ -53,7 +53,7 @@ describe('Class Inheritance', () => {
     expect(instance.depOne).toBeInstanceOf(DepOne)
   })
 
-  test('child class combines injection parameters from the parent', () => {
+  test("child class combines injection parameters from the parent", () => {
     const pumpIt = new PumpIt()
 
     class TestB {}
@@ -68,7 +68,7 @@ describe('Class Inheritance', () => {
 
       constructor(
         public b: TestB,
-        public d: TestD
+        public d: TestD,
       ) {
         super()
       }

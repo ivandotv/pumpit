@@ -1,5 +1,5 @@
-import type { PumpIt } from './pumpit'
-import { BindKey, ResolveCtx } from './types'
+import type { PumpIt } from "./pumpit"
+import { BindKey, ResolveCtx } from "./types"
 
 //detect transfom action function
 export const TRANSFORM_DEPS = Symbol()
@@ -34,12 +34,12 @@ export function get(
   options?: {
     /** if the dependency cannot be resolved *undefined* will be used */
     optional?: boolean
-  }
+  },
 ) {
   const getCall = () => {
     return {
       key,
-      options: { ...options }
+      options: { ...options },
     }
   }
 
@@ -58,7 +58,7 @@ export function parseInjectionData(key: Injection): ParsedInjectionData {
 
     return {
       key: ex.key,
-      options: ex.options || {}
+      options: ex.options || {},
     }
   }
 
@@ -73,12 +73,12 @@ export function parseInjectionData(key: Injection): ParsedInjectionData {
  */
 export function transform(
   deps: (BindKey | typeof get)[],
-  fn: (data: { container: PumpIt; ctx: ResolveCtx }, ...deps: any[]) => any[]
+  fn: (data: { container: PumpIt; ctx: ResolveCtx }, ...deps: any[]) => any[],
 ) {
   return {
     action: TRANSFORM_DEPS,
     fn: fn,
-    deps
+    deps,
   }
 }
 

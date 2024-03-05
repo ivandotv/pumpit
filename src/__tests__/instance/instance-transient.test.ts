@@ -1,12 +1,12 @@
-import { describe, expect, test } from 'vitest'
-import { PumpIt, SCOPE } from '../../pumpit'
+import { describe, expect, test } from "vitest"
+import { PumpIt, SCOPE } from "../../pumpit"
 
-describe('Class with scope: transient', () => {
+describe("Class with scope: transient", () => {
   test('default scope is "transient"', () => {
     const pumpIt = new PumpIt()
-    const key = 'some_key'
-    const keyB = 'key_b'
-    const keyC = 'key_c'
+    const key = "some_key"
+    const keyB = "key_b"
+    const keyC = "key_c"
 
     class TestA {}
     class TestB {
@@ -19,7 +19,7 @@ describe('Class with scope: transient', () => {
 
       constructor(
         public testA: TestA,
-        public testACopy: TestA
+        public testACopy: TestA,
       ) {}
     }
 
@@ -34,8 +34,8 @@ describe('Class with scope: transient', () => {
 
   test('explicitly pass "transient" scope', () => {
     const pumpIt = new PumpIt()
-    const key = 'some_key'
-    const keyB = 'key_c'
+    const key = "some_key"
+    const keyB = "key_c"
 
     class TestA {}
     class TestB {
@@ -43,7 +43,7 @@ describe('Class with scope: transient', () => {
 
       constructor(
         public testA: TestA,
-        public testACopy: TestA
+        public testACopy: TestA,
       ) {}
     }
 
