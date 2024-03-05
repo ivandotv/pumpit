@@ -334,7 +334,8 @@ export class PumpIt {
           : ""
 
         throw new Error(
-          `Circular reference detected: ${path} -> [ ${keyToString(key)}: ${value.name
+          `Circular reference detected: ${path} -> [ ${keyToString(key)}: ${
+            value.name
           } ]`,
         )
       }
@@ -388,16 +389,16 @@ export class PumpIt {
 
     const result = beforeResolve
       ? beforeResolve(
-        {
-          container: this,
-          // @ts-expect-error type narrow between factory and class value
-          value: value.original,
-          ctx: ctx.ctx,
-        },
-        ...resolvedDeps,
-      )
+          {
+            container: this,
+            // @ts-expect-error type narrow between factory and class value
+            value: value.original,
+            ctx: ctx.ctx,
+          },
+          ...resolvedDeps,
+        )
       : // @ts-expect-error -type mismatch
-      value(...resolvedDeps)
+        value(...resolvedDeps)
 
     afterResolve
       ? afterResolve({ container: this, value: result, ctx: ctx.ctx })
