@@ -6,6 +6,7 @@
   "files": {
     "ignore": [
       "node_modules",
+      "coverage",
       "dist",
       ".vscode"
     ]
@@ -13,7 +14,14 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true
+      "recommended": true,
+      "suspicious": {
+        "noExplicitAny": "off",
+        "noShadowRestrictedNames": "off"
+      },
+      "complexity": {
+        "noStaticOnlyClass": "off"
+      }
     }
   },
   "formatter": {
