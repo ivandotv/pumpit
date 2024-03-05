@@ -1,5 +1,11 @@
 # pumpa
 
+## 7.0.1
+
+### Patch Changes
+
+- 516e684: run biome check on all source files
+
 ## 7.0.0
 
 ### Major Changes
