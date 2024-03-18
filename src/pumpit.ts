@@ -49,6 +49,16 @@ export class PumpIt {
 
   protected currentCtx: RequestCtx | null = null
 
+  protected name?: string
+
+  constructor(name?: string) {
+    this.name = name
+  }
+
+  getName() {
+    return this.name
+  }
+
   protected add(key: BindKey, value: any, info: PoolData): void {
     const dataHit = this.pool.get(key)
 
