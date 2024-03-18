@@ -269,5 +269,12 @@ describe("Optional injection", () => {
 
       expect(pumpIt.getName()).toBe(undefined)
     })
+
+    test("instance created via child can also have a name", () => {
+      const name = "instance_name"
+      const pumpIt = new PumpIt()
+      const child = pumpIt.child(name)
+      expect(child.getName()).toBe(name)
+    })
   })
 })

@@ -276,8 +276,8 @@ export class PumpIt {
    * parent singleton values.
    *
    */
-  child(): this {
-    const child = new (this.constructor as new () => this)()
+  child(name?: string): this {
+    const child = new (this.constructor as new (name?: string) => this)(name)
     child.parent = this
 
     return child
