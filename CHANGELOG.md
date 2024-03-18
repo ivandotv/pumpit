@@ -1,5 +1,11 @@
 # pumpa
 
+## 7.1.0
+
+### Minor Changes
+
+- c470983: Optionally give instances custom names.
+
 ## 7.0.2
 
 ### Patch Changes
