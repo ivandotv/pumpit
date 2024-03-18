@@ -255,4 +255,19 @@ describe("Optional injection", () => {
     expect(instance.a).toBeInstanceOf(TestA)
     expect(instance.bd).toBeInstanceOf(TestB)
   })
+
+  describe("instance name", () => {
+    test("instance name can be passed via constructor", () => {
+      const name = "instance_name"
+      const pumpIt = new PumpIt(name)
+
+      expect(pumpIt.getName()).toBe(name)
+    })
+
+    test("if instance name is not provided it will be undefined", () => {
+      const pumpIt = new PumpIt()
+
+      expect(pumpIt.getName()).toBe(undefined)
+    })
+  })
 })
