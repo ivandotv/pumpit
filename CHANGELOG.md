@@ -1,5 +1,11 @@
 # pumpa
 
+## 7.1.1
+
+### Patch Changes
+
+- 61a361f: instances created via "child" method can also have a name
+
 ## 7.1.0
 
 ### Minor Changes
