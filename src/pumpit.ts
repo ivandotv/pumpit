@@ -25,13 +25,17 @@ export const TYPE = {
 /** Constants that represent the type of scopes that can be used
  * SINGLETON - value is resolved only once
  * TRANSIENT - value is resolved everytime it is requested
- * REQUEST - value is resolved once per request {@link PumpIt.resolve | PumpIt.resolve()}
+ * REQUEST - value is resolved once per resolve method call {@link PumpIt.resolve | PumpIt.resolve()}
  * CONTAINER_SINGLETON - the child container will create it's own version of the singleton instance
  */
 export const SCOPE = {
+  /** SINGLETON - value is resolved only once */
   SINGLETON: "SINGLETON",
+  /** TRANSIENT - value is resolved everytime it is requested */
   TRANSIENT: "TRANSIENT",
+  /** REQUEST - value is resolved once per resolve method call {@link PumpIt.resolve | PumpIt.resolve()}*/
   REQUEST: "REQUEST",
+  /** CONTAINER_SINGLETON - the child container will create it's own version of the singleton instance */
   CONTAINER_SINGLETON: "CONTAINER_SINGLETON",
 } as const
 
