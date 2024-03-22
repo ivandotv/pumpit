@@ -192,21 +192,10 @@ export class PumpIt {
   }
 
   protected parseValue(value: ClassValue | FactoryValue) {
-    let exec: (new (...args: any) => any) | ((...args: any[]) => any)
-    let inject: InjectionData
-
-    if (typeof value !== "function") {
-      exec = value.value
-      inject = value.inject
-    } else {
-      exec = value
-      // @ts-expect-error type narrow
-      inject = value.inject
-    }
-
     return {
-      exec,
-      inject,
+      exec: typeof value !== "function" ? value.value : value,
+      // @ts-expect-error type narrow
+      inject: value.inject,
     }
   }
 
