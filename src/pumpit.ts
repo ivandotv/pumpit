@@ -9,12 +9,7 @@ import type {
 } from "./types"
 import type { RequestCtx } from "./types-internal"
 import { ClassPoolData, FactoryPoolData, PoolData } from "./types-internal"
-import {
-  Injection,
-  InjectionData,
-  keyToString,
-  parseInjectionData,
-} from "./utils"
+import { INJECT_KEY, Injection, keyToString, parseInjectionData } from "./utils"
 
 //track undefined values from the factory
 const UNDEFINED_RESULT = Symbol()
@@ -30,13 +25,17 @@ export const TYPE = {
 /** Constants that represent the type of scopes that can be used
  * SINGLETON - value is resolved only once
  * TRANSIENT - value is resolved everytime it is requested
- * REQUEST - value is resolved once per request {@link PumpIt.resolve | PumpIt.resolve()}
+ * REQUEST - value is resolved once per resolve method call {@link PumpIt.resolve | PumpIt.resolve()}
  * CONTAINER_SINGLETON - the child container will create it's own version of the singleton instance
  */
 export const SCOPE = {
+  /** SINGLETON - value is resolved only once */
   SINGLETON: "SINGLETON",
+  /** TRANSIENT - value is resolved everytime it is requested */
   TRANSIENT: "TRANSIENT",
+  /** REQUEST - value is resolved once per resolve method call {@link PumpIt.resolve | PumpIt.resolve()}*/
   REQUEST: "REQUEST",
+  /** CONTAINER_SINGLETON - the child container will create it's own version of the singleton instance */
   CONTAINER_SINGLETON: "CONTAINER_SINGLETON",
 } as const
 
@@ -192,21 +191,10 @@ export class PumpIt {
   }
 
   protected parseValue(value: ClassValue | FactoryValue) {
-    let exec: (new (...args: any) => any) | ((...args: any[]) => any)
-    let inject: InjectionData
-
-    if (typeof value !== "function") {
-      exec = value.value
-      inject = value.inject
-    } else {
-      exec = value
-      // @ts-expect-error type narrow
-      inject = value.inject
-    }
-
     return {
-      exec,
-      inject,
+      exec: typeof value !== "function" ? value.value : value,
+      // @ts-expect-error type narrow
+      inject: value[INJECT_KEY] || value.inject,
     }
   }
 

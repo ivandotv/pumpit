@@ -96,9 +96,35 @@ class TestA {
 
 class TestB {}
 
-//`bind`(register)  classe to the injection container.
+//`bind`(register)  class to the injection container.
 container.bindClass(TestA, { value: TestA, inject: [TestB] })
+//or
+container.bindClass('some_key_to_bind', { value: TestA, inject: [TestB] })
 ```
+
+You can also use a special `INJECT_KEY` value (which is actually a `Symbol`) to inject the dependencies, this also helps when you can't use
+a static `inject` property on a class (maybe the property already exists or it's a third party class)
+
+```ts
+import { PumpIt, INJECT_KEY } from 'pumpit'
+
+const container = new PumpIt()
+
+class TestB {}
+
+class TestA {
+  static [INJECT_KEY] = [TestB]
+  constructor(b: TestB) {}
+}
+
+//or you can also use this
+TestA[INJECT_KEY] = [TestB]
+
+container.bindClass(TestA,TestA)
+container.bindClass(TestB,TestB)
+
+```
+
 
 #### Class injection inheritance
 
@@ -224,6 +250,31 @@ container.bindFactory(myFactory, { value: myFactory, inject: [A] })
 
 const value: string = container.resolve(myFactory)
 value === 'hello from A'
+```
+
+You can also use a special `INJECT_KEY` value (which is actually a `Symbol`) to inject the dependencies. This is not that much useful when
+working with factories, but it can be [very useful when working with classes](#registering-classes)
+
+```ts
+import { PumpIt, INJECT_KEY } from 'pumpit'
+
+const container = new PumpIt()
+class A {
+  hello() {
+    return 'hello from A'
+  }
+}
+
+const myFactory = (a: A) => {
+  return a.hello()
+}
+
+myFactory[INJECT_KEY] = [A]
+
+container.bindClass(A, A)
+container.bindFactory(myFactory, myFactory)
+
+const value: string = container.resolve(myFactory) //hello from A
 ```
 
 I encourage you to experiment with factories because they enable you to return anything you want.

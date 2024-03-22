@@ -2,5 +2,5 @@
 export * from "./pumpit.js"
 export * from "./types.js"
 
-import { get, transform } from "./utils.js"
-export { get, transform }
+import { INJECT_KEY, get, transform } from "./utils.js"
+export { get, transform, INJECT_KEY }
