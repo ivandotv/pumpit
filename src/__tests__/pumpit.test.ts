@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest"
 import { PumpIt } from "../pumpit"
-import { get } from "../utils"
+import { INJECT_KEY, get } from "../utils"
 
 describe("Optional injection", () => {
   test("injection does not throw", () => {
@@ -275,6 +275,99 @@ describe("Optional injection", () => {
       const pumpIt = new PumpIt()
       const child = pumpIt.child(name)
       expect(child.getName()).toBe(name)
+    })
+  })
+  describe("Inject via INJECT_KEY", () => {
+    test("inject key works with a class", () => {
+      const pumpIt = new PumpIt()
+
+      class TestB {}
+
+      class TestA {
+        static [INJECT_KEY] = [TestB]
+        constructor(public b: TestB) {}
+      }
+
+      pumpIt.bindClass(TestA, TestA)
+      pumpIt.bindClass(TestB, TestB)
+
+      const instance = pumpIt.resolve<TestA>(TestA)
+
+      expect(instance.b).toBeInstanceOf(TestB)
+    })
+
+    test("inject key works with a class by adding the key later", () => {
+      const pumpIt = new PumpIt()
+
+      class TestB {}
+
+      class TestA {
+        constructor(public b: TestB) {}
+      }
+
+      TestA[INJECT_KEY] = [TestB]
+
+      pumpIt.bindClass(TestA, TestA)
+      pumpIt.bindClass(TestB, TestB)
+
+      const instance = pumpIt.resolve<TestA>(TestA)
+
+      expect(instance.b).toBeInstanceOf(TestB)
+    })
+
+    test("inject key works when using class inheritance", () => {
+      const pumpIt = new PumpIt()
+
+      class TestB {}
+
+      class TestA {
+        static [INJECT_KEY] = [TestB]
+      }
+
+      class TestC extends TestA {
+        constructor(public b: TestB) {
+          super()
+        }
+      }
+
+      pumpIt.bindClass(TestA, TestA)
+      pumpIt.bindClass(TestB, TestB)
+      pumpIt.bindClass(TestC, TestC)
+
+      const instance = pumpIt.resolve<TestC>(TestC)
+
+      expect(instance.b).toBeInstanceOf(TestB)
+    })
+
+    test("inject key works with a factory", () => {
+      const pumpIt = new PumpIt()
+      const key = "some_key"
+      const keyB = "key_b"
+      const keyC = "key_c"
+
+      class TestB {}
+      class TestC {}
+
+      type Fn = ReturnType<typeof factory>
+      function factory(keyB: TestB, keyC: TestC) {
+        return () => {
+          return {
+            keyB,
+            keyC,
+          }
+        }
+      }
+      factory[INJECT_KEY] = [keyB, keyC]
+
+      pumpIt
+        .bindFactory(key, factory)
+        .bindClass(keyB, TestB)
+        .bindClass(keyC, TestC)
+
+      const fnOne = pumpIt.resolve<Fn>(key)
+
+      expect(fnOne().keyB).toBeInstanceOf(TestB)
+      expect(fnOne().keyC).toBeInstanceOf(TestC)
     })
   })
 })

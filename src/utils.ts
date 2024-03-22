@@ -7,6 +7,8 @@ export const TRANSFORM_DEPS = Symbol()
 //detect injection function
 const INJECTION_FN = Symbol()
 
+export const INJECT_KEY = Symbol()
+
 export type ParsedInjectionData =
   | { key: BindKey; options: { optional?: boolean; lazy?: boolean } } //get
   | {

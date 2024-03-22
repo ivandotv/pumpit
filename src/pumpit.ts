@@ -9,12 +9,7 @@ import type {
 } from "./types"
 import type { RequestCtx } from "./types-internal"
 import { ClassPoolData, FactoryPoolData, PoolData } from "./types-internal"
-import {
-  Injection,
-  InjectionData,
-  keyToString,
-  parseInjectionData,
-} from "./utils"
+import { INJECT_KEY, Injection, keyToString, parseInjectionData } from "./utils"
 
 //track undefined values from the factory
 const UNDEFINED_RESULT = Symbol()
@@ -195,7 +190,7 @@ export class PumpIt {
     return {
       exec: typeof value !== "function" ? value.value : value,
       // @ts-expect-error type narrow
-      inject: value.inject,
+      inject: value[INJECT_KEY] || value.inject,
     }
   }
 
