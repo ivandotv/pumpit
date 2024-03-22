@@ -1,5 +1,11 @@
 # pumpa
 
+## 7.2.0
+
+### Minor Changes
+
+- 4cfbc46: Implement using special "INJECT_KEY" symbol instead of "inject" key property
+
 ## 7.1.1
 
 ### Patch Changes
