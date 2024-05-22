@@ -8,8 +8,13 @@ import type {
   ResolveCtx,
 } from "./types"
 import type { RequestCtx } from "./types-internal"
-import { ClassPoolData, FactoryPoolData, PoolData } from "./types-internal"
-import { INJECT_KEY, Injection, keyToString, parseInjectionData } from "./utils"
+import type { ClassPoolData, FactoryPoolData, PoolData } from "./types-internal"
+import {
+  INJECT_KEY,
+  type Injection,
+  keyToString,
+  parseInjectionData,
+} from "./utils"
 
 //track undefined values from the factory
 const UNDEFINED_RESULT = Symbol()
@@ -134,7 +139,7 @@ export class PumpIt {
 
   has(key: BindKey, searchParent = true): boolean {
     if (searchParent && this.parent) {
-      return this.getInjectable(key) ? true : false
+      return !!this.getInjectable(key)
     }
 
     return this.pool.has(key)
