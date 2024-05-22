@@ -337,9 +337,9 @@ export class PumpIt {
           : ""
 
         throw new Error(
-          `Circular reference detected: ${path} -> [ ${keyToString(key)}: ${
-            value.name
-          } ]`,
+          `Circular reference detected: ${path} -> [ ${keyToString(
+            key,
+          )}: ${value} ]`,
         )
       }
     } else {
