@@ -1,4 +1,4 @@
-import { SCOPE, TYPE } from "./pumpit"
+import type { SCOPE, TYPE } from "./pumpit"
 import type {
   AvailableScopes,
   BindKey,
