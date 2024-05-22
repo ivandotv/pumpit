@@ -465,4 +465,54 @@ export class PumpIt {
 
     return result
   }
+
+  /**
+   * Validates the bindings in the container.
+   * This method will check if all the dependencies that are required by other bindings are present in the container.
+   * It will not instantiate the classes or execute the functions.
+   *
+   * @returns An object containing the validation result.
+   */
+  validate() {
+    const seen = new Set()
+    const wantedBy = new Map()
+
+    for (const [parent, value] of this.pool.entries()) {
+      if (seen.has(parent)) {
+        return
+      }
+
+      seen.add(parent)
+
+      const toInject = value.value.inject
+      if (toInject) {
+        for (const dep of toInject) {
+          const data = parseInjectionData(dep)
+          if (!seen.has(data.key)) {
+            seen.add(data.key)
+            if (!this.has(data.key)) {
+              if (!wantedBy.has(data.key)) {
+                wantedBy.set(data.key, [])
+              }
+              wantedBy.get(data.key).push(parent)
+            }
+          }
+        }
+      }
+    }
+
+    const result = []
+    for (const [key, value] of wantedBy.entries()) {
+      if (value.length > 0) {
+        result.push({
+          key,
+          wantedBy: value,
+        })
+      }
+    }
+    return {
+      valid: result.length === 0,
+      errors: result,
+    }
+  }
 }
