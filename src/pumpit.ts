@@ -252,7 +252,7 @@ export class PumpIt {
       ctx: opts,
     }
 
-    const result = this._resolve(key, { optional: false }, ctx)
+    const result = this._resolve(key, {}, ctx)
 
     // Execute postConstruct functions
     for (const value of ctx.postConstruct) {
@@ -308,7 +308,7 @@ export class PumpIt {
   ): any {
     const data = this.getInjectable(key)
 
-    if (options?.optional === true && !data) {
+    if (options?.optional && !data) {
       return undefined
     }
 
