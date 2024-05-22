@@ -51,7 +51,7 @@ export function get(
 }
 
 function isInjectionFn(value: any): value is ReturnType<typeof get> {
-  return Boolean(value[INJECTION_FN])
+  return !!value[INJECTION_FN]
 }
 
 export function parseInjectionData(key: Injection): ParsedInjectionData {
