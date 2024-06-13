@@ -1,3 +1,4 @@
+import { PumpitError } from "./pumpit-error"
 import type {
   AvailableScopes,
   BindKey,
@@ -8,8 +9,13 @@ import type {
   ResolveCtx,
 } from "./types"
 import type { RequestCtx } from "./types-internal"
-import { ClassPoolData, FactoryPoolData, PoolData } from "./types-internal"
-import { INJECT_KEY, Injection, keyToString, parseInjectionData } from "./utils"
+import type { ClassPoolData, FactoryPoolData, PoolData } from "./types-internal"
+import {
+  INJECT_KEY,
+  type Injection,
+  keyToString,
+  parseInjectionData,
+} from "./utils"
 
 //track undefined values from the factory
 const UNDEFINED_RESULT = Symbol()
@@ -134,7 +140,7 @@ export class PumpIt {
 
   has(key: BindKey, searchParent = true): boolean {
     if (searchParent && this.parent) {
-      return this.getInjectable(key) ? true : false
+      return !!this.getInjectable(key)
     }
 
     return this.pool.has(key)
@@ -247,7 +253,7 @@ export class PumpIt {
       ctx: opts,
     }
 
-    const result = this._resolve(key, { optional: false }, ctx)
+    const result = this._resolve(key, {}, ctx)
 
     // Execute postConstruct functions
     for (const value of ctx.postConstruct) {
@@ -303,7 +309,7 @@ export class PumpIt {
   ): any {
     const data = this.getInjectable(key)
 
-    if (options?.optional === true && !data) {
+    if (options?.optional && !data) {
       return undefined
     }
 
@@ -332,9 +338,9 @@ export class PumpIt {
           : ""
 
         throw new Error(
-          `Circular reference detected: ${path} -> [ ${keyToString(key)}: ${
-            value.name
-          } ]`,
+          `Circular reference detected: ${path} -> [ ${keyToString(
+            key,
+          )}: ${value} ]`,
         )
       }
     } else {
@@ -459,5 +465,75 @@ export class PumpIt {
     ctx.transientCache.set(key, result)
 
     return result
+  }
+
+  protected _validate(safe: boolean) {
+    const seen = new Set()
+    const wantedBy = new Map()
+
+    for (const [bindKey, value] of this.pool.entries()) {
+      if (seen.has(bindKey)) {
+        return
+      }
+
+      seen.add(bindKey)
+
+      const toInject = value.value.inject
+      if (toInject) {
+        for (const dep of toInject) {
+          const data = parseInjectionData(dep)
+
+          seen.add(data.key)
+          if (!this.has(data.key)) {
+            if (!wantedBy.has(data.key)) {
+              wantedBy.set(data.key, [])
+            }
+            wantedBy.get(data.key).push(bindKey)
+          }
+        }
+      }
+    }
+
+    const errors = []
+    for (const [key, value] of wantedBy.entries()) {
+      if (value.length > 0) {
+        errors.push({
+          key,
+          wantedBy: value,
+        })
+      }
+    }
+    const valid = errors.length === 0
+
+    if (!safe && !valid) {
+      throw new PumpitError("Validation", errors)
+    }
+
+    return {
+      valid,
+      errors,
+    }
+  }
+
+  /**
+   * Validates the bindings in the container.
+   * It will check if all the dependencies that are required by other bindings are present in the container.
+   * If the validation fails it will throw an error.
+   * It will not instantiate the classes or execute the functions.
+   *
+   */
+  validate() {
+    this._validate(false)
+  }
+
+  /**
+   * Validates the bindings in the container.
+   * It will check if all the dependencies that are required by other bindings are present in the container.
+   * It will not instantiate the classes or execute the functions.
+   *
+   * @returns An object containing the validation result.
+   */
+  validateSafe() {
+    return this._validate(true)
   }
 }

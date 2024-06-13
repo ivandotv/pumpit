@@ -1,6 +1,6 @@
 import type { PumpIt } from "./pumpit"
-import { SCOPE, TYPE } from "./pumpit"
-import { InjectionData } from "./utils"
+import type { SCOPE, TYPE } from "./pumpit"
+import type { InjectionData } from "./utils"
 
 /** Available types that can be binded*/
 export type AvailableTypes = keyof typeof TYPE

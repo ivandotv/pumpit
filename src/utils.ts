@@ -1,5 +1,5 @@
 import type { PumpIt } from "./pumpit"
-import { BindKey, ResolveCtx } from "./types"
+import type { BindKey, ResolveCtx } from "./types"
 
 //detect transfom action function
 export const TRANSFORM_DEPS = Symbol()
@@ -51,7 +51,7 @@ export function get(
 }
 
 function isInjectionFn(value: any): value is ReturnType<typeof get> {
-  return Boolean(value[INJECTION_FN])
+  return !!value[INJECTION_FN]
 }
 
 export function parseInjectionData(key: Injection): ParsedInjectionData {
