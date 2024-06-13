@@ -53,14 +53,14 @@
   },
   "homepage": "https://github.com/ivandotv/pumpit#readme",
   "devDependencies": {
-    "@biomejs/biome": "1.7.3",
-    "@changesets/cli": "^2.27.2",
+    "@biomejs/biome": "1.8.1",
+    "@changesets/cli": "^2.27.5",
     "@vitest/coverage-v8": "^1.6.0",
-    "lefthook": "^1.6.12",
+    "lefthook": "^1.6.16",
     "microbundle": "^0.15.1",
     "shx": "^0.3.4",
     "typedoc": "^0.25.13",
-    "typedoc-plugin-markdown": "^4.0.2",
+    "typedoc-plugin-markdown": "^4.0.3",
     "typescript": "^5.4.5",
     "vitest": "^1.6.0"
   }
