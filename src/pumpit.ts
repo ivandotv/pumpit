@@ -1,3 +1,4 @@
+import { PumpitError } from "./pumpit-error"
 import type {
   AvailableScopes,
   BindKey,
@@ -466,53 +467,73 @@ export class PumpIt {
     return result
   }
 
-  /**
-   * Validates the bindings in the container.
-   * This method will check if all the dependencies that are required by other bindings are present in the container.
-   * It will not instantiate the classes or execute the functions.
-   *
-   * @returns An object containing the validation result.
-   */
-  validate() {
+  protected _validate(safe: boolean) {
     const seen = new Set()
     const wantedBy = new Map()
 
-    for (const [parent, value] of this.pool.entries()) {
-      if (seen.has(parent)) {
+    for (const [bindKey, value] of this.pool.entries()) {
+      if (seen.has(bindKey)) {
         return
       }
 
-      seen.add(parent)
+      seen.add(bindKey)
 
       const toInject = value.value.inject
       if (toInject) {
         for (const dep of toInject) {
           const data = parseInjectionData(dep)
-          if (!seen.has(data.key)) {
-            seen.add(data.key)
-            if (!this.has(data.key)) {
-              if (!wantedBy.has(data.key)) {
-                wantedBy.set(data.key, [])
-              }
-              wantedBy.get(data.key).push(parent)
+
+          seen.add(data.key)
+          if (!this.has(data.key)) {
+            if (!wantedBy.has(data.key)) {
+              wantedBy.set(data.key, [])
             }
+            wantedBy.get(data.key).push(bindKey)
           }
         }
       }
     }
 
-    const result = []
+    const errors = []
     for (const [key, value] of wantedBy.entries()) {
       if (value.length > 0) {
-        result.push({
+        errors.push({
           key,
           wantedBy: value,
         })
       }
     }
-    return {
-      valid: result.length === 0,
-      errors: result,
+    const valid = errors.length === 0
+
+    if (!safe && !valid) {
+      throw new PumpitError("Validation", errors)
     }
+
+    return {
+      valid,
+      errors,
+    }
+  }
+
+  /**
+   * Validates the bindings in the container.
+   * It will check if all the dependencies that are required by other bindings are present in the container.
+   * If the validation fails it will throw an error.
+   * It will not instantiate the classes or execute the functions.
+   *
+   */
+  validate() {
+    this._validate(false)
+  }
+
+  /**
+   * Validates the bindings in the container.
+   * It will check if all the dependencies that are required by other bindings are present in the container.
+   * It will not instantiate the classes or execute the functions.
+   *
+   * @returns An object containing the validation result.
+   */
+  validateSafe() {
+    return this._validate(true)
   }
 }
