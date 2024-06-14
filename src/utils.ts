@@ -86,5 +86,14 @@ export function transform(
 
 export function keyToString(key: BindKey) {
   // @ts-expect-error name does not exist on string or symbol
-  return String(key.name || key)
+  return key.name || key.toString()
+}
+
+//TODO - write tests for this
+export function registerInjections<T>(
+  cls: new (...args: unknown[]) => T | ((...args: unknown[]) => any),
+  deps: unknown[],
+): void {
+  // @ts-expect-error - no inject property on cls
+  cls[INJECT_KEY] = deps
 }

@@ -39,6 +39,7 @@ It supports different injection scopes, child containers, hooks etc...
   * [Shadowing values](#shadowing-values)
   * [Checking for values](#checking-for-values)
   * [Child singletons](#child-singletons)
+  * [Validating bindings](#validating-bindings)
 - [API docs](#api-docs)
 - [License](#license)
 
@@ -824,6 +825,40 @@ const childInstance = child.resolve<TestA>(TestA)
 
 parentInstance !== childInstance
 TestA.count === 2
+```
+### Validating bindings
+
+Calling `validate` or `validateSafe` will validate the bindings in the container.
+It will check if all the dependencies that are required by other bindings are present in the container.
+
+`validate` method will throw an error, while `validateSafe` will return a validation result. Calling these methods will not instantiate classes or run factory functions, so there is still a possibility that you will not get what you want when dependencies are resolved at runtime.
+
+In the next example `RequestTest` class is not present in the container, but is needed in class `TestB`
+
+```ts
+
+const pumpIt = new PumpIt()
+
+class TestA {}
+
+class TestB {
+  static inject = [TestA]
+
+  constructor(
+    public a: TestA,
+  ) {}
+}
+
+//bind only TestB
+pumpIt.bindClass(TestB, TestB)
+
+const result = pumpIt.validateSafe()
+
+expect(result).toEqual({
+  valid: false,
+  errors: [{ key: TestA, wantedBy: [TestB] }],
+})
+
 ```
 
 ## API docs
