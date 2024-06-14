@@ -1,5 +1,11 @@
 # pumpa
 
+## 7.3.1
+
+### Patch Changes
+
+- 509c64d: Add documentation for the `validate` and `validateSafe` methods.
+
 ## 7.3.0
 
 ### Minor Changes
