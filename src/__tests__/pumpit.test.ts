@@ -277,6 +277,7 @@ describe("Optional injection", () => {
       expect(child.getName()).toBe(name)
     })
   })
+
   describe("Inject via INJECT_KEY", () => {
     test("inject key works with a class", () => {
       const pumpIt = new PumpIt()
@@ -296,7 +297,7 @@ describe("Optional injection", () => {
       expect(instance.b).toBeInstanceOf(TestB)
     })
 
-    test("inject key works with a class by adding the key later", () => {
+    test("inject key works with a class by adding the key externally", () => {
       const pumpIt = new PumpIt()
 
       class TestB {}
@@ -323,6 +324,30 @@ describe("Optional injection", () => {
       class TestA {
         static [INJECT_KEY] = [TestB]
       }
+
+      class TestC extends TestA {
+        constructor(public b: TestB) {
+          super()
+        }
+      }
+
+      pumpIt.bindClass(TestA, TestA)
+      pumpIt.bindClass(TestB, TestB)
+      pumpIt.bindClass(TestC, TestC)
+
+      const instance = pumpIt.resolve<TestC>(TestC)
+
+      expect(instance.b).toBeInstanceOf(TestB)
+    })
+
+    test("inject key works externally when using class inheritance", () => {
+      const pumpIt = new PumpIt()
+
+      class TestB {}
+
+      class TestA {}
+
+      TestA[INJECT_KEY] = [TestB]
 
       class TestC extends TestA {
         constructor(public b: TestB) {
