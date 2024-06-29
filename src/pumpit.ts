@@ -62,6 +62,10 @@ export class PumpIt {
     this.name = name
   }
 
+  /**
+   * Gets the name of the container
+   * @returns The name of the object.
+   */
   getName() {
     return this.name
   }
@@ -78,6 +82,12 @@ export class PumpIt {
     this.pool.set(key, { ...info, value })
   }
 
+  /**
+   * Unbinds a dependency from the container.
+   * @param key - The key to unbind.
+   * @param dispose - Optional. Specifies whether to call dispose method if available. Default is `true`.
+   * @throws {Error} If the container is locked or if the key is not found.
+   */
   unbind(key: BindKey, dispose = true): void {
     if (this.locked) {
       throw new Error("Container is locked")
@@ -109,6 +119,11 @@ export class PumpIt {
     throw new Error(`Key: ${keyToString(key)} not found`)
   }
 
+  /**
+   * Unbinds all dependencies from the container.
+   * @param callDispose - Whether to call the `dispose` method on each unbound dependency. Default is `true`
+   *
+   */
   unbindAll(callDispose = true) {
     for (const key of this.pool.keys()) {
       this.unbind(key, callDispose)
@@ -127,6 +142,13 @@ export class PumpIt {
     }
   }
 
+  /**
+   * Checks if the dependency under the specified key exists in the container.
+   *
+   * @param key - The key to check for existence.
+   * @param searchParent - Optional. Specifies whether to search the parent container if the key is not found in the current container. Default is true.
+   * @returns A boolean value indicating whether the key exists in the pool or its parent pool.
+   */
   has(key: BindKey, searchParent = true): boolean {
     if (searchParent && this.parent) {
       return !!this.getInjectable(key)
@@ -534,8 +556,8 @@ export class PumpIt {
   }
 
   /**
-   * Checks if the object is locked.
-   * @returns {boolean} True if the container is locked, false otherwise.
+   * Checks if the container is locked.
+   * @returns {boolean} `true` if the container is locked, `false` otherwise.
    */
   isLocked(): boolean {
     return this.locked
