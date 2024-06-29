@@ -41,6 +41,8 @@ It supports different injection scopes, child containers, hooks etc...
   * [Checking for values](#checking-for-values)
   * [Child singletons](#child-singletons)
   * [Validating bindings](#validating-bindings)
+- [Helpers](#helpers)
+  * [Register injections](#register-injections)
 - [API docs](#api-docs)
 - [License](#license)
 
@@ -884,6 +886,38 @@ expect(result).toEqual({
 
 ```
 
+## Helpers
+
+### Register injections
+
+`registerInjections` helper function with a class or factory. It will automatically create `inject` property on the class or factory function.
+
+```ts
+test("use helper to inject in to class", () => {
+  const pumpIt = new PumpIt()
+
+  class TestA {}
+  class TestB {}
+  class TestC {
+    constructor(
+      public a: TestA,
+      public b: TestB,
+    ) {}
+  }
+
+  registerInjections(TestC, [TestA, TestB])
+
+  pumpIt
+    .bindClass(TestA, TestA)
+    .bindClass(TestB, TestB)
+    .bindClass(TestC, TestC)
+
+  const result = pumpIt.resolve<TestC>(TestC)
+
+  expect(result.a).toBeInstanceOf(TestA)
+  expect(result.b).toBeInstanceOf(TestB)
+})
+```
 ## API docs
 
 `PumpIt` is written in TypeScript, [auto generated API documentation](docs/api/README.md) is available.
