@@ -34,7 +34,6 @@ It supports different injection scopes, child containers, hooks etc...
   * [Calling the dispose method](#calling-the-dispose-method)
   * [Dispose callback](#dispose-callback)
   * [Removing all the values from the container](#removing-all-the-values-from-the-container)
-  * [Clearing container values](#clearing-container-values)
   * [Locking the container](#locking-the-container)
 - [Child containers](#child-containers)
   * [Shadowing values](#shadowing-values)
@@ -718,42 +717,6 @@ const container = new PumpIt()
 const callDispose = true
 container.unbindAll(callDispose)
 ```
-
-### Clearing container values
-
-You can clear all the singleton values that are present in the container. When the values are cleared, resolving those values again will create new singletons. Also, the `dispose` method will be called (if present on the instance).
-
-```ts
-const container = new PumpIt()
-
-class TestA {}
-
-container.bindClass(TestA, TestA, { scope: 'SINGLETON' }) // or SCOPE.CONTAINER_SINGLETON
-
-const instanceOne = pumpIt.resolve(TestA)
-
-container.clearAllInstances()
-
-const instanceTwo = container.resolve(TestA) // new instance
-
-instanceOne !== instanceTwo
-```
-
-A particular singleton instance can also be cleared by using the `key`:
-
-```ts
-const container = new PumpIt()
-
-class TestA {}
-
-container.bindClass(TestA, TestA, { scope: SCOPE.SINGLETON }) // or SCOPE.CONTAINER_SINGLETON
-
-const instanceOne = pumpIt.resolve(TestA)
-
-container.clearInstance(TestA)
-```
-
-Clearing a single singleton will return true if the singleton `key` was found, false otherwise.
 
 ### Locking the container
 

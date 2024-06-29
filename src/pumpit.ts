@@ -117,25 +117,6 @@ export class PumpIt {
     this.singletonCache.clear()
   }
 
-  clearAllInstances() {
-    for (const value of this.singletonCache.values()) {
-      this.callDispose(value)
-    }
-    this.singletonCache.clear()
-  }
-
-  clearInstance(key: BindKey): boolean {
-    const found = this.singletonCache.get(key)
-    if (found) {
-      this.singletonCache.delete(key)
-      this.callDispose(found)
-
-      return true
-    }
-
-    return false
-  }
-
   protected callDispose(value: any) {
     if (
       typeof value !== "symbol" &&
