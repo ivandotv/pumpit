@@ -56,6 +56,8 @@ export class PumpIt {
 
   protected name?: string
 
+  protected locked = false
+
   constructor(name?: string) {
     this.name = name
   }
@@ -65,6 +67,9 @@ export class PumpIt {
   }
 
   protected add(key: BindKey, value: any, info: PoolData): void {
+    if (this.locked) {
+      throw new Error("Container is locked")
+    }
     const dataHit = this.pool.get(key)
 
     if (dataHit) {
@@ -74,6 +79,9 @@ export class PumpIt {
   }
 
   unbind(key: BindKey, dispose = true): void {
+    if (this.locked) {
+      throw new Error("Container is locked")
+    }
     const poolData = this.pool.get(key)
 
     if (poolData) {
@@ -535,5 +543,20 @@ export class PumpIt {
    */
   validateSafe() {
     return this._validate(true)
+  }
+
+  /**
+   * Locks the container so no more bindings can be added or removed.
+   */
+  lock() {
+    this.locked = true
+  }
+
+  /**
+   * Checks if the object is locked.
+   * @returns {boolean} True if the container is locked, false otherwise.
+   */
+  isLocked(): boolean {
+    return this.locked
   }
 }

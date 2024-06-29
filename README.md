@@ -35,6 +35,7 @@ It supports different injection scopes, child containers, hooks etc...
   * [Dispose callback](#dispose-callback)
   * [Removing all the values from the container](#removing-all-the-values-from-the-container)
   * [Clearing container values](#clearing-container-values)
+  * [Locking the container](#locking-the-container)
 - [Child containers](#child-containers)
   * [Shadowing values](#shadowing-values)
   * [Checking for values](#checking-for-values)
@@ -752,6 +753,28 @@ container.clearInstance(TestA)
 
 Clearing a single singleton will return true if the singleton `key` was found, false otherwise.
 
+### Locking the container
+
+If the container is `locked` that particular container can't accept new bindings or unbind the values already in the container.
+Locking the container does not affect child containers.
+
+```ts
+const container = new PumpIt()
+
+class TestA {}
+class TestB {}
+
+container.bindClass(TestA, TestA)
+
+container.lock()
+
+container.isLocked() // returns true
+
+container.bindClass(TestB,TestB) //throws error
+
+container.unbind(TestA) //throws error
+
+```
 ## Child containers
 
 Every container instance can create a **child** container.
