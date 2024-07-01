@@ -1,5 +1,13 @@
 # pumpa
 
+## 9.0.0
+
+### Major Changes
+
+- f814cd6: Remove `beforeResolve` and `afterResolve` callbacks. After some time I figured that these hooks are an **antipattern** when it comes to the dependency injection (and are rarely used), therefore they are being removed.
+- 634db4a: remove `unbind` hook. After some time I have found that the unbind hook is an antipattern and I do not want to support it anymore.
+- 867d760: remove `transform` utility function. Another anti-pattern.
+
 ## 8.0.0
 
 ### Major Changes
