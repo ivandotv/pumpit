@@ -27,12 +27,9 @@ It supports different injection scopes, child containers, hooks etc...
 - [Optional injections](#optional-injections)
 - [~~Circular dependencies~~](#circular-dependencies)
 - [~~Injecting arrays~~](#injecting-arrays)
-- [Transforming dependencies (hooks)](#transforming-dependencies-hooks)
-  * [Transforming injected dependencies](#transforming-injected-dependencies)
   * [Post construct method](#post-construct-method)
 - [Removing values from the container](#removing-values-from-the-container)
   * [Calling the dispose method](#calling-the-dispose-method)
-  * [Dispose callback](#dispose-callback)
   * [Removing all the values from the container](#removing-all-the-values-from-the-container)
   * [Locking the container](#locking-the-container)
 - [Child containers](#child-containers)
@@ -317,9 +314,6 @@ const container = new PumpIt()
 const resolveCtx = { foo: 'bar' }
 container.resolve('some_key', resolveCtx)
 ```
-
-> Read about [transforming dependencies](#transforming-dependencies) to see how context is passed to the callbacks.
-
 ## Injection tokens
 
 Injection tokens are the values by which the injection container knows how to resolve registered data. They can be `string`, `Symbol`, or any object.
@@ -538,109 +532,6 @@ instanceA.b // undefined
 > NOTE: Injecting array as a dependency has been removed in version 6.
 > If you want to use this feature you can use [version 5](https://github.com/ivandotv/pumpit/tree/v5.0.0)
 
-## Transforming dependencies (hooks)
-
-Dependencies can be transformed before being resolved.
-
-They can be manipulated just **before** they are created, or **after** they are created.
-
-- "`beforeResolve`" callback is called **before** the registered value is created. In the case of the `class` just before the class instance is created. In the case of the `factory` just before the factory is executed.
-
-- "`afterResolve`" - callback is called **after** the `class` instance is created, or `factory` function is executed. The `value` in the callback represents whatever is returned from the `beforeResolve` callback. This callback is the perfect place to do any `post` creation setup.
-
-```ts
-const container = new PumpIt()
-const valueB = { name: 'Ivan' }
-const resolveCtx = { foo: 'bar' }
-
-class TestA {
-  static inject = [keyB]
-
-  constructor(public keyB: typeof valueB) {}
-  hello(){
-    return  'hello world'
-  }
-}
-
-container.bindValue(keyB, valueB)
-
-container.bindClass(keyA, TestA, {
-  beforeResolve: ({ container, value, ctx }, ...deps) => {
-
-    container === pumpIt // instance of PumpIt
-    value === TestA // class constructor
-    ctx === resolveCtx//context data if any
-    deps ===[valueB]// resolved dependency of class TestA
-
-    // internally this is the default behavior
-    return new value(...deps)
-
-    // in case of factory function
-    // return value(...deps)
-  },
-  afterResolve:({container,value,ctx}=>{
-
-    container === pumpIt // instance of PumpIt
-    value // whatever is returned from the "beforeResolve" callback
-    //^ in this case it is an instance of TestA
-    ctx === resolveCallbackData //context data if any
-
-    // you can do custom setup here
-    value.hello() // hello world
-  })
-})
-
-const instance = pumpIt.resolve(TestA, resolveCtx)
-```
-
-The number of times these callbacks will be executed directly depends on the `scope` with which the value was registered. In the case of a `singleton` scope callbacks will be executed only once, since the values are resolved only once.
-
-### Transforming injected dependencies
-
-Injected dependencies can also be manipulated just before they are injected. For this, we use the `transform()` helper function.
-
-`transform` function wraps the injected dependencies, and accepts a callback which will receive all the resolved dependencies that need to be injected, and it should return an array of dependencies. whatever is returned from the callback, will be injected.
-
-```ts
-import { transform, PumpIt } from 'pumpit'
-
-const container = new PumpIt()
-
-const keyA = Symbol()
-const keyB = Symbol()
-const keyC = Symbol()
-
-const valueA = { name: 'a' }
-const valueB = { name: 'b' }
-const valueC = { name: 'c' }
-
-const resolveCtx = { hello: 'world' }
-
-class TestA {
-  static inject = transform(
-    [keyA, keyB, keyC],
-    (
-      { container, ctx },
-      a: typeof valueA,
-      b: typeof valueB,
-      c: typeof valueC
-    ) => {
-      container === pumpIt // instance of PumpIt
-      ctx === resolveCtx // context data
-
-      a === valueA
-      b === valueB
-      c === valueC
-
-      //default implementation, return the same dependencies in the same order
-      return [a, b, c]
-    }
-  )
-
-  constructor(a: typeof valueA, b: typeof valueB, c: typeof valueC) {}
-}
-```
-
 ### Post construct method
 
 If the class that is being constructed (resolved) has a "postConstruct" method defined it will be called automatically when the class instance is created, in the case of singleton instances it will be called only once. One more important thing about `postConstruct` method is that it will be called in the reverse order of the resolution chain. [Please refer to this test for a concrete example](src/__tests__/instance/post-construct.test.ts#L22)
@@ -684,29 +575,6 @@ TestA.count === 1
 ```
 
 If you don't want to call the `dispose` method, pass `false` as the second parameter `container.unbind(TestA, false)`
-
-### Dispose callback
-
-When registering the class or factory, you can provide an `unbind` callback that will be called when the value is about to be removed from the container.
-
-> `unbind` callback will be called regardless of whether the value to be removed is `singleton` or not.
-
-```ts
-const container = new PumpIt()
-
-class TestA {}
-
-container.bindClass(TestA, TestA, {
-  scope: 'SINGLETON',
-  unbind: (container, dispose, value) => {
-    container === pumpIt
-    value // TestA instance is scope: singleton otherwise TestA constructor
-    dispose // true if `dispose` method should be called
-  }
-})
-```
-
-Please note that in the preceding example `value` property in the callback can be a `TestA` constructor or an instance of `TestA` depending on if the value was registered with the scope of `singleton` and it was resolved before (container holds the instance singleton).
 
 ### Removing all the values from the container
 

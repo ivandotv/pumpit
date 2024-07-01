@@ -1,6 +1,5 @@
 import type { SCOPE, TYPE } from "./pumpit"
 import type {
-  AvailableScopes,
   BindKey,
   ClassOptions,
   ClassValue,
@@ -12,7 +11,7 @@ type InternalResolveCtx = {
   data?: Record<string, any>
 }
 
-export type ClassPoolData = ClassOptions<ClassValue, AvailableScopes> & {
+export type ClassPoolData = ClassOptions & {
   value: ClassValue
 }
 
@@ -26,7 +25,7 @@ export type ValueOptions = {
 
 export type ValuePoolData = ValueOptions & { value: any }
 
-export type FactoryPoolData = FactoryOptions<FactoryValue, AvailableScopes> & {
+export type FactoryPoolData = FactoryOptions & {
   value: FactoryValue
 }
 

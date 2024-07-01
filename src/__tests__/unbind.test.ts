@@ -45,56 +45,6 @@ describe("Unbind", () => {
     expect(disposeCall).toHaveBeenCalled()
   })
 
-  test('unbind factory and call the "dispose" callback', () => {
-    const pumpIt = new PumpIt()
-    const keyA = Symbol("key_a")
-
-    const factory = () => {
-      return {}
-    }
-
-    const unbindCallback = vi.fn()
-
-    pumpIt.bindFactory(keyA, factory, {
-      scope: "SINGLETON",
-      unbind: unbindCallback,
-    })
-
-    const factoryValue = pumpIt.resolve(keyA)
-
-    pumpIt.unbind(keyA)
-
-    expect(unbindCallback).toHaveBeenCalledWith({
-      container: pumpIt,
-      dispose: true,
-      value: factoryValue,
-    })
-  })
-
-  test("dispose callback value is empty when the bound value is not a singleton", () => {
-    const pumpIt = new PumpIt()
-    const keyA = Symbol("key_a")
-
-    const factory = () => {
-      return {}
-    }
-
-    const unbindCallback = vi.fn()
-
-    pumpIt.bindFactory(keyA, factory, {
-      unbind: unbindCallback,
-    })
-    pumpIt.resolve(keyA)
-
-    pumpIt.unbind(keyA)
-
-    expect(unbindCallback).toHaveBeenCalledWith({
-      container: pumpIt,
-      dispose: true,
-      value: undefined,
-    })
-  })
-
   test('unbind factory and do not call the "dispose" method', () => {
     const pumpIt = new PumpIt()
     const keyA = Symbol("key_a")
@@ -149,57 +99,6 @@ describe("Unbind", () => {
     expect(pumpIt.has(keyA)).toBe(false)
     expect(() => pumpIt.resolve(keyA)).toThrow("not found")
     expect(disposeCall).toHaveBeenCalled()
-  })
-
-  test('unbind class and call the "dispose" callback', () => {
-    const pumpIt = new PumpIt()
-    const keyA = Symbol("key_a")
-
-    class TestA {}
-
-    const unbindCallback = vi.fn()
-
-    pumpIt.bindClass(keyA, TestA, {
-      scope: "SINGLETON",
-      unbind: unbindCallback,
-    })
-
-    const instance = pumpIt.resolve(keyA)
-
-    pumpIt.unbind(keyA)
-
-    expect(unbindCallback).toHaveBeenCalledWith({
-      container: pumpIt,
-      dispose: true,
-      value: instance,
-    })
-  })
-
-  test("dispose callback value is empty when the bound class is not a singleton", () => {
-    const pumpIt = new PumpIt()
-    const keyA = Symbol("key_a")
-
-    class TestA {
-      hello() {
-        return "hello"
-      }
-    }
-
-    const unbindCallback = vi.fn()
-
-    pumpIt.bindClass(keyA, TestA, {
-      scope: "TRANSIENT",
-      unbind: unbindCallback,
-    })
-
-    pumpIt.resolve(keyA)
-    pumpIt.unbind(keyA)
-
-    expect(unbindCallback).toHaveBeenCalledWith({
-      container: pumpIt,
-      dispose: true,
-      value: undefined,
-    })
   })
 
   test('unbind class and do not call the "dispose" method', () => {
