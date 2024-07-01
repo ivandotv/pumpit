@@ -1,5 +1,20 @@
 # pumpa
 
+## 8.0.0
+
+### Major Changes
+
+- 076812a: remove `clearInstance` and `clearAllInstances` methods.
+
+### Minor Changes
+
+- 9390bf1: create `registerInjections` helper function for an easier way to register dependencies for a class or a function
+- 03e55af: Add container `lock` method.
+
+### Patch Changes
+
+- 6ba17d1: add comments to public methods
+
 ## 7.3.1
 
 ### Patch Changes
