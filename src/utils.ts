@@ -89,11 +89,17 @@ export function keyToString(key: BindKey) {
   return key.name || key.toString()
 }
 
-//TODO - write tests for this
-export function registerInjections<T>(
-  cls: new (...args: unknown[]) => T | ((...args: unknown[]) => any),
+/**
+ * Registers the dependencies for a class or function.
+ * @param f - The class or function to register the dependencies for.
+ * @param deps - An array of dependencies to be injected.
+ */
+export function registerInjections(
+  f:
+    | { new (...args: any[]): any }
+    | ((...args: any[]) => (...args: any[]) => any),
   deps: unknown[],
 ): void {
   // @ts-expect-error - no inject property on cls
-  cls[INJECT_KEY] = deps
+  f[INJECT_KEY] = deps
 }

@@ -34,12 +34,14 @@ It supports different injection scopes, child containers, hooks etc...
   * [Calling the dispose method](#calling-the-dispose-method)
   * [Dispose callback](#dispose-callback)
   * [Removing all the values from the container](#removing-all-the-values-from-the-container)
-  * [Clearing container values](#clearing-container-values)
+  * [Locking the container](#locking-the-container)
 - [Child containers](#child-containers)
   * [Shadowing values](#shadowing-values)
   * [Checking for values](#checking-for-values)
   * [Child singletons](#child-singletons)
   * [Validating bindings](#validating-bindings)
+- [Helpers](#helpers)
+  * [Register injections](#register-injections)
 - [API docs](#api-docs)
 - [License](#license)
 
@@ -716,42 +718,28 @@ const callDispose = true
 container.unbindAll(callDispose)
 ```
 
-### Clearing container values
+### Locking the container
 
-You can clear all the singleton values that are present in the container. When the values are cleared, resolving those values again will create new singletons. Also, the `dispose` method will be called (if present on the instance).
-
-```ts
-const container = new PumpIt()
-
-class TestA {}
-
-container.bindClass(TestA, TestA, { scope: 'SINGLETON' }) // or SCOPE.CONTAINER_SINGLETON
-
-const instanceOne = pumpIt.resolve(TestA)
-
-container.clearAllInstances()
-
-const instanceTwo = container.resolve(TestA) // new instance
-
-instanceOne !== instanceTwo
-```
-
-A particular singleton instance can also be cleared by using the `key`:
+If the container is `locked` that particular container can't accept new bindings or unbind the values already in the container.
+Locking the container does not affect child containers.
 
 ```ts
 const container = new PumpIt()
 
 class TestA {}
+class TestB {}
 
-container.bindClass(TestA, TestA, { scope: SCOPE.SINGLETON }) // or SCOPE.CONTAINER_SINGLETON
+container.bindClass(TestA, TestA)
 
-const instanceOne = pumpIt.resolve(TestA)
+container.lock()
 
-container.clearInstance(TestA)
+container.isLocked() // returns true
+
+container.bindClass(TestB,TestB) //throws error
+
+container.unbind(TestA) //throws error
+
 ```
-
-Clearing a single singleton will return true if the singleton `key` was found, false otherwise.
-
 ## Child containers
 
 Every container instance can create a **child** container.
@@ -861,6 +849,38 @@ expect(result).toEqual({
 
 ```
 
+## Helpers
+
+### Register injections
+
+`registerInjections` helper function with a class or factory. It will automatically create `inject` property on the class or factory function.
+
+```ts
+test("use helper to inject in to class", () => {
+  const pumpIt = new PumpIt()
+
+  class TestA {}
+  class TestB {}
+  class TestC {
+    constructor(
+      public a: TestA,
+      public b: TestB,
+    ) {}
+  }
+
+  registerInjections(TestC, [TestA, TestB])
+
+  pumpIt
+    .bindClass(TestA, TestA)
+    .bindClass(TestB, TestB)
+    .bindClass(TestC, TestC)
+
+  const result = pumpIt.resolve<TestC>(TestC)
+
+  expect(result.a).toBeInstanceOf(TestA)
+  expect(result.b).toBeInstanceOf(TestB)
+})
+```
 ## API docs
 
 `PumpIt` is written in TypeScript, [auto generated API documentation](docs/api/README.md) is available.
