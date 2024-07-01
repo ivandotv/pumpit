@@ -95,20 +95,9 @@ export class PumpIt {
     const poolData = this.pool.get(key)
 
     if (poolData) {
-      // @ts-expect-error - tmp
-      const { unbind } = poolData
       const singleton = this.singletonCache.get(key)
-      const payload = {
-        dispose,
-        container: this,
-        value: singleton,
-      }
-
       this.pool.delete(key)
       this.singletonCache.delete(key)
-
-      //call unbind callback
-      unbind?.(payload)
 
       if (singleton && dispose) {
         this.callDispose(singleton)

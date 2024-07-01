@@ -31,7 +31,6 @@ It supports different injection scopes, child containers, hooks etc...
   * [Post construct method](#post-construct-method)
 - [Removing values from the container](#removing-values-from-the-container)
   * [Calling the dispose method](#calling-the-dispose-method)
-  * [Dispose callback](#dispose-callback)
   * [Removing all the values from the container](#removing-all-the-values-from-the-container)
   * [Locking the container](#locking-the-container)
 - [Child containers](#child-containers)
@@ -626,29 +625,6 @@ TestA.count === 1
 ```
 
 If you don't want to call the `dispose` method, pass `false` as the second parameter `container.unbind(TestA, false)`
-
-### Dispose callback
-
-When registering the class or factory, you can provide an `unbind` callback that will be called when the value is about to be removed from the container.
-
-> `unbind` callback will be called regardless of whether the value to be removed is `singleton` or not.
-
-```ts
-const container = new PumpIt()
-
-class TestA {}
-
-container.bindClass(TestA, TestA, {
-  scope: 'SINGLETON',
-  unbind: (container, dispose, value) => {
-    container === pumpIt
-    value // TestA instance is scope: singleton otherwise TestA constructor
-    dispose // true if `dispose` method should be called
-  }
-})
-```
-
-Please note that in the preceding example `value` property in the callback can be a `TestA` constructor or an instance of `TestA` depending on if the value was registered with the scope of `singleton` and it was resolved before (container holds the instance singleton).
 
 ### Removing all the values from the container
 
