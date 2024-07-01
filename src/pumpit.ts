@@ -371,6 +371,7 @@ export class PumpIt {
     ctx: RequestCtx,
   ) {
     const { value, type } = data
+    // @ts-expect-error - type narrow
     const injectionData = value.inject
     let resolvedDeps: any[] = []
 
