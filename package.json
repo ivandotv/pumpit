@@ -53,7 +53,7 @@
   },
   "homepage": "https://github.com/ivandotv/pumpit#readme",
   "devDependencies": {
-    "@biomejs/biome": "1.8.2",
+    "@biomejs/biome": "1.8.3",
     "@changesets/cli": "^2.27.5",
     "@vitest/coverage-v8": "^1.6.0",
     "lefthook": "^1.6.16",
