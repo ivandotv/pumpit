@@ -3,6 +3,13 @@ import { PumpIt } from "../pumpit"
 import { PumpitError } from "../pumpit-error"
 
 describe("Locking", () => {
+  test("if container is locked, locked property is true", () => {
+    const pumpIt = new PumpIt()
+    pumpIt.lock()
+
+    expect(pumpIt.isLocked()).toBe(true)
+  })
+
   describe("bind", () => {
     test("throw if trying to bind class when container is locked", () => {
       const pumpIt = new PumpIt()
