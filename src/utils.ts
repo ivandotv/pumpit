@@ -1,8 +1,4 @@
-import type { PumpIt } from "./pumpit"
-import type { BindKey, ResolveCtx } from "./types"
-
-//detect transfom action function
-export const TRANSFORM_DEPS = Symbol()
+import type { BindKey } from "./types"
 
 //detect injection function
 const INJECTION_FN = Symbol()
@@ -22,9 +18,7 @@ export type ParsedInjectionData =
 
 export type Injection = BindKey | ReturnType<typeof get>
 
-export type InjectionData =
-  | Injection[]
-  | { action: symbol; fn: (...args: any) => any; deps: Injection[] }
+export type InjectionData = Injection[]
 
 /**
  * get dependency by key
@@ -65,23 +59,6 @@ export function parseInjectionData(key: Injection): ParsedInjectionData {
   }
 
   return { key, options: { optional: false } }
-}
-
-/**
- * Wrapper function for registering dependencies that can be manipulated before being injected
- * It gets an array of dependencies in injection order, and it should return an array
- * @param deps - array of dependencies that need to be satisfied see: {@link BindKey | BindKey} {@link get | get()}
- * @param fn - function that will be called with the resolved dependencies
- */
-export function transform(
-  deps: (BindKey | typeof get)[],
-  fn: (data: { container: PumpIt; ctx: ResolveCtx }, ...deps: any[]) => any[],
-) {
-  return {
-    action: TRANSFORM_DEPS,
-    fn: fn,
-    deps,
-  }
 }
 
 export function keyToString(key: BindKey) {

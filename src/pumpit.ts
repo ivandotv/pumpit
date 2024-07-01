@@ -375,17 +375,7 @@ export class PumpIt {
     let resolvedDeps: any[] = []
 
     if (injectionData) {
-      if (Array.isArray(injectionData)) {
-        resolvedDeps = this.resolveDeps(injectionData, ctx)
-      } else {
-        resolvedDeps = injectionData.fn(
-          {
-            container: this,
-            ctx: ctx.ctx,
-          },
-          ...this.resolveDeps(injectionData.deps, ctx),
-        )
-      }
+      resolvedDeps = this.resolveDeps(injectionData, ctx)
     }
     // @ts-expect-error - type narrow
     const result = value(...resolvedDeps)

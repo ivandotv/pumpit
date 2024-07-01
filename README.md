@@ -27,7 +27,6 @@ It supports different injection scopes, child containers, hooks etc...
 - [Optional injections](#optional-injections)
 - [~~Circular dependencies~~](#circular-dependencies)
 - [~~Injecting arrays~~](#injecting-arrays)
-  * [Transforming injected dependencies](#transforming-injected-dependencies)
   * [Post construct method](#post-construct-method)
 - [Removing values from the container](#removing-values-from-the-container)
   * [Calling the dispose method](#calling-the-dispose-method)
@@ -315,9 +314,6 @@ const container = new PumpIt()
 const resolveCtx = { foo: 'bar' }
 container.resolve('some_key', resolveCtx)
 ```
-
-> Read about [transforming dependencies](#transforming-dependencies) to see how context is passed to the callbacks.
-
 ## Injection tokens
 
 Injection tokens are the values by which the injection container knows how to resolve registered data. They can be `string`, `Symbol`, or any object.
@@ -535,52 +531,6 @@ instanceA.b // undefined
 
 > NOTE: Injecting array as a dependency has been removed in version 6.
 > If you want to use this feature you can use [version 5](https://github.com/ivandotv/pumpit/tree/v5.0.0)
-
-### Transforming injected dependencies
-
-Injected dependencies can also be manipulated just before they are injected. For this, we use the `transform()` helper function.
-
-`transform` function wraps the injected dependencies, and accepts a callback which will receive all the resolved dependencies that need to be injected, and it should return an array of dependencies. whatever is returned from the callback, will be injected.
-
-```ts
-import { transform, PumpIt } from 'pumpit'
-
-const container = new PumpIt()
-
-const keyA = Symbol()
-const keyB = Symbol()
-const keyC = Symbol()
-
-const valueA = { name: 'a' }
-const valueB = { name: 'b' }
-const valueC = { name: 'c' }
-
-const resolveCtx = { hello: 'world' }
-
-class TestA {
-  static inject = transform(
-    [keyA, keyB, keyC],
-    (
-      { container, ctx },
-      a: typeof valueA,
-      b: typeof valueB,
-      c: typeof valueC
-    ) => {
-      container === pumpIt // instance of PumpIt
-      ctx === resolveCtx // context data
-
-      a === valueA
-      b === valueB
-      c === valueC
-
-      //default implementation, return the same dependencies in the same order
-      return [a, b, c]
-    }
-  )
-
-  constructor(a: typeof valueA, b: typeof valueB, c: typeof valueC) {}
-}
-```
 
 ### Post construct method
 
