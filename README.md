@@ -27,7 +27,6 @@ It supports different injection scopes, child containers, hooks etc...
 - [Optional injections](#optional-injections)
 - [~~Circular dependencies~~](#circular-dependencies)
 - [~~Injecting arrays~~](#injecting-arrays)
-- [Transforming dependencies (hooks)](#transforming-dependencies-hooks)
   * [Transforming injected dependencies](#transforming-injected-dependencies)
   * [Post construct method](#post-construct-method)
 - [Removing values from the container](#removing-values-from-the-container)
@@ -537,63 +536,6 @@ instanceA.b // undefined
 
 > NOTE: Injecting array as a dependency has been removed in version 6.
 > If you want to use this feature you can use [version 5](https://github.com/ivandotv/pumpit/tree/v5.0.0)
-
-## Transforming dependencies (hooks)
-
-Dependencies can be transformed before being resolved.
-
-They can be manipulated just **before** they are created, or **after** they are created.
-
-- "`beforeResolve`" callback is called **before** the registered value is created. In the case of the `class` just before the class instance is created. In the case of the `factory` just before the factory is executed.
-
-- "`afterResolve`" - callback is called **after** the `class` instance is created, or `factory` function is executed. The `value` in the callback represents whatever is returned from the `beforeResolve` callback. This callback is the perfect place to do any `post` creation setup.
-
-```ts
-const container = new PumpIt()
-const valueB = { name: 'Ivan' }
-const resolveCtx = { foo: 'bar' }
-
-class TestA {
-  static inject = [keyB]
-
-  constructor(public keyB: typeof valueB) {}
-  hello(){
-    return  'hello world'
-  }
-}
-
-container.bindValue(keyB, valueB)
-
-container.bindClass(keyA, TestA, {
-  beforeResolve: ({ container, value, ctx }, ...deps) => {
-
-    container === pumpIt // instance of PumpIt
-    value === TestA // class constructor
-    ctx === resolveCtx//context data if any
-    deps ===[valueB]// resolved dependency of class TestA
-
-    // internally this is the default behavior
-    return new value(...deps)
-
-    // in case of factory function
-    // return value(...deps)
-  },
-  afterResolve:({container,value,ctx}=>{
-
-    container === pumpIt // instance of PumpIt
-    value // whatever is returned from the "beforeResolve" callback
-    //^ in this case it is an instance of TestA
-    ctx === resolveCallbackData //context data if any
-
-    // you can do custom setup here
-    value.hello() // hello world
-  })
-})
-
-const instance = pumpIt.resolve(TestA, resolveCtx)
-```
-
-The number of times these callbacks will be executed directly depends on the `scope` with which the value was registered. In the case of a `singleton` scope callbacks will be executed only once, since the values are resolved only once.
 
 ### Transforming injected dependencies
 

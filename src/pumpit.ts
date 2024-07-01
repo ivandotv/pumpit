@@ -95,7 +95,7 @@ export class PumpIt {
     const poolData = this.pool.get(key)
 
     if (poolData) {
-      // @ts-expect-error -unbind does not exist on ValueOptions
+      // @ts-expect-error - tmp
       const { unbind } = poolData
       const singleton = this.singletonCache.get(key)
       const payload = {
@@ -185,7 +185,7 @@ export class PumpIt {
   bindFactory<T extends FactoryValue>(
     key: BindKey,
     value: T,
-    options?: Omit<Partial<FactoryOptions<T, AvailableScopes>>, "type">,
+    options?: Omit<Partial<FactoryOptions>, "type">,
   ): this {
     const { exec, inject } = this.parseValue(value)
 
@@ -196,7 +196,6 @@ export class PumpIt {
     resolve.inject = inject
     resolve.original = exec
 
-    // @ts-expect-error - generic type mismatch
     this.add(key, resolve, {
       ...options,
       type: TYPE.FACTORY,
@@ -226,7 +225,7 @@ export class PumpIt {
   bindClass<T extends ClassValue>(
     key: BindKey,
     value: T,
-    options?: Omit<Partial<ClassOptions<T, AvailableScopes>>, "type">,
+    options?: Omit<Partial<ClassOptions>, "type">,
   ): this {
     const { exec, inject } = this.parseValue(value)
     const resolve = (...args: any[]) => {
@@ -236,7 +235,6 @@ export class PumpIt {
     resolve.inject = inject
     resolve.original = exec
 
-    // @ts-expect-error generic type mismatch
     this.add(key, resolve, {
       ...options,
       type: TYPE.CLASS,
@@ -383,8 +381,7 @@ export class PumpIt {
     data: FactoryPoolData | ClassPoolData,
     ctx: RequestCtx,
   ) {
-    const { beforeResolve, afterResolve, value, type } = data
-    // @ts-expect-error - inject
+    const { value, type } = data
     const injectionData = value.inject
     let resolvedDeps: any[] = []
 
@@ -401,23 +398,8 @@ export class PumpIt {
         )
       }
     }
-
-    const result = beforeResolve
-      ? beforeResolve(
-          {
-            container: this,
-            // @ts-expect-error type narrow between factory and class value
-            value: value.original,
-            ctx: ctx.ctx,
-          },
-          ...resolvedDeps,
-        )
-      : // @ts-expect-error -type mismatch
-        value(...resolvedDeps)
-
-    afterResolve
-      ? afterResolve({ container: this, value: result, ctx: ctx.ctx })
-      : null
+    // @ts-expect-error - type narrow
+    const result = value(...resolvedDeps)
 
     // biome-ignore lint/style/noNonNullAssertion: map assertion
     ctx.requestedKeys.get(key)!.constructed = true

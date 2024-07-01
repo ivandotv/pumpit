@@ -15,61 +15,21 @@ export type ResolveCtx = Record<string, any>
 export type BindKey = string | symbol | Record<string, any>
 
 export type FactoryValue =
-  | ((...args: any[]) => any)
-  | { value: (...args: any[]) => any; inject: InjectionData }
+  // | ((...args: any[]) => any)
+  { value: (...args: any[]) => any; inject: InjectionData }
 
 export type ClassValue =
-  | (new (
-      ...args: any[]
-    ) => any)
-  | { value: new (...args: any[]) => any; inject: InjectionData }
+  // | (new (
+  //     ...args: any[]
+  //   ) => any)
+  { value: new (...args: any[]) => any; inject: InjectionData }
 
 /** Class bind options*/
-export type ClassOptions<
-  T extends ClassValue,
-  K extends AvailableScopes = "TRANSIENT",
-> = {
+export type ClassOptions = {
   /** Class constant type {@link AvailableTypes} */
   type: typeof TYPE.CLASS
   /** Scope that is going to be used {@link AvailableScopes}*/
-  scope: K
-  /** callback that is called before the value is resolved, number of calls depends on scope used when registering*/
-  beforeResolve?: (
-    data: {
-      /** injection container that holds the value*/
-      container: PumpIt
-      /** constructor that is going to be used */
-      value: T extends new (
-        ...args: any[]
-      ) => any
-        ? new (
-            ...args: ConstructorParameters<T>
-          ) => T
-        : new (
-            // @ts-expect-error - index signature mismatch
-            ...args: ConstructorParameters<T["value"]>
-            // @ts-expect-error - index signature mismatch
-          ) => T["value"]
-      /** {@link ResolveCtx | context} object that was passed in with the {@link PumpIt.resolve | PumpIt.resolve} call*/
-      ctx?: ResolveCtx
-    },
-    /** deps that are resolved and should be passed to the constructor*/
-    ...deps: T extends new (
-      ...args: any[]
-    ) => any
-      ? ConstructorParameters<T>
-      : // @ts-expect-error - index signature mismatch
-        ConstructorParameters<T["value"]>
-  ) => any
-  /** callback that is called after the value is resolved, number of calls depends on scope used when registering*/
-  afterResolve?: (data: {
-    /** injection container that holds the value*/
-    container: PumpIt
-    /** value that has been constructed*/
-    value: any
-    /** {@link ResolveCtx | context} object that was passed in with the {@link PumpIt.resolve | PumpIt.resolve} call*/
-    ctx?: ResolveCtx
-  }) => void
+  scope: AvailableScopes
   /** callback that is called before the value is removed from the container. This is only executed for values that are SINGLETONS*/
   unbind?: (data: {
     /** injection container that holds the class instance*/
@@ -77,44 +37,15 @@ export type ClassOptions<
     /** if dispose method will be called on the class instance*/
     dispose: boolean
     /** instance value that will be removed*/
-    value: K extends "SINGLETON" ? any : undefined
+    value: any
   }) => void
 }
 
-export type FactoryOptions<
-  T extends FactoryValue,
-  K extends AvailableScopes,
-> = {
+export type FactoryOptions = {
   /** Factory constant type */
   type: typeof TYPE.FACTORY
   /** Scope that is going to be used {@link AvailableScopes}*/
-  scope: K
-  /** callback that is called before the value is resolved, number of calls depends on scope used when registering*/
-  beforeResolve?: (
-    data: {
-      /** injection container that holds the value*/
-      container: PumpIt
-      /** factory function that is going to be used */
-      // @ts-expect-error index type mismatch
-      value: T extends (...args: any[]) => any ? T : T["value"]
-      /** {@link ResolveCtx | context} object that was passed in with the {@link PumpIt.resolve | PumpIt.resolve} call*/
-      ctx?: ResolveCtx
-    },
-    /** deps that are resolved and should be passed to the factory function*/
-    ...deps: T extends (...args: any[]) => any
-      ? Parameters<T>
-      : // @ts-expect-error index type mismatch
-        Parameters<T["value"]>
-  ) => any
-  /** callback that is called after the value is resolved, number of calls depends on scope used when registering*/
-  afterResolve?: (data: {
-    /** injection container that holds the value*/
-    container: PumpIt
-    /** value that has been returned from the factory function call*/
-    value: any
-    /** {@link ResolveCtx | context} object that was passed in with the {@link PumpIt.resolve | PumpIt.resolve} call*/
-    ctx?: ResolveCtx
-  }) => void
+  scope: AvailableScopes
   /** callback that is called before the value is removed from the container. This is only executed for values that are SINGLETONS*/
   unbind?: (data: {
     /** injection container that holds the class instance*/
@@ -122,6 +53,6 @@ export type FactoryOptions<
     /** if dispose method will be called on the class instance*/
     dispose: boolean
     /** value that is going to be removed*/
-    value: K extends "SINGLETON" ? any : undefined
+    value: any
   }) => void
 }
