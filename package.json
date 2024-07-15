@@ -55,13 +55,13 @@
   "devDependencies": {
     "@biomejs/biome": "1.8.3",
     "@changesets/cli": "^2.27.5",
-    "@vitest/coverage-v8": "^1.6.0",
+    "@vitest/coverage-v8": "^2.0.0",
     "lefthook": "^1.6.16",
     "microbundle": "^0.15.1",
     "shx": "^0.3.4",
     "typedoc": "^0.26.0",
     "typedoc-plugin-markdown": "^4.0.3",
     "typescript": "^5.4.5",
-    "vitest": "^1.6.0"
+    "vitest": "^2.0.0"
   }
 }
