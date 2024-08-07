@@ -17,7 +17,6 @@ It supports different injection scopes, child containers, hooks etc...
   * [Registering factories](#registering-factories)
   * [Registering values](#registering-values)
 - [Resolving container data](#resolving-container-data)
-  * [Resolve context](#resolve-context)
 - [Injection tokens](#injection-tokens)
 - [Injection scopes](#injection-scopes)
   * [Singleton](#singleton)
@@ -303,16 +302,6 @@ When the container data is resolved, if the key that is requested to be resolved
 const container = new PumpIt()
 
 container.resolve('key_does_not_exist') // will throw
-```
-
-### Resolve context
-
-You can also pass in additional data that will be used in various callbacks that will be called when resolving the key.
-
-```ts
-const container = new PumpIt()
-const resolveCtx = { foo: 'bar' }
-container.resolve('some_key', resolveCtx)
 ```
 ## Injection tokens
 
