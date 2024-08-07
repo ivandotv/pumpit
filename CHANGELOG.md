@@ -1,5 +1,11 @@
 # pumpa
 
+## 10.0.0
+
+### Major Changes
+
+- c9b67ea: remove resolve method second parameter (options - context)
+
 ## 9.0.0
 
 ### Major Changes
