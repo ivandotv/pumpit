@@ -6,7 +6,6 @@ import type {
   ClassValue,
   FactoryOptions,
   FactoryValue,
-  ResolveCtx,
 } from "./types"
 import type { RequestCtx } from "./types-internal"
 import type { ClassPoolData, FactoryPoolData, PoolData } from "./types-internal"
@@ -239,16 +238,14 @@ export class PumpIt {
    *
    * @typeParam T - value that is going to be resolved
    * @param key - key to search for {@link BindKey | BindKey}
-   * @param opts - options for the current resolve request {@link ResolveCtx | ResolveCtx}
    */
-  resolve<T>(key: BindKey, opts?: ResolveCtx): T {
+  resolve<T>(key: BindKey): T {
     const ctx: RequestCtx = this.currentCtx || {
       singletonCache: this.singletonCache,
       transientCache: new Map(),
       requestCache: new Map(),
       requestedKeys: new Map(),
       postConstruct: [],
-      ctx: opts,
     }
 
     const result = this._resolve(key, {}, ctx)

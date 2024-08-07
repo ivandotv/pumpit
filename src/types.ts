@@ -7,9 +7,6 @@ export type AvailableTypes = keyof typeof TYPE
 /** Available scopes that can be used*/
 export type AvailableScopes = keyof typeof SCOPE
 
-/** Resolve context that is used per request and passed to the callbacks*/
-export type ResolveCtx = Record<string, any>
-
 /** Type of values that can be used for the bind key*/
 export type BindKey = string | symbol | Record<string, any>
 
