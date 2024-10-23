@@ -1,5 +1,12 @@
 # pumpa
 
+## 10.1.0
+
+### Minor Changes
+
+- 545de07: add `setParent` method.
+  Child container can set parent container connection
+
 ## 10.0.0
 
 ### Major Changes
