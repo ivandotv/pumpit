@@ -446,7 +446,7 @@ export class PumpIt {
     return result
   }
 
-  protected _validate(safe: boolean) {
+  protected _validate(safe = false) {
     const seen = new Set()
     const wantedBy = new Map()
 
