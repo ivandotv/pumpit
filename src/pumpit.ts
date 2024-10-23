@@ -49,7 +49,7 @@ export class PumpIt {
 
   protected singletonCache: Map<BindKey, any> = new Map()
 
-  protected parent: this | undefined
+  protected parent: PumpIt | undefined
 
   protected currentCtx: RequestCtx | null = null
 
@@ -270,6 +270,15 @@ export class PumpIt {
     child.parent = this
 
     return child
+  }
+
+  /**
+   * Sets the parent PumpIt instance.
+   *
+   * @param parent - The parent PumpIt instance to be set.
+   */
+  setParent(parent: PumpIt) {
+    this.parent = parent
   }
 
   /**

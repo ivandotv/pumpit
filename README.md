@@ -599,7 +599,7 @@ container.unbind(TestA) //throws error
 ```
 ## Child containers
 
-Every container instance can create a **child** container.
+Every container instance can create a **child** container. Or every container can set it's parent.
 
 The child container is a new `PumpIt` instance that is connected to the parent container instance and it inherits all the values that are registered with the parent.
 
@@ -612,7 +612,8 @@ The child container can have the same `key` as the parent, in that case when the
 ```ts
 const parent = new PumpIt()
 const child = parent.child()
-
+//or child = new Pumpit()
+// child.setParent(parent)
 const key = 'some_key'
 
 class ParentClass {}
