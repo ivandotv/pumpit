@@ -11,6 +11,15 @@ describe("Child container", () => {
     expect(child.getParent()).toBe(parent)
   })
 
+  test("child container can set it's own parent", () => {
+    const parent = new PumpIt()
+    const child = new PumpIt()
+
+    child.setParent(parent)
+
+    expect(child.getParent()).toBe(parent)
+  })
+
   test("child container inherits parent values", () => {
     const parent = new PumpIt()
     const child = parent.child()
