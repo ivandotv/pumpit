@@ -4,7 +4,7 @@
 [![Codecov](https://img.shields.io/codecov/c/gh/ivandotv/pumpit)](https://app.codecov.io/gh/ivandotv/pumpit)
 [![GitHub license](https://img.shields.io/github/license/ivandotv/pumpit)](https://github.com/ivandotv/pumpit/blob/main/LICENSE)
 
-`PumpIt` is a small [(~2KB)](https://bundlephobia.com/package/pumpit) dependency injection container without the decorators and zero dependencies, suitable for the browser.
+`PumpIt` is a small [(~2.3KB)](https://bundlephobia.com/package/pumpit) dependency injection container without the decorators and zero dependencies, suitable for the browser.
 It supports different injection scopes, child containers, hooks etc...
 
 <!-- toc -->
@@ -17,7 +17,9 @@ It supports different injection scopes, child containers, hooks etc...
   * [Registering factories](#registering-factories)
   * [Registering values](#registering-values)
 - [Resolving container data](#resolving-container-data)
+  * [Resolving without throwing](#resolving-without-throwing)
 - [Injection tokens](#injection-tokens)
+  * [Typed tokens](#typed-tokens)
 - [Injection scopes](#injection-scopes)
   * [Singleton](#singleton)
   * [Transient](#transient)
@@ -30,12 +32,16 @@ It supports different injection scopes, child containers, hooks etc...
 - [Removing values from the container](#removing-values-from-the-container)
   * [Calling the dispose method](#calling-the-dispose-method)
   * [Removing all the values from the container](#removing-all-the-values-from-the-container)
+  * [Disposing the container](#disposing-the-container)
   * [Locking the container](#locking-the-container)
+- [Replacing bindings](#replacing-bindings)
+- [Inspecting the container](#inspecting-the-container)
 - [Child containers](#child-containers)
   * [Shadowing values](#shadowing-values)
   * [Checking for values](#checking-for-values)
   * [Child singletons](#child-singletons)
   * [Validating bindings](#validating-bindings)
+- [Error handling](#error-handling)
 - [Helpers](#helpers)
   * [Register injections](#register-injections)
 - [API docs](#api-docs)
@@ -77,11 +83,15 @@ class TestB {}
 container.bindClass(TestA, TestA).bindClass(bindKeyB, TestB)
 
 //resolve values
-const instanceA = container.resolve<TestA>(TestA)
-const instanceB = container.resolve<TestA>(bindKeyB)
+const instanceA = container.resolve(TestA) // TestA, inferred from the class key
+const instanceB = container.resolve<TestB>(bindKeyB)
 
 instanceA.b // injected B instance
 ```
+
+> When the key **is** the class, `resolve` infers the instance type for you. For
+> string and symbol keys there is nothing to infer from, so either pass the type
+> explicitly or use a [typed token](#typed-tokens).
 
 There is also alternative syntax that you can use when you don't want to use the static `inject` property, or you are importing a class from third-party packages.
 
@@ -303,6 +313,22 @@ const container = new PumpIt()
 
 container.resolve('key_does_not_exist') // will throw
 ```
+
+### Resolving without throwing
+
+Use `tryResolve` when a missing key is an acceptable outcome. It behaves exactly
+like `resolve`, except an unbound key gives back `undefined` instead of throwing.
+
+```ts
+const container = new PumpIt()
+
+container.tryResolve('key_does_not_exist') // undefined
+```
+
+> `tryResolve` only forgives the key you asked for. If the key **is** bound but one
+> of its own required dependencies is missing, it still throws - make that
+> dependency [optional](#optional-injections) if it should be tolerated.
+
 ## Injection tokens
 
 Injection tokens are the values by which the injection container knows how to resolve registered data. They can be `string`, `Symbol`, or any object.
@@ -329,6 +355,55 @@ class B {
   constructor(aOne: A, aTwo: A, aThree: A) {}
 }
 ```
+
+### Typed tokens
+
+A plain `string` or `Symbol` key carries no type information, so `resolve` has no
+way to know what comes back and you end up annotating every call by hand - and
+nothing stops you from getting it wrong.
+
+`token<T>()` creates a `Symbol` that remembers its type. Bindings made under it
+are type checked, and `resolve` infers the result.
+
+```ts
+import { PumpIt, token } from 'pumpit'
+
+type Config = { url: string; retries: number }
+
+const configToken = token<Config>('config')
+const container = new PumpIt()
+
+container.bindValue(configToken, { url: 'https://example.com', retries: 3 })
+
+const config = container.resolve(configToken) // Config, no type argument needed
+
+container.bindValue(configToken, 42) // compile error, 42 is not a Config
+```
+
+It works the same way for classes and factories, where the binding must produce
+the token's type:
+
+```ts
+const loggerToken = token<Logger>('logger')
+
+container.bindClass(loggerToken, Logger) // ok
+container.bindFactory(loggerToken, () => new Logger()) // ok
+
+container.bindClass(loggerToken, SomethingElse) // compile error
+```
+
+Tokens are ordinary symbols at runtime, so they can be injected like any other key:
+
+```ts
+class Service {
+  static inject = [configToken]
+
+  constructor(public config: Config) {}
+}
+```
+
+> The description passed to `token()` is only used to make error messages
+> readable. Two tokens created with the same description are still different keys.
 
 ## Injection scopes
 
@@ -541,7 +616,9 @@ container.resolve('name') // throws error
 
 ### Calling the dispose method
 
-If the class has a method `dispose()` it will automatically be called on the disposed of value, but **only** if the value is a `singleton`.
+If the class has a method `dispose()` (or a `[Symbol.dispose]()` method, which
+takes precedence) it will automatically be called on the disposed of value, but
+**only** if the value is a `singleton`.
 
 Internally, the container will remove the value from its internal pool, and if the value was registered with the scope: `singleton` and the value has been resolved before (class has been instantiated or factory function executed). That means that the container holds an instance of the value, and it will try to call the `dispose of` method on that instance, or in the case of the factory, on whatever was returned from the factory.
 
@@ -575,6 +652,21 @@ const callDispose = true
 container.unbindAll(callDispose)
 ```
 
+### Disposing the container
+
+The container itself implements `Symbol.dispose`, so it can be scoped with
+`using` on runtimes that support explicit resource management. Leaving the scope
+calls `unbindAll()`, which disposes every cached singleton.
+
+```ts
+{
+  using container = new PumpIt()
+
+  container.bindClass(TestA, TestA, { scope: SCOPE.SINGLETON })
+  container.resolve(TestA)
+} // container.unbindAll() runs here, TestA instance is disposed
+```
+
 ### Locking the container
 
 If the container is `locked` that particular container can't accept new bindings or unbind the values already in the container.
@@ -597,6 +689,45 @@ container.bindClass(TestB,TestB) //throws error
 container.unbind(TestA) //throws error
 
 ```
+
+## Replacing bindings
+
+Binding a key that is already taken throws. Pass `replace: true` when that is the
+point - handy in tests, where a real dependency is swapped for a fake.
+
+```ts
+const container = new PumpIt()
+
+container.bindClass('mailer', RealMailer, { scope: SCOPE.SINGLETON })
+container.resolve('mailer')
+
+container.bindClass('mailer', FakeMailer, {
+  scope: SCOPE.SINGLETON,
+  replace: true
+})
+
+container.resolve('mailer') // FakeMailer
+```
+
+Replacing unbinds the previous entry first, so its cached singleton is dropped and
+disposed. A locked container still refuses the change.
+
+## Inspecting the container
+
+`getKeys()` lists everything bound on the container. Pass `true` to walk the
+parent chain as well, where a shadowed key is reported once.
+
+```ts
+const parent = new PumpIt()
+const child = parent.child()
+
+parent.bindValue('parent_key', 1)
+child.bindValue('child_key', 2)
+
+child.getKeys() // ['child_key']
+child.getKeys(true) // ['child_key', 'parent_key']
+```
+
 ## Child containers
 
 Every container instance can create a **child** container. Or every container can set it's parent.
@@ -677,7 +808,9 @@ TestA.count === 2
 Calling `validate` or `validateSafe` will validate the bindings in the container.
 It will check if all the dependencies that are required by other bindings are present in the container.
 
-`validate` method will throw an error, while `validateSafe` will return a validation result. Calling these methods will not instantiate classes or run factory functions, so there is still a possibility that you will not get what you want when dependencies are resolved at runtime.
+`validate` method will throw a `PumpitValidationError`, while `validateSafe` will always return a validation result. Calling these methods will not instantiate classes or run factory functions, so there is still a possibility that you will not get what you want when dependencies are resolved at runtime.
+
+Dependencies declared as [optional](#optional-injections) are allowed to be missing, so they are never reported. Keys bound on a parent container count as present.
 
 In the next example `RequestTest` class is not present in the container, but is needed in class `TestB`
 
@@ -706,6 +839,30 @@ expect(result).toEqual({
 })
 
 ```
+
+## Error handling
+
+Every error the container throws is a `PumpitError` carrying a `code`, so failures
+can be handled without matching on message strings.
+
+```ts
+import { PumpIt, PumpitError, ERROR_CODE } from 'pumpit'
+
+try {
+  container.resolve('nope')
+} catch (e) {
+  if (e instanceof PumpitError && e.code === ERROR_CODE.KEY_NOT_FOUND) {
+    // ...
+  }
+}
+```
+
+The available codes are `KEY_NOT_FOUND`, `KEY_ALREADY_EXISTS`, `CIRCULAR_REFERENCE`,
+`CONTAINER_LOCKED`, `PARENT_CYCLE` and `VALIDATION`.
+
+Validation failures throw a `PumpitValidationError`, a `PumpitError` subclass that
+also carries the full `result` array described in
+[validating bindings](#validating-bindings).
 
 ## Helpers
 
@@ -739,6 +896,11 @@ test("use helper to inject in to class", () => {
   expect(result.b).toBeInstanceOf(TestB)
 })
 ```
+
+> Call `registerInjections` **before** binding the class or factory. Injection
+> metadata is read once, when the value is bound, so changes made afterwards are
+> not picked up.
+
 ## API docs
 
 `PumpIt` is written in TypeScript and ships its own type declarations, so the full API documentation is available directly in your editor via autocomplete and hover. No `@types/*` package is required.

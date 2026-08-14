@@ -1,22 +1,30 @@
-import { PumpitError } from "./pumpit-error"
+import { ERROR_CODE, PumpitError, PumpitValidationError } from "./pumpit-error"
 import type {
   AvailableScopes,
   BindKey,
+  BindOptions,
   ClassConstructor,
-  ClassOptions,
   ClassValue,
-  FactoryFn,
-  FactoryOptions,
+  ClassValueFor,
   FactoryValue,
+  FactoryValueFor,
   ValidationError,
   ValidationResult,
+  ValueBindOptions,
 } from "./types"
 import type { RequestCtx } from "./types-internal"
-import type { ClassPoolData, FactoryPoolData, PoolData } from "./types-internal"
+import type {
+  ClassPoolData,
+  FactoryPoolData,
+  PoolData,
+  ResolverFn,
+} from "./types-internal"
 import {
   INJECT_KEY,
-  type Injection,
   type InjectionData,
+  type InjectionOptions,
+  type ParsedInjectionData,
+  type Token,
   keyToString,
   parseInjectionData,
 } from "./utils"
@@ -25,6 +33,17 @@ import {
 const UNDEFINED_RESULT = Symbol()
 
 const DISPOSE_PROP = "dispose"
+
+// `Symbol.dispose` only exists on newer runtimes, so it is looked up once and
+// treated as optional everywhere else
+const DISPOSE_SYMBOL: symbol | undefined =
+  typeof Symbol.dispose === "symbol" ? Symbol.dispose : undefined
+
+// shared, never mutated, so the hot path does not allocate an options object
+const NO_OPTIONS: InjectionOptions = {}
+const OPTIONAL_OPTIONS: InjectionOptions = { optional: true }
+const NO_DEPS: any[] = []
+
 /** Constants that represent the type of values that can be binded*/
 export const TYPE = {
   VALUE: "VALUE",
@@ -49,14 +68,13 @@ export const SCOPE = {
   CONTAINER_SINGLETON: "CONTAINER_SINGLETON",
 } as const
 
+// biome-ignore lint/suspicious/noUnsafeDeclarationMerging: merged with the `Disposable` interface at the bottom of the file, where the member is installed on the prototype
 export class PumpIt {
   protected pool: Map<BindKey, PoolData> = new Map()
 
   protected singletonCache: Map<BindKey, any> = new Map()
 
   protected parent: PumpIt | undefined
-
-  protected currentCtx: RequestCtx | null = null
 
   protected name: string | undefined
 
@@ -73,15 +91,21 @@ export class PumpIt {
     return this.name
   }
 
-  protected add(key: BindKey, info: PoolData): void {
+  protected add(key: BindKey, info: PoolData, replace: boolean): void {
     if (this.locked) {
-      throw new Error("Container is locked")
+      throw new PumpitError("Container is locked", ERROR_CODE.CONTAINER_LOCKED)
     }
-    const dataHit = this.pool.get(key)
 
-    if (dataHit) {
-      throw new Error(`Key: ${keyToString(key)} already exists`)
+    if (this.pool.has(key)) {
+      if (!replace) {
+        throw new PumpitError(
+          `Key: ${keyToString(key)} already exists`,
+          ERROR_CODE.KEY_ALREADY_EXISTS,
+        )
+      }
+      this.unbind(key)
     }
+
     this.pool.set(key, info)
   }
 
@@ -89,34 +113,42 @@ export class PumpIt {
    * Unbinds a dependency from the container.
    * @param key - The key to unbind.
    * @param dispose - Optional. Specifies whether to call dispose method if available. Default is `true`.
-   * @throws {Error} If the container is locked or if the key is not found.
+   * @throws {PumpitError} If the container is locked or if the key is not found.
    */
   unbind(key: BindKey, dispose = true): void {
     if (this.locked) {
-      throw new Error("Container is locked")
+      throw new PumpitError("Container is locked", ERROR_CODE.CONTAINER_LOCKED)
     }
-    const poolData = this.pool.get(key)
 
-    if (poolData) {
-      const singleton = this.singletonCache.get(key)
-      this.pool.delete(key)
-      this.singletonCache.delete(key)
-
-      if (singleton && dispose) {
-        this.callDispose(singleton)
-      }
-
-      return
+    if (!this.pool.has(key)) {
+      throw new PumpitError(
+        `Key: ${keyToString(key)} not found`,
+        ERROR_CODE.KEY_NOT_FOUND,
+      )
     }
-    throw new Error(`Key: ${keyToString(key)} not found`)
+
+    // `has` rather than a truthiness check, so falsy singletons are disposed too
+    const hasSingleton = this.singletonCache.has(key)
+    const singleton = this.singletonCache.get(key)
+
+    this.pool.delete(key)
+    this.singletonCache.delete(key)
+
+    if (hasSingleton && dispose) {
+      this.callDispose(singleton)
+    }
   }
 
   /**
    * Unbinds all dependencies from the container.
    * @param callDispose - Whether to call the `dispose` method on each unbound dependency. Default is `true`
-   *
+   * @throws {PumpitError} If the container is locked.
    */
   unbindAll(callDispose = true) {
+    if (this.locked) {
+      throw new PumpitError("Container is locked", ERROR_CODE.CONTAINER_LOCKED)
+    }
+
     for (const key of this.pool.keys()) {
       this.unbind(key, callDispose)
     }
@@ -127,16 +159,26 @@ export class PumpIt {
   protected callDispose(value: unknown): void {
     // `in` throws on primitives, so guard on the object shape first
     if (
-      (typeof value === "object" || typeof value === "function") &&
-      value !== null &&
-      DISPOSE_PROP in value
+      (typeof value !== "object" && typeof value !== "function") ||
+      value === null
     ) {
-      const dispose = (value as Record<typeof DISPOSE_PROP, unknown>)[
-        DISPOSE_PROP
-      ]
-      if (typeof dispose === "function") {
-        dispose.call(value)
+      return
+    }
+
+    const target = value as Record<PropertyKey, unknown>
+
+    if (DISPOSE_SYMBOL !== undefined) {
+      const symbolDispose = target[DISPOSE_SYMBOL]
+      if (typeof symbolDispose === "function") {
+        symbolDispose.call(value)
+
+        return
       }
+    }
+
+    const dispose = target[DISPOSE_PROP]
+    if (typeof dispose === "function") {
+      dispose.call(value)
     }
   }
 
@@ -148,24 +190,55 @@ export class PumpIt {
    * @returns A boolean value indicating whether the key exists in the pool or its parent pool.
    */
   has(key: BindKey, searchParent = true): boolean {
-    if (searchParent && this.parent) {
-      return !!this.getInjectable(key)
+    if (this.pool.has(key)) {
+      return true
     }
 
-    return this.pool.has(key)
+    return searchParent && this.parent !== undefined
+      ? this.parent.has(key, true)
+      : false
+  }
+
+  /**
+   * Lists every key currently bound in the container.
+   *
+   * @param includeParent - Optional. Also include keys bound on the parent chain,
+   * shadowed keys reported once. Default is `false`.
+   */
+  getKeys(includeParent = false): BindKey[] {
+    if (!includeParent || this.parent === undefined) {
+      return Array.from(this.pool.keys())
+    }
+
+    const keys = new Set<BindKey>(this.pool.keys())
+    for (const key of this.parent.getKeys(true)) {
+      keys.add(key)
+    }
+
+    return Array.from(keys)
   }
 
   /**
    * Binds value. Value is treated as a singleton and ti will always resolve to the same data (value)
    *
    * @param key - key to resolve binded value {@link BindKey}
+   * @param options - bind options {@link ValueBindOptions}
    */
-  bindValue<T>(key: BindKey, value: T): this {
-    this.add(key, {
-      type: TYPE.VALUE,
-      scope: SCOPE.SINGLETON,
-      value,
-    })
+  bindValue<T = unknown, K extends BindKey = BindKey>(
+    key: K,
+    value: K extends Token<infer V> ? V : T,
+    options?: ValueBindOptions,
+  ): this
+  bindValue(key: BindKey, value: unknown, options?: ValueBindOptions): this {
+    this.add(
+      key,
+      {
+        type: TYPE.VALUE,
+        scope: SCOPE.SINGLETON,
+        value,
+      },
+      options?.replace ?? false,
+    )
 
     return this
   }
@@ -175,32 +248,68 @@ export class PumpIt {
    * Number of executions depends on the scope used.
    *
    * @param key - key to resolve binded value {@link BindKey}
-   * @param options - bind options {@link FactoryOptions}
+   * @param options - bind options {@link BindOptions}
    */
-  bindFactory<T extends FactoryValue>(
-    key: BindKey,
-    value: T,
-    options?: Omit<Partial<FactoryOptions>, "type">,
-  ): this {
+  bindFactory<K extends BindKey>(
+    key: K,
+    value: K extends Token<infer V> ? FactoryValueFor<V> : FactoryValue,
+    options?: BindOptions,
+  ): this
+  bindFactory(key: BindKey, value: FactoryValue, options?: BindOptions): this {
     const { exec, inject } = this.parseValue(value)
 
-    const resolve = (...args: any[]) => exec(...args)
+    const resolve = ((...args: any[]) => exec(...args)) as ResolverFn
     resolve.inject = inject
     resolve.original = exec
 
-    this.add(key, {
-      ...options,
-      type: TYPE.FACTORY,
-      scope: options?.scope || SCOPE.TRANSIENT,
-      value: resolve,
-    })
+    this.add(
+      key,
+      {
+        type: TYPE.FACTORY,
+        scope: options?.scope ?? SCOPE.TRANSIENT,
+        value: resolve,
+      },
+      options?.replace ?? false,
+    )
 
     return this
   }
 
-  protected parseValue<T extends ClassConstructor | FactoryFn>(
+  /**
+   * Binds class. Class constructor that is binded will be executed with the "new" call when resolved. Number of executions
+   * depends on the scope used.
+   *
+   * @param key - key to resolve binded value {@link BindKey}
+   * @param options - bind options for the class {@link BindOptions}
+   */
+  bindClass<K extends BindKey>(
+    key: K,
+    value: K extends Token<infer V> ? ClassValueFor<V> : ClassValue,
+    options?: BindOptions,
+  ): this
+  bindClass(key: BindKey, value: ClassValue, options?: BindOptions): this {
+    const { exec, inject } = this.parseValue(value)
+
+    const resolve = ((...args: any[]) => new exec(...args)) as ResolverFn
+    resolve.inject = inject
+    resolve.original = exec
+
+    this.add(
+      key,
+      {
+        type: TYPE.CLASS,
+        scope: options?.scope ?? SCOPE.TRANSIENT,
+        value: resolve,
+      },
+      options?.replace ?? false,
+    )
+
+    return this
+  }
+
+  protected parseValue<T extends ClassConstructor | ((...args: any[]) => any)>(
     value: T | { value: T; inject: InjectionData },
-  ): { exec: T; inject: InjectionData | undefined } {
+  ): { exec: T; inject: ParsedInjectionData[] | undefined } {
     const exec = typeof value === "function" ? value : value.value
     // injections come either from `registerInjections` (symbol keyed) or from
     // an `inject` property on the class/factory itself, or on the wrapper
@@ -209,35 +318,14 @@ export class PumpIt {
       inject?: InjectionData
     }
 
-    return { exec, inject: source[INJECT_KEY] ?? source.inject }
-  }
+    const raw = source[INJECT_KEY] ?? source.inject
 
-  /**
-   * Binds class. Class constructor that is binded will be executed with the "new" call when resolved. Number of executions
-   * depends on the scope used.
-   *
-   * @param key - key to resolve binded value {@link BindKey}
-   * @param options - bind options for the class {@link ClassOptions}
-   */
-  bindClass<T extends ClassValue>(
-    key: BindKey,
-    value: T,
-    options?: Omit<Partial<ClassOptions>, "type">,
-  ): this {
-    const { exec, inject } = this.parseValue(value)
-
-    const resolve = (...args: any[]) => new exec(...args)
-    resolve.inject = inject
-    resolve.original = exec
-
-    this.add(key, {
-      ...options,
-      type: TYPE.CLASS,
-      scope: options?.scope || SCOPE.TRANSIENT,
-      value: resolve,
-    })
-
-    return this
+    return {
+      exec,
+      // injection metadata cannot change once bound, so parse it here rather
+      // than on every single resolve
+      inject: raw === undefined ? undefined : raw.map(parseInjectionData),
+    }
   }
 
   /**
@@ -245,24 +333,43 @@ export class PumpIt {
    *
    * @typeParam T - value that is going to be resolved
    * @param key - key to search for {@link BindKey}
+   * @throws {PumpitError} If the key is not bound.
    */
-  resolve<T>(key: BindKey): T {
-    const ctx: RequestCtx = this.currentCtx || {
-      singletonCache: this.singletonCache,
-      transientCache: new Map(),
-      requestCache: new Map(),
-      requestedKeys: new Map(),
-      postConstruct: [],
+  resolve<T>(key: Token<T>): T
+  resolve<T extends ClassConstructor>(key: T): InstanceType<T>
+  resolve<T>(key: BindKey): T
+  resolve(key: BindKey): any {
+    return this.runResolve(key, NO_OPTIONS)
+  }
+
+  /**
+   * Same as {@link PumpIt.resolve | PumpIt.resolve()}, except that an unbound
+   * key resolves to `undefined` instead of throwing.
+   *
+   * @param key - key to search for {@link BindKey}
+   */
+  tryResolve<T>(key: Token<T>): T | undefined
+  tryResolve<T extends ClassConstructor>(key: T): InstanceType<T> | undefined
+  tryResolve<T>(key: BindKey): T | undefined
+  tryResolve(key: BindKey): any {
+    return this.runResolve(key, OPTIONAL_OPTIONS)
+  }
+
+  protected runResolve(key: BindKey, options: InjectionOptions): any {
+    const ctx: RequestCtx = {
+      requestCache: undefined,
+      stack: undefined,
+      postConstruct: undefined,
     }
 
-    const result = this._resolve(key, {}, ctx)
+    const result = this._resolve(key, options, ctx)
 
-    // Execute postConstruct functions
-    for (const value of ctx.postConstruct) {
-      value.postConstruct()
+    const postConstruct = ctx.postConstruct
+    if (postConstruct !== undefined) {
+      for (const value of postConstruct) {
+        value.postConstruct()
+      }
     }
-
-    this.currentCtx = null
 
     return result
   }
@@ -282,9 +389,22 @@ export class PumpIt {
   /**
    * Sets the parent PumpIt instance.
    *
-   * @param parent - The parent PumpIt instance to be set.
+   * @param parent - The parent PumpIt instance to be set, or `undefined` to detach.
+   * @throws {PumpitError} If the parent would introduce a cycle in the hierarchy.
    */
-  setParent(parent: PumpIt) {
+  setParent(parent: PumpIt | undefined) {
+    // without this a cycle turns every lookup into an infinite recursion
+    let ancestor = parent
+    while (ancestor !== undefined) {
+      if (ancestor === this) {
+        throw new PumpitError(
+          "Parent would create a cycle in the container hierarchy",
+          ERROR_CODE.PARENT_CYCLE,
+        )
+      }
+      ancestor = ancestor.parent
+    }
+
     this.parent = parent
   }
 
@@ -295,86 +415,98 @@ export class PumpIt {
     return this.parent
   }
 
-  protected getInjectable(
-    key: BindKey,
-  ): { value: PoolData; fromParent: boolean } | undefined {
+  protected getInjectable(key: BindKey): PoolData | undefined {
     const value = this.pool.get(key)
-    if (value) return { value, fromParent: false }
-
-    const parentValue = this.parent?.getInjectable(key)
-    if (parentValue) {
-      return {
-        value: parentValue.value,
-        fromParent: true,
-      }
+    if (value !== undefined) {
+      return value
     }
 
-    return undefined
+    return this.parent?.getInjectable(key)
   }
 
   protected _resolve(
     key: BindKey,
-    options: { optional?: boolean },
+    options: InjectionOptions,
     ctx: RequestCtx,
   ): any {
     const data = this.getInjectable(key)
 
-    if (options?.optional && !data) {
-      return undefined
-    }
-
-    if (!data) {
-      throw new Error(`Key: ${keyToString(key)} not found`)
-    }
-
-    const poolData = data.value
-
-    if (poolData.type === TYPE.VALUE) {
-      // resolve immediately - value type has no dependencies
-      return poolData.value
-    }
-
-    // narrowed to a class or factory binding, so `value` is the resolver
-    const { value, scope } = poolData
-    const keySeen = ctx.requestedKeys.get(key)
-
-    //if key has been seen
-    if (keySeen) {
-      //check if it is constructed
-      if (!keySeen.constructed) {
-        //throw circular reference error
-        const previous = Array.from(ctx.requestedKeys.entries()).pop()
-        const path = previous
-          ? `[ ${String(previous[0])}: ${previous[1].value.name} ]`
-          : ""
-
-        throw new Error(
-          `Circular reference detected: ${path} -> [ ${keyToString(
-            key,
-          )}: ${value} ]`,
-        )
+    if (data === undefined) {
+      if (options.optional) {
+        return undefined
       }
-    } else {
-      ctx.requestedKeys.set(key, { constructed: false, value })
+
+      throw new PumpitError(
+        `Key: ${keyToString(key)} not found`,
+        ERROR_CODE.KEY_NOT_FOUND,
+      )
     }
 
-    const fn = () => this.create(key, poolData, ctx)
+    if (data.type === TYPE.VALUE) {
+      // resolve immediately - value type has no dependencies
+      return data.value
+    }
 
-    return this.run(scope, key, fn, ctx)
+    return this.run(data.scope, key, data, ctx)
   }
 
-  protected resolveDeps(deps: Injection[], ctx: RequestCtx): any[] {
-    const finalDeps = []
-    for (const dep of deps) {
-      const { key, options } = parseInjectionData(dep)
-      let doneDep = ctx.singletonCache.get(key)
-      if (doneDep === undefined) {
-        doneDep = this._resolve(key, { ...options }, ctx)
+  protected run(
+    scope: AvailableScopes,
+    key: BindKey,
+    data: FactoryPoolData | ClassPoolData,
+    ctx: RequestCtx,
+  ) {
+    if (scope === SCOPE.SINGLETON || scope === SCOPE.CONTAINER_SINGLETON) {
+      const parent = this.parent
+      // a plain singleton belongs to the container that owns the key, so hand
+      // the resolve over to it - but keep the same request context, otherwise
+      // request scope, post construct ordering and circular detection would all
+      // restart at the boundary
+      if (
+        scope === SCOPE.SINGLETON &&
+        parent !== undefined &&
+        !this.pool.has(key)
+      ) {
+        return parent._resolve(key, NO_OPTIONS, ctx)
       }
-      finalDeps.push(doneDep)
+
+      const cached = this.singletonCache.get(key)
+      if (cached !== undefined) {
+        return cached === UNDEFINED_RESULT ? undefined : cached
+      }
+
+      const result = this.create(key, data, ctx)
+      this.singletonCache.set(
+        key,
+        result === undefined ? UNDEFINED_RESULT : result,
+      )
+
+      return result
     }
 
-    return finalDeps
+    if (scope === SCOPE.REQUEST) {
+      const cache = ctx.requestCache
+      if (cache !== undefined) {
+        const cached = cache.get(key)
+        if (cached !== undefined) {
+          return cached === UNDEFINED_RESULT ? undefined : cached
+        }
+      }
+
+      const result = this.create(key, data, ctx)
+      // re-read, creating the value may have populated the cache
+      let target = ctx.requestCache
+      if (target === undefined) {
+        target = new Map()
+        ctx.requestCache = target
+      }
+      target.set(key, result === undefined ? UNDEFINED_RESULT : result)
+
+      return result
+    }
+
+    //transient scope
+    return this.create(key, data, ctx)
   }
 
   protected create(
@@ -384,120 +516,112 @@ export class PumpIt {
   ) {
     const { value, type } = data
     const injectionData = value.inject
-    let resolvedDeps: any[] = []
 
-    if (injectionData) {
-      resolvedDeps = this.resolveDeps(injectionData, ctx)
-    }
-    const result = value(...resolvedDeps)
+    let result: any
+    if (injectionData !== undefined && injectionData.length > 0) {
+      // only bindings with dependencies can take part in a cycle, so the stack
+      // is only touched here
+      let stack = ctx.stack
+      if (stack === undefined) {
+        stack = []
+        ctx.stack = stack
+      }
+      if (stack.includes(key)) {
+        throw this.circularError(stack, key)
+      }
 
-    const requested = ctx.requestedKeys.get(key)
-    if (requested) {
-      requested.constructed = true
+      stack.push(key)
+      try {
+        result = value(...this.resolveDeps(injectionData, ctx))
+      } finally {
+        stack.pop()
+      }
+    } else {
+      result = value(...NO_DEPS)
     }
 
     if (type === TYPE.CLASS && "postConstruct" in result) {
-      ctx.postConstruct.push(result)
+      let hooks = ctx.postConstruct
+      if (hooks === undefined) {
+        hooks = []
+        ctx.postConstruct = hooks
+      }
+      hooks.push(result)
     }
 
     return result
   }
 
-  protected run(
-    scope: AvailableScopes,
-    key: BindKey,
-    fn: (...args: any[]) => any,
-    ctx: RequestCtx,
-  ) {
-    if (scope === SCOPE.SINGLETON || scope === SCOPE.CONTAINER_SINGLETON) {
-      //if singleton and key is on the parent resolve the key via parent
-      if (!this.pool.has(key) && scope === SCOPE.SINGLETON) {
-        return this.parent?.resolve(key)
-      }
-      const cachedValue = ctx.singletonCache.get(key)
-      if (cachedValue !== undefined) {
-        return cachedValue === UNDEFINED_RESULT ? undefined : cachedValue
-      }
-      let result = fn()
-
-      if (result === undefined) {
-        result = UNDEFINED_RESULT
-      }
-      this.singletonCache.set(key, result)
-
-      return result
+  protected resolveDeps(deps: ParsedInjectionData[], ctx: RequestCtx): any[] {
+    const finalDeps = []
+    for (const dep of deps) {
+      finalDeps.push(this._resolve(dep.key, dep.options, ctx))
     }
 
-    if (SCOPE.REQUEST === scope) {
-      const cachedValue = ctx.requestCache.get(key)
-      if (cachedValue !== undefined) {
-        return cachedValue === UNDEFINED_RESULT ? undefined : cachedValue
-      }
-      let result = fn()
-
-      if (result === undefined) {
-        result = UNDEFINED_RESULT
-      }
-      ctx.requestCache.set(key, result)
-
-      return result
-    }
-
-    //transient scope
-    const result = fn()
-
-    //transient cache is only used for proxies
-    ctx.transientCache.set(key, result)
-
-    return result
+    return finalDeps
   }
 
-  protected _validate(safe = false): ValidationResult | undefined {
-    const seen = new Set<BindKey>()
+  protected circularError(stack: BindKey[], key: BindKey): PumpitError {
+    const path = [...stack, key]
+      .map((pathKey) => {
+        const data = this.getInjectable(pathKey)
+        const name =
+          data !== undefined && data.type !== TYPE.VALUE
+            ? data.value.original.name
+            : undefined
+
+        return name
+          ? `[ ${keyToString(pathKey)}: ${name} ]`
+          : `[ ${keyToString(pathKey)} ]`
+      })
+      .join(" -> ")
+
+    return new PumpitError(
+      `Circular reference detected: ${path}`,
+      ERROR_CODE.CIRCULAR_REFERENCE,
+    )
+  }
+
+  protected _validate(safe: boolean): ValidationResult {
     const wantedBy = new Map<BindKey, BindKey[]>()
 
     for (const [bindKey, data] of this.pool.entries()) {
-      if (seen.has(bindKey)) {
-        return
+      const toInject = data.type === TYPE.VALUE ? undefined : data.value.inject
+      if (toInject === undefined) {
+        continue
       }
 
-      seen.add(bindKey)
+      for (const dep of toInject) {
+        // a missing optional dependency resolves to undefined by design
+        if (dep.options.optional || this.has(dep.key)) {
+          continue
+        }
 
-      const toInject = data.type === TYPE.VALUE ? undefined : data.value.inject
-      if (toInject) {
-        for (const dep of toInject) {
-          const { key: depKey } = parseInjectionData(dep)
-
-          seen.add(depKey)
-          if (!this.has(depKey)) {
-            let wanted = wantedBy.get(depKey)
-            if (!wanted) {
-              wanted = []
-              wantedBy.set(depKey, wanted)
-            }
-            wanted.push(bindKey)
-          }
+        let wanted = wantedBy.get(dep.key)
+        if (wanted === undefined) {
+          wanted = []
+          wantedBy.set(dep.key, wanted)
+        }
+        if (!wanted.includes(bindKey)) {
+          wanted.push(bindKey)
         }
       }
     }
 
     const errors: ValidationError[] = []
-    for (const [key, value] of wantedBy.entries()) {
-      if (value.length > 0) {
-        errors.push({
-          key,
-          wantedBy: value,
-        })
-      }
+    for (const [key, wanted] of wantedBy.entries()) {
+      errors.push({
+        key,
+        wantedBy: wanted,
+      })
     }
-    const valid = errors.length === 0
 
-    if (!safe && !valid) {
-      throw new PumpitError("Validation", errors)
+    if (!safe && errors.length > 0) {
+      throw new PumpitValidationError(errors)
     }
 
     return {
-      valid,
+      valid: errors.length === 0,
       errors,
     }
   }
@@ -508,6 +632,7 @@ export class PumpIt {
    * If the validation fails it will throw an error.
    * It will not instantiate the classes or execute the functions.
    *
+   * @throws {PumpitValidationError} If any dependency cannot be resolved.
    */
   validate(): void {
     this._validate(false)
@@ -518,7 +643,7 @@ export class PumpIt {
    * It will check if all the dependencies that are required by other bindings are present in the container.
    * It will not instantiate the classes or execute the functions.
    */
-  validateSafe(): ValidationResult | undefined {
+  validateSafe(): ValidationResult {
     return this._validate(true)
   }
 
@@ -535,4 +660,19 @@ export class PumpIt {
   isLocked(): boolean {
     return this.locked
   }
+}
+
+// `using container = new PumpIt()` unbinds everything on scope exit. The method
+// is attached to the prototype below rather than declared in the class body,
+// because `Symbol.dispose` does not exist on every supported runtime.
+export interface PumpIt extends Disposable {}
+
+if (DISPOSE_SYMBOL !== undefined) {
+  Object.defineProperty(PumpIt.prototype, DISPOSE_SYMBOL, {
+    value: function dispose(this: PumpIt) {
+      this.unbindAll()
+    },
+    writable: true,
+    configurable: true,
+  })
 }

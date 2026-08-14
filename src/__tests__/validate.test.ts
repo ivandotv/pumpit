@@ -1,6 +1,10 @@
 import { describe, expect, test } from "vitest"
 import { PumpIt } from "../pumpit"
-import { PumpitError } from "../pumpit-error"
+import {
+  ERROR_CODE,
+  type PumpitError,
+  PumpitValidationError,
+} from "../pumpit-error"
 
 describe("Validation", () => {
   test("throw if the dependency is not found", () => {
@@ -22,13 +26,14 @@ describe("Validation", () => {
     try {
       pumpIt.validate()
     } catch (e) {
-      expect((e as PumpitError).result).toEqual([
+      expect((e as PumpitValidationError).result).toEqual([
         { key: RequestTest, wantedBy: [TestB] },
       ])
-      expect((e as PumpitError).message).toEqual("Validation")
-      expect(e).toBeInstanceOf(PumpitError)
+      expect((e as PumpitValidationError).message).toContain("RequestTest")
+      expect((e as PumpitError).code).toBe(ERROR_CODE.VALIDATION)
+      expect(e).toBeInstanceOf(PumpitValidationError)
     }
-    expect.assertions(3)
+    expect.assertions(4)
   })
 
   test("throw error with multiple dependencies missing", () => {
@@ -55,14 +60,15 @@ describe("Validation", () => {
     try {
       pumpIt.validate()
     } catch (e) {
-      expect((e as PumpitError).result).toEqual([
+      expect((e as PumpitValidationError).result).toEqual([
         { key: requestKey, wantedBy: [TestA, TestB] },
       ])
-      expect((e as PumpitError).message).toEqual("Validation")
-      expect(e).toBeInstanceOf(PumpitError)
+      expect((e as PumpitValidationError).message).toContain("requestKey")
+      expect((e as PumpitError).code).toBe(ERROR_CODE.VALIDATION)
+      expect(e).toBeInstanceOf(PumpitValidationError)
     }
 
-    expect.assertions(3)
+    expect.assertions(4)
   })
 
   test("return validation result instead of throwing", () => {
