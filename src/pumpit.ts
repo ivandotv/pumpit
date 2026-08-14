@@ -2,16 +2,21 @@ import { PumpitError } from "./pumpit-error"
 import type {
   AvailableScopes,
   BindKey,
+  ClassConstructor,
   ClassOptions,
   ClassValue,
+  FactoryFn,
   FactoryOptions,
   FactoryValue,
+  ValidationError,
+  ValidationResult,
 } from "./types"
 import type { RequestCtx } from "./types-internal"
 import type { ClassPoolData, FactoryPoolData, PoolData } from "./types-internal"
 import {
   INJECT_KEY,
   type Injection,
+  type InjectionData,
   keyToString,
   parseInjectionData,
 } from "./utils"
@@ -53,7 +58,7 @@ export class PumpIt {
 
   protected currentCtx: RequestCtx | null = null
 
-  protected name?: string
+  protected name: string | undefined
 
   protected locked = false
 
@@ -69,7 +74,7 @@ export class PumpIt {
     return this.name
   }
 
-  protected add(key: BindKey, value: any, info: PoolData): void {
+  protected add(key: BindKey, info: PoolData): void {
     if (this.locked) {
       throw new Error("Container is locked")
     }
@@ -78,7 +83,7 @@ export class PumpIt {
     if (dataHit) {
       throw new Error(`Key: ${keyToString(key)} already exists`)
     }
-    this.pool.set(key, { ...info, value })
+    this.pool.set(key, info)
   }
 
   /**
@@ -120,13 +125,19 @@ export class PumpIt {
     this.singletonCache.clear()
   }
 
-  protected callDispose(value: any) {
+  protected callDispose(value: unknown): void {
+    // `in` throws on primitives, so guard on the object shape first
     if (
-      typeof value !== "symbol" &&
-      DISPOSE_PROP in value &&
-      typeof value[DISPOSE_PROP] === "function"
+      (typeof value === "object" || typeof value === "function") &&
+      value !== null &&
+      DISPOSE_PROP in value
     ) {
-      value[DISPOSE_PROP]()
+      const dispose = (value as Record<typeof DISPOSE_PROP, unknown>)[
+        DISPOSE_PROP
+      ]
+      if (typeof dispose === "function") {
+        dispose.call(value)
+      }
     }
   }
 
@@ -153,7 +164,7 @@ export class PumpIt {
    * @returns current pumpIt instance
    */
   bindValue<T>(key: BindKey, value: T): this {
-    this.add(key, value, {
+    this.add(key, {
       type: TYPE.VALUE,
       scope: SCOPE.SINGLETON,
       value,
@@ -177,29 +188,32 @@ export class PumpIt {
   ): this {
     const { exec, inject } = this.parseValue(value)
 
-    const resolve = (...args: any[]) => {
-      // @ts-expect-error - type narrow
-      return exec(...args)
-    }
+    const resolve = (...args: any[]) => exec(...args)
     resolve.inject = inject
     resolve.original = exec
 
-    this.add(key, resolve, {
+    this.add(key, {
       ...options,
       type: TYPE.FACTORY,
       scope: options?.scope || SCOPE.TRANSIENT,
-      value,
+      value: resolve,
     })
 
     return this
   }
 
-  protected parseValue(value: ClassValue | FactoryValue) {
-    return {
-      exec: typeof value !== "function" ? value.value : value,
-      // @ts-expect-error type narrow
-      inject: value[INJECT_KEY] || value.inject,
+  protected parseValue<T extends ClassConstructor | FactoryFn>(
+    value: T | { value: T; inject: InjectionData },
+  ): { exec: T; inject: InjectionData | undefined } {
+    const exec = typeof value === "function" ? value : value.value
+    // injections come either from `registerInjections` (symbol keyed) or from
+    // an `inject` property on the class/factory itself, or on the wrapper
+    const source = value as {
+      [INJECT_KEY]?: InjectionData
+      inject?: InjectionData
     }
+
+    return { exec, inject: source[INJECT_KEY] ?? source.inject }
   }
 
   /**
@@ -216,18 +230,16 @@ export class PumpIt {
     options?: Omit<Partial<ClassOptions>, "type">,
   ): this {
     const { exec, inject } = this.parseValue(value)
-    const resolve = (...args: any[]) => {
-      // @ts-expect-error type narrow
-      return new exec(...args)
-    }
+
+    const resolve = (...args: any[]) => new exec(...args)
     resolve.inject = inject
     resolve.original = exec
 
-    this.add(key, resolve, {
+    this.add(key, {
       ...options,
       type: TYPE.CLASS,
       scope: options?.scope || SCOPE.TRANSIENT,
-      value,
+      value: resolve,
     })
 
     return this
@@ -291,8 +303,7 @@ export class PumpIt {
   protected getInjectable(
     key: BindKey,
   ): { value: PoolData; fromParent: boolean } | undefined {
-    // biome-ignore lint/style/noNonNullAssertion: map
-    const value = this.pool.get(key)!
+    const value = this.pool.get(key)
     if (value) return { value, fromParent: false }
 
     const parentValue = this.parent?.getInjectable(key)
@@ -321,14 +332,15 @@ export class PumpIt {
       throw new Error(`Key: ${keyToString(key)} not found`)
     }
 
-    const {
-      value: { value, scope, type },
-    } = data
+    const poolData = data.value
 
-    if (type === TYPE.VALUE) {
+    if (poolData.type === TYPE.VALUE) {
       // resolve immediately - value type has no dependencies
-      return value
+      return poolData.value
     }
+
+    // narrowed to a class or factory binding, so `value` is the resolver
+    const { value, scope } = poolData
     const keySeen = ctx.requestedKeys.get(key)
 
     //if key has been seen
@@ -351,8 +363,7 @@ export class PumpIt {
       ctx.requestedKeys.set(key, { constructed: false, value })
     }
 
-    const fn = () =>
-      this.create(key, data.value as ClassPoolData | FactoryPoolData, ctx)
+    const fn = () => this.create(key, poolData, ctx)
 
     return this.run(scope, key, fn, ctx)
   }
@@ -377,20 +388,20 @@ export class PumpIt {
     ctx: RequestCtx,
   ) {
     const { value, type } = data
-    // @ts-expect-error - type narrow
     const injectionData = value.inject
     let resolvedDeps: any[] = []
 
     if (injectionData) {
       resolvedDeps = this.resolveDeps(injectionData, ctx)
     }
-    // @ts-expect-error - type narrow
     const result = value(...resolvedDeps)
 
-    // biome-ignore lint/style/noNonNullAssertion: map assertion
-    ctx.requestedKeys.get(key)!.constructed = true
+    const requested = ctx.requestedKeys.get(key)
+    if (requested) {
+      requested.constructed = true
+    }
 
-    if (type === "CLASS" && "postConstruct" in result) {
+    if (type === TYPE.CLASS && "postConstruct" in result) {
       ctx.postConstruct.push(result)
     }
 
@@ -446,34 +457,36 @@ export class PumpIt {
     return result
   }
 
-  protected _validate(safe = false) {
-    const seen = new Set()
-    const wantedBy = new Map()
+  protected _validate(safe = false): ValidationResult | undefined {
+    const seen = new Set<BindKey>()
+    const wantedBy = new Map<BindKey, BindKey[]>()
 
-    for (const [bindKey, value] of this.pool.entries()) {
+    for (const [bindKey, data] of this.pool.entries()) {
       if (seen.has(bindKey)) {
         return
       }
 
       seen.add(bindKey)
 
-      const toInject = value.value.inject
+      const toInject = data.type === TYPE.VALUE ? undefined : data.value.inject
       if (toInject) {
         for (const dep of toInject) {
-          const data = parseInjectionData(dep)
+          const { key: depKey } = parseInjectionData(dep)
 
-          seen.add(data.key)
-          if (!this.has(data.key)) {
-            if (!wantedBy.has(data.key)) {
-              wantedBy.set(data.key, [])
+          seen.add(depKey)
+          if (!this.has(depKey)) {
+            let wanted = wantedBy.get(depKey)
+            if (!wanted) {
+              wanted = []
+              wantedBy.set(depKey, wanted)
             }
-            wantedBy.get(data.key).push(bindKey)
+            wanted.push(bindKey)
           }
         }
       }
     }
 
-    const errors = []
+    const errors: ValidationError[] = []
     for (const [key, value] of wantedBy.entries()) {
       if (value.length > 0) {
         errors.push({
@@ -501,7 +514,7 @@ export class PumpIt {
    * It will not instantiate the classes or execute the functions.
    *
    */
-  validate() {
+  validate(): void {
     this._validate(false)
   }
 
@@ -512,7 +525,7 @@ export class PumpIt {
    *
    * @returns An object containing the validation result.
    */
-  validateSafe() {
+  validateSafe(): ValidationResult | undefined {
     return this._validate(true)
   }
 

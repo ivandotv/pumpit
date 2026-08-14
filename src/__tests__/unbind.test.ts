@@ -22,6 +22,17 @@ describe("Unbind", () => {
     expect(pumpIt.has(keyA)).toBe(false)
   })
 
+  test("unbind a singleton that resolved to a primitive", () => {
+    const pumpIt = new PumpIt()
+    const keyA = Symbol("key_a")
+
+    pumpIt.bindFactory(keyA, () => "a string", { scope: "SINGLETON" })
+    pumpIt.resolve(keyA)
+
+    expect(() => pumpIt.unbind(keyA)).not.toThrow()
+    expect(pumpIt.has(keyA)).toBe(false)
+  })
+
   test('unbind factory and call the "dispose" method', () => {
     const pumpIt = new PumpIt()
     const keyA = Symbol("key_a")

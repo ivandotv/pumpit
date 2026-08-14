@@ -9,20 +9,24 @@
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "useUnknownInCatchVariables": true,
     "stripInternal": true,
     "esModuleInterop": true,
     "skipDefaultLibCheck": false,
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
-    "experimentalDecorators": true,
     "moduleResolution": "Bundler",
     "isolatedModules": true,
     "incremental": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "rootDir": "./src",
+    // microbundle's bundled rollup-plugin-typescript2 predates
+    // `moduleResolution: bundler` and falls back to the deprecated `node10`.
+    "ignoreDeprecations": "6.0"
   },
-  "include": [
-    "src/**/*"
-  ],
+  "include": ["src/**/*"],
   "exclude": [
     "**/node_modules",
     "src/**/__tests__",

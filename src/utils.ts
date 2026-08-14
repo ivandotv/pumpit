@@ -1,37 +1,41 @@
-import type { BindKey } from "./types"
+import type { BindKey, ClassConstructor, FactoryFn } from "./types"
 
 //detect injection function
 const INJECTION_FN = Symbol()
 
 export const INJECT_KEY = Symbol()
 
-export type ParsedInjectionData =
-  | { key: BindKey; options: { optional?: boolean; lazy?: boolean } } //get
-  | {
-      key: { key: BindKey; options: { optional?: boolean } }[]
-      options: {
-        optional?: boolean
-        removeUndefined?: boolean
-        setToUndefinedIfEmpty?: boolean
-      }
-    }
+/** Options that control how a single dependency is resolved*/
+export type InjectionOptions = {
+  /** if the dependency cannot be resolved *undefined* will be used */
+  optional?: boolean
+}
 
-export type Injection = BindKey | ReturnType<typeof get>
+/** A dependency key plus the options it should be resolved with*/
+export type ParsedInjectionData = {
+  key: BindKey
+  options: InjectionOptions
+}
+
+/** The callable returned by {@link get | get()}*/
+export type InjectionFn = {
+  (): ParsedInjectionData
+  [INJECTION_FN]: typeof INJECTION_FN
+}
+
+export type Injection = BindKey | InjectionFn
 
 export type InjectionData = Injection[]
+
+/** Anything that can carry injection metadata*/
+export type Injectable = ClassConstructor | FactoryFn
 
 /**
  * get dependency by key
  * @param key - dependency {@link BindKey | BindKey}
  * @param options - options for the resove process
  */
-export function get(
-  key: BindKey,
-  options?: {
-    /** if the dependency cannot be resolved *undefined* will be used */
-    optional?: boolean
-  },
-) {
+export function get(key: BindKey, options?: InjectionOptions): InjectionFn {
   const getCall = () => {
     return {
       key,
@@ -44,8 +48,8 @@ export function get(
   return getCall
 }
 
-function isInjectionFn(value: any): value is ReturnType<typeof get> {
-  return !!value[INJECTION_FN]
+function isInjectionFn(value: Injection): value is InjectionFn {
+  return typeof value === "function" && INJECTION_FN in value
 }
 
 export function parseInjectionData(key: Injection): ParsedInjectionData {
@@ -54,16 +58,22 @@ export function parseInjectionData(key: Injection): ParsedInjectionData {
 
     return {
       key: ex.key,
-      options: ex.options || {},
+      options: ex.options ?? {},
     }
   }
 
   return { key, options: { optional: false } }
 }
 
-export function keyToString(key: BindKey) {
-  // @ts-expect-error name does not exist on string or symbol
-  return key.name || key.toString()
+export function keyToString(key: BindKey): string {
+  if (typeof key === "string") {
+    return key
+  }
+  if (typeof key === "symbol") {
+    return key.toString()
+  }
+
+  return typeof key.name === "string" ? key.name : String(key)
 }
 
 /**
@@ -71,12 +81,6 @@ export function keyToString(key: BindKey) {
  * @param f - The class or function to register the dependencies for.
  * @param deps - An array of dependencies to be injected.
  */
-export function registerInjections(
-  f:
-    | { new (...args: any[]): any }
-    | ((...args: any[]) => (...args: any[]) => any),
-  deps: unknown[],
-): void {
-  // @ts-expect-error - no inject property on cls
-  f[INJECT_KEY] = deps
+export function registerInjections(f: Injectable, deps: InjectionData): void {
+  ;(f as Injectable & { [INJECT_KEY]?: InjectionData })[INJECT_KEY] = deps
 }
