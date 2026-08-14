@@ -68,7 +68,6 @@ export class PumpIt {
 
   /**
    * Gets the name of the container
-   * @returns The name of the object.
    */
   getName() {
     return this.name
@@ -160,8 +159,6 @@ export class PumpIt {
    * Binds value. Value is treated as a singleton and ti will always resolve to the same data (value)
    *
    * @param key - key to resolve binded value {@link BindKey}
-   * @param value - value to bind
-   * @returns current pumpIt instance
    */
   bindValue<T>(key: BindKey, value: T): this {
     this.add(key, {
@@ -177,9 +174,8 @@ export class PumpIt {
    * Binds a factory function. Function that is binded will be executed when resolved and the value will be returned.
    * Number of executions depends on the scope used.
    *
-   * @param key - key to resolve binded value {@link BindKey | BindKey}
-   * @param value - factory function to bind
-   * @param options - bind options {@link FactoryOptions | FactoryOptions}
+   * @param key - key to resolve binded value {@link BindKey}
+   * @param options - bind options {@link FactoryOptions}
    */
   bindFactory<T extends FactoryValue>(
     key: BindKey,
@@ -221,8 +217,7 @@ export class PumpIt {
    * depends on the scope used.
    *
    * @param key - key to resolve binded value {@link BindKey}
-   * @param value - class to bind
-   * @param options - bind options for factory {@link ClassOptions | ClassOptions}
+   * @param options - bind options for the class {@link ClassOptions}
    */
   bindClass<T extends ClassValue>(
     key: BindKey,
@@ -249,7 +244,7 @@ export class PumpIt {
    * Resolve value that has previously been binded.
    *
    * @typeParam T - value that is going to be resolved
-   * @param key - key to search for {@link BindKey | BindKey}
+   * @param key - key to search for {@link BindKey}
    */
   resolve<T>(key: BindKey): T {
     const ctx: RequestCtx = this.currentCtx || {
@@ -522,8 +517,6 @@ export class PumpIt {
    * Validates the bindings in the container.
    * It will check if all the dependencies that are required by other bindings are present in the container.
    * It will not instantiate the classes or execute the functions.
-   *
-   * @returns An object containing the validation result.
    */
   validateSafe(): ValidationResult | undefined {
     return this._validate(true)
@@ -538,7 +531,6 @@ export class PumpIt {
 
   /**
    * Checks if the container is locked.
-   * @returns {boolean} `true` if the container is locked, `false` otherwise.
    */
   isLocked(): boolean {
     return this.locked

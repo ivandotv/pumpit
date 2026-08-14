@@ -20,7 +20,9 @@ export type ParsedInjectionData = {
 /** The callable returned by {@link get | get()}*/
 export type InjectionFn = {
   (): ParsedInjectionData
-  [INJECTION_FN]: typeof INJECTION_FN
+  // the brand is the presence of the key; TypeScript 7 widens the assigned
+  // expando value to `symbol`, so don't pin it to `typeof INJECTION_FN`
+  [INJECTION_FN]: symbol
 }
 
 export type Injection = BindKey | InjectionFn
@@ -32,8 +34,8 @@ export type Injectable = ClassConstructor | FactoryFn
 
 /**
  * get dependency by key
- * @param key - dependency {@link BindKey | BindKey}
- * @param options - options for the resove process
+ * @param key - dependency {@link BindKey}
+ * @param options - options for the resolve process
  */
 export function get(key: BindKey, options?: InjectionOptions): InjectionFn {
   const getCall = () => {

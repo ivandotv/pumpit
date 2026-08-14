@@ -21,10 +21,7 @@
     "isolatedModules": true,
     "incremental": true,
     "forceConsistentCasingInFileNames": true,
-    "rootDir": "./src",
-    // microbundle's bundled rollup-plugin-typescript2 predates
-    // `moduleResolution: bundler` and falls back to the deprecated `node10`.
-    "ignoreDeprecations": "6.0"
+    "rootDir": "./src"
   },
   "include": ["src/**/*"],
   "exclude": [

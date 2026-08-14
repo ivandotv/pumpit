@@ -37,8 +37,7 @@
     "lint": "biome lint ./src",
     "check": "biome check ./src --write --no-errors-on-unmatched --files-ignore-unknown=true",
     "check:ci": "biome check ./src --no-errors-on-unmatched --files-ignore-unknown=true",
-    "build": "shx rm -rf ./dist && NODE_ENV=production microbundle --tsconfig ./tsconfig.json  --format modern,cjs  --output dist/index.js && shx cp  ./dist/index.d.ts ./dist/index.d.cts",
-    "gen:docs": "rm -rf ./docs/api && typedoc --options typedoc.cjs  --plugin typedoc-plugin-markdown",
+    "build": "tsdown",
     "prepublishOnly": "pnpm build",
     "prepare": "lefthook install",
     "type:check": "tsc --noEmit && tsc -p tsconfig.test.json",
@@ -57,11 +56,8 @@
     "@changesets/cli": "^2.27.9",
     "@vitest/coverage-v8": "^2.1.3",
     "lefthook": "^1.8.1",
-    "microbundle": "^0.15.1",
-    "shx": "^0.4.0",
-    "typedoc": "^0.28.20",
-    "typedoc-plugin-markdown": "^4.12.0",
-    "typescript": "^6.0.3",
+    "tsdown": "^0.22.14",
+    "typescript": "^7.0.2",
     "vitest": "^2.1.3"
   }
 }

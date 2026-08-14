@@ -741,7 +741,7 @@ test("use helper to inject in to class", () => {
 ```
 ## API docs
 
-`PumpIt` is written in TypeScript, [auto generated API documentation](docs/api/README.md) is available.
+`PumpIt` is written in TypeScript and ships its own type declarations, so the full API documentation is available directly in your editor via autocomplete and hover. No `@types/*` package is required.
 
 ## License
 
