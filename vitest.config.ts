@@ -10,6 +10,9 @@ export default defineConfig({
         ...(configDefaults.coverage.exclude
           ? configDefaults.coverage.exclude
           : []),
+        // vitest only excludes a fixed list of known config names, which
+        // does not include tsdown
+        "*.config.*",
         "src/types-internal.ts",
         "src/types.ts",
         "src/index.ts",
