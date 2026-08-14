@@ -64,7 +64,7 @@ describe("Class Inheritance", () => {
     }
 
     class TestC extends TestA {
-      static inject = [...TestA.inject, TestD]
+      static override inject = [...TestA.inject, TestD]
 
       constructor(
         public b: TestB,

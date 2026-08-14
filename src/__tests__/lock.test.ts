@@ -1,6 +1,5 @@
 import { describe, expect, test } from "vitest"
 import { PumpIt } from "../pumpit"
-import { PumpitError } from "../pumpit-error"
 
 describe("Locking", () => {
   describe("bind", () => {
@@ -15,7 +14,7 @@ describe("Locking", () => {
       try {
         pumpIt.bindClass(TestB, TestB)
       } catch (e) {
-        expect(e.message).toEqual("Container is locked")
+        expect((e as Error).message).toEqual("Container is locked")
       }
       expect.assertions(1)
     })
@@ -27,7 +26,7 @@ describe("Locking", () => {
       try {
         pumpIt.bindValue("key", "value")
       } catch (e) {
-        expect(e.message).toEqual("Container is locked")
+        expect((e as Error).message).toEqual("Container is locked")
       }
       expect.assertions(1)
     })
@@ -39,7 +38,7 @@ describe("Locking", () => {
       try {
         pumpIt.bindFactory("key", () => "value")
       } catch (e) {
-        expect(e.message).toEqual("Container is locked")
+        expect((e as Error).message).toEqual("Container is locked")
       }
       expect.assertions(1)
     })
@@ -55,7 +54,7 @@ describe("Locking", () => {
       try {
         pumpIt.unbind(key)
       } catch (e) {
-        expect(e.message).toEqual("Container is locked")
+        expect((e as Error).message).toEqual("Container is locked")
       }
       expect.assertions(1)
     })
@@ -69,7 +68,7 @@ describe("Locking", () => {
       try {
         pumpIt.unbind(TestA)
       } catch (e) {
-        expect(e.message).toEqual("Container is locked")
+        expect((e as Error).message).toEqual("Container is locked")
       }
       expect.assertions(1)
     })
@@ -83,7 +82,7 @@ describe("Locking", () => {
       try {
         pumpIt.unbind(key)
       } catch (e) {
-        expect(e.message).toEqual("Container is locked")
+        expect((e as Error).message).toEqual("Container is locked")
       }
       expect.assertions(1)
     })
@@ -101,7 +100,7 @@ describe("Locking", () => {
       try {
         pumpIt.unbindAll()
       } catch (e) {
-        expect(e.message).toEqual("Container is locked")
+        expect((e as Error).message).toEqual("Container is locked")
       }
       expect.assertions(1)
     })

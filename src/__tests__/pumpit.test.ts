@@ -1,6 +1,9 @@
 import { describe, expect, test } from "vitest"
 import { PumpIt } from "../pumpit"
-import { INJECT_KEY, get } from "../utils"
+import { INJECT_KEY, type InjectionData, get } from "../utils"
+
+/** The symbol is attached externally, so widen the target to accept it */
+type WithInjectKey = { [INJECT_KEY]?: InjectionData }
 
 describe("Optional injection", () => {
   test("injection does not throw", () => {
@@ -133,7 +136,7 @@ describe("Optional injection", () => {
     const key = "some_key"
 
     const factory = () => {}
-    factory.inject = []
+    factory.inject = [] as InjectionData
 
     pumpIt.bindFactory(key, factory)
 
@@ -305,8 +308,7 @@ describe("Optional injection", () => {
       class TestA {
         constructor(public b: TestB) {}
       }
-
-      TestA[INJECT_KEY] = [TestB]
+      ;(TestA as typeof TestA & WithInjectKey)[INJECT_KEY] = [TestB]
 
       pumpIt.bindClass(TestA, TestA)
       pumpIt.bindClass(TestB, TestB)
@@ -346,8 +348,7 @@ describe("Optional injection", () => {
       class TestB {}
 
       class TestA {}
-
-      TestA[INJECT_KEY] = [TestB]
+      ;(TestA as typeof TestA & WithInjectKey)[INJECT_KEY] = [TestB]
 
       class TestC extends TestA {
         constructor(public b: TestB) {
@@ -382,7 +383,7 @@ describe("Optional injection", () => {
           }
         }
       }
-      factory[INJECT_KEY] = [keyB, keyC]
+      ;(factory as typeof factory & WithInjectKey)[INJECT_KEY] = [keyB, keyC]
 
       pumpIt
         .bindFactory(key, factory)

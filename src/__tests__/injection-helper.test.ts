@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest"
-import { PumpIt, SCOPE } from "../pumpit"
+import { PumpIt } from "../pumpit"
 import { registerInjections } from "../utils"
 
 describe("injection helper", () => {

@@ -22,8 +22,10 @@ describe("Validation", () => {
     try {
       pumpIt.validate()
     } catch (e) {
-      expect(e.result).toEqual([{ key: RequestTest, wantedBy: [TestB] }])
-      expect(e.message).toEqual("Validation")
+      expect((e as PumpitError).result).toEqual([
+        { key: RequestTest, wantedBy: [TestB] },
+      ])
+      expect((e as PumpitError).message).toEqual("Validation")
       expect(e).toBeInstanceOf(PumpitError)
     }
     expect.assertions(3)
@@ -53,8 +55,10 @@ describe("Validation", () => {
     try {
       pumpIt.validate()
     } catch (e) {
-      expect(e.result).toEqual([{ key: requestKey, wantedBy: [TestA, TestB] }])
-      expect(e.message).toEqual("Validation")
+      expect((e as PumpitError).result).toEqual([
+        { key: requestKey, wantedBy: [TestA, TestB] },
+      ])
+      expect((e as PumpitError).message).toEqual("Validation")
       expect(e).toBeInstanceOf(PumpitError)
     }
 

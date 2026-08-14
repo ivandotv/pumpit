@@ -41,7 +41,7 @@
     "gen:docs": "rm -rf ./docs/api && typedoc --options typedoc.cjs  --plugin typedoc-plugin-markdown",
     "prepublishOnly": "pnpm build",
     "prepare": "lefthook install",
-    "type:check": "tsc --noEmit",
+    "type:check": "tsc --noEmit && tsc -p tsconfig.test.json",
     "release": "pnpm run prepublishOnly && pnpm changeset publish"
   },
   "repository": {
