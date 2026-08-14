@@ -103,10 +103,35 @@ export class PumpIt {
           ERROR_CODE.KEY_ALREADY_EXISTS,
         )
       }
-      this.unbind(key)
+      // the lock was already checked above
+      this.remove(key, true)
     }
 
     this.pool.set(key, info)
+  }
+
+  /** Removes a key without consulting the lock */
+  protected remove(key: BindKey, dispose: boolean): void {
+    // `has` rather than a truthiness check, so the intent does not depend on
+    // what the singleton happens to resolve to
+    const hasSingleton = this.singletonCache.has(key)
+    const singleton = this.singletonCache.get(key)
+
+    this.pool.delete(key)
+    this.singletonCache.delete(key)
+
+    if (hasSingleton && dispose) {
+      this.callDispose(singleton)
+    }
+  }
+
+  /** Removes every key without consulting the lock */
+  protected removeAll(dispose: boolean): void {
+    for (const key of this.pool.keys()) {
+      this.remove(key, dispose)
+    }
+    this.pool.clear()
+    this.singletonCache.clear()
   }
 
   /**
@@ -127,16 +152,7 @@ export class PumpIt {
       )
     }
 
-    // `has` rather than a truthiness check, so falsy singletons are disposed too
-    const hasSingleton = this.singletonCache.has(key)
-    const singleton = this.singletonCache.get(key)
-
-    this.pool.delete(key)
-    this.singletonCache.delete(key)
-
-    if (hasSingleton && dispose) {
-      this.callDispose(singleton)
-    }
+    this.remove(key, dispose)
   }
 
   /**
@@ -149,11 +165,7 @@ export class PumpIt {
       throw new PumpitError("Container is locked", ERROR_CODE.CONTAINER_LOCKED)
     }
 
-    for (const key of this.pool.keys()) {
-      this.unbind(key, callDispose)
-    }
-    this.pool.clear()
-    this.singletonCache.clear()
+    this.removeAll(callDispose)
   }
 
   protected callDispose(value: unknown): void {
@@ -669,8 +681,12 @@ export interface PumpIt extends Disposable {}
 
 if (DISPOSE_SYMBOL !== undefined) {
   Object.defineProperty(PumpIt.prototype, DISPOSE_SYMBOL, {
+    // deliberately not `unbindAll`: the lock stops callers from editing
+    // bindings, but `using` owns the whole lifetime, and throwing out of a
+    // disposal would mask whatever the enclosing block was doing
     value: function dispose(this: PumpIt) {
-      this.unbindAll()
+      // biome-ignore lint/complexity/useLiteralKeys: reaching the protected member from the prototype install
+      this["removeAll"](true)
     },
     writable: true,
     configurable: true,

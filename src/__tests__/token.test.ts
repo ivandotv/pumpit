@@ -1,6 +1,6 @@
 import { describe, expect, expectTypeOf, test } from "vitest"
 import { PumpIt } from "../pumpit"
-import { token } from "../utils"
+import { get, token } from "../utils"
 
 type Config = { url: string; retries: number }
 
@@ -74,6 +74,45 @@ describe("Typed tokens", () => {
     pumpIt.bindClass(Service, Service)
 
     expect(pumpIt.resolve(Service).config).toBe(config)
+  })
+
+  test("a token can be an optional dependency", () => {
+    const pumpIt = new PumpIt()
+    const missing = token<Config>("missing")
+
+    class Service {
+      static inject = [get(missing, { optional: true })]
+
+      constructor(public config?: Config) {}
+    }
+
+    pumpIt.bindClass(Service, Service)
+
+    expect(pumpIt.resolve(Service).config).toBeUndefined()
+  })
+
+  test("an optional token is not reported by validation", () => {
+    const pumpIt = new PumpIt()
+    const missing = token<Config>("missing")
+
+    class Service {
+      static inject = [get(missing, { optional: true })]
+    }
+
+    pumpIt.bindClass(Service, Service)
+
+    expect(pumpIt.validateSafe()).toEqual({ valid: true, errors: [] })
+  })
+
+  test("a token bound on the parent resolves from a child", () => {
+    const parent = new PumpIt()
+    const child = parent.child()
+    const configToken = token<Config>("config")
+    const config = { url: "https://example.com", retries: 3 }
+
+    parent.bindValue(configToken, config)
+
+    expect(child.resolve(configToken)).toBe(config)
   })
 
   // `expectTypeOf` still evaluates its argument, so everything asserted on here

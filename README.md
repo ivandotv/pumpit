@@ -664,8 +664,13 @@ calls `unbindAll()`, which disposes every cached singleton.
 
   container.bindClass(TestA, TestA, { scope: SCOPE.SINGLETON })
   container.resolve(TestA)
-} // container.unbindAll() runs here, TestA instance is disposed
+} // every binding is removed here, TestA instance is disposed
 ```
+
+> Disposal ignores [the lock](#locking-the-container). Locking guards against
+> *callers* editing bindings, while `using` owns the container's whole lifetime -
+> and throwing out of a disposal would mask whatever the enclosing block was
+> doing. `unbindAll()` still refuses a locked container.
 
 ### Locking the container
 

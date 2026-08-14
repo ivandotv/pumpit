@@ -249,6 +249,147 @@ describe("Regressions", () => {
 
       expect(child.resolve("a")).toBe(parent.resolve("a"))
     })
+
+    test("a parent owned singleton cannot reach a child only dependency", () => {
+      const parent = new PumpIt()
+      const child = parent.child()
+
+      class OnParent {
+        static inject = ["child_only"]
+
+        constructor(public dep: string) {}
+      }
+
+      parent.bindClass("on_parent", OnParent, { scope: SCOPE.SINGLETON })
+      child.bindValue("child_only", "from the child")
+
+      // the singleton belongs to the parent and is shared by every sibling, so
+      // it must not capture something only this child can see
+      expect(() => child.resolve("on_parent")).toThrow(
+        "Key: child_only not found",
+      )
+    })
+
+    test("siblings share one parent owned singleton", () => {
+      const parent = new PumpIt()
+      const childOne = parent.child()
+      const childTwo = parent.child()
+
+      class TestA {
+        static count = 0
+
+        constructor() {
+          TestA.count++
+        }
+      }
+      parent.bindClass("a", TestA, { scope: SCOPE.SINGLETON })
+
+      expect(childOne.resolve("a")).toBe(childTwo.resolve("a"))
+      expect(TestA.count).toBe(1)
+    })
+  })
+
+  describe("a failed resolve leaves the container usable", () => {
+    test("a throwing constructor does not cache a broken singleton", () => {
+      const pumpIt = new PumpIt()
+      let shouldThrow = true
+
+      class TestA {
+        constructor() {
+          if (shouldThrow) {
+            throw new Error("constructor failed")
+          }
+        }
+      }
+      pumpIt.bindClass("a", TestA, { scope: SCOPE.SINGLETON })
+
+      expect(() => pumpIt.resolve("a")).toThrow("constructor failed")
+
+      shouldThrow = false
+
+      expect(pumpIt.resolve("a")).toBeInstanceOf(TestA)
+    })
+
+    test("a missing dependency deeper in the graph can be fixed and retried", () => {
+      const pumpIt = new PumpIt()
+
+      class Dep {}
+      class Root {
+        static inject = ["dep"]
+
+        constructor(public dep: Dep) {}
+      }
+      pumpIt.bindClass("root", Root, { scope: SCOPE.SINGLETON })
+
+      expect(() => pumpIt.resolve("root")).toThrow("Key: dep not found")
+
+      pumpIt.bindClass("dep", Dep)
+
+      expect(pumpIt.resolve<Root>("root").dep).toBeInstanceOf(Dep)
+    })
+
+    test("a caught circular reference does not leave the container dirty", () => {
+      const pumpIt = new PumpIt()
+
+      class TestA {
+        static inject = ["b"]
+      }
+      class TestB {
+        static inject = ["a"]
+      }
+      class Leaf {}
+
+      pumpIt.bindClass("a", TestA).bindClass("b", TestB).bindClass("leaf", Leaf)
+
+      expect(() => pumpIt.resolve("a")).toThrow("Circular reference detected")
+      expect(pumpIt.resolve("leaf")).toBeInstanceOf(Leaf)
+    })
+  })
+
+  describe("post construct failures", () => {
+    test("the error propagates and the remaining hooks are skipped", () => {
+      const pumpIt = new PumpIt()
+      const ran: string[] = []
+
+      class Dep {
+        postConstruct() {
+          ran.push("dep")
+          throw new Error("dep hook failed")
+        }
+      }
+      class Root {
+        static inject = ["dep"]
+
+        postConstruct() {
+          ran.push("root")
+        }
+      }
+      pumpIt.bindClass("dep", Dep).bindClass("root", Root)
+
+      expect(() => pumpIt.resolve("root")).toThrow("dep hook failed")
+      // hooks run bottom up, so the root hook never gets its turn
+      expect(ran).toEqual(["dep"])
+    })
+
+    test("a singleton whose hook threw is still cached", () => {
+      const pumpIt = new PumpIt()
+      let hookCalls = 0
+
+      class TestA {
+        postConstruct() {
+          hookCalls++
+          throw new Error("hook failed")
+        }
+      }
+      pumpIt.bindClass("a", TestA, { scope: SCOPE.SINGLETON })
+
+      expect(() => pumpIt.resolve("a")).toThrow("hook failed")
+
+      // the instance was built and cached before the hook ran, so the second
+      // resolve hands back the same instance and does not retry the hook
+      expect(() => pumpIt.resolve("a")).not.toThrow()
+      expect(hookCalls).toBe(1)
+    })
   })
 
   describe("circular reference reporting", () => {

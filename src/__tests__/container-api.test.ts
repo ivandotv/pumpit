@@ -172,6 +172,30 @@ describe("Container API", () => {
       )
     })
 
+    test("replacing on a child leaves the parent binding alone", () => {
+      const parent = new PumpIt()
+      const child = parent.child()
+
+      parent.bindValue("key", "parent")
+      child.bindValue("key", "child", { replace: true })
+
+      expect(child.resolve("key")).toBe("child")
+      expect(parent.resolve("key")).toBe("parent")
+    })
+
+    test("replace does not reach a key that only the parent has", () => {
+      const parent = new PumpIt()
+      const child = parent.child()
+
+      parent.bindValue("key", "parent")
+      // the child has nothing to replace, so this just shadows
+      child.bindValue("key", "child", { replace: true })
+
+      expect(parent.getKeys()).toEqual(["key"])
+      expect(child.getKeys()).toEqual(["key"])
+      expect(parent.resolve("key")).toBe("parent")
+    })
+
     test("replace works on a key that is not bound yet", () => {
       const pumpIt = new PumpIt()
 
@@ -238,6 +262,54 @@ describe("Container API", () => {
 
       expect(disposeCall).toHaveBeenCalledTimes(1)
       expect(pumpIt.getKeys()).toEqual([])
+    })
+
+    test("Symbol.dispose is honoured on a factory result", () => {
+      const pumpIt = new PumpIt()
+      const symbolDispose = vi.fn()
+
+      pumpIt.bindFactory(
+        "key",
+        () => ({
+          [Symbol.dispose]: symbolDispose,
+        }),
+        { scope: SCOPE.SINGLETON },
+      )
+      pumpIt.resolve("key")
+      pumpIt.unbind("key")
+
+      expect(symbolDispose).toHaveBeenCalledTimes(1)
+    })
+
+    test("disposing a locked container still cleans up", () => {
+      const pumpIt = new PumpIt()
+      const disposeCall = vi.fn()
+
+      class TestA {
+        dispose() {
+          disposeCall()
+        }
+      }
+
+      pumpIt.bindClass("key", TestA, { scope: SCOPE.SINGLETON })
+      pumpIt.resolve("key")
+      pumpIt.lock()
+
+      // the lock stops callers from editing bindings, it does not stop the
+      // container from being torn down - throwing here would mask whatever the
+      // enclosing `using` block was doing
+      expect(() => pumpIt[Symbol.dispose]()).not.toThrow()
+      expect(disposeCall).toHaveBeenCalledTimes(1)
+      expect(pumpIt.getKeys()).toEqual([])
+    })
+
+    test("unbindAll still refuses a locked container", () => {
+      const pumpIt = new PumpIt()
+      pumpIt.bindValue("key", 1)
+      pumpIt.lock()
+
+      expect(() => pumpIt.unbindAll()).toThrow("Container is locked")
+      expect(pumpIt.getKeys()).toEqual(["key"])
     })
 
     test("`using` unbinds everything on scope exit", () => {
