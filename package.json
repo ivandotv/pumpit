@@ -35,7 +35,7 @@
     "test": "vitest run --coverage",
     "test:watch": "vitest",
     "lint": "biome lint ./src",
-    "check": "biome check ./src --apply --no-errors-on-unmatched --files-ignore-unknown=true",
+    "check": "biome check ./src --write --no-errors-on-unmatched --files-ignore-unknown=true",
     "check:ci": "biome check ./src --no-errors-on-unmatched --files-ignore-unknown=true",
     "build": "shx rm -rf ./dist && NODE_ENV=production microbundle --tsconfig ./tsconfig.json  --format modern,cjs  --output dist/index.js && shx cp  ./dist/index.d.ts ./dist/index.d.cts",
     "gen:docs": "rm -rf ./docs/api && typedoc --options typedoc.cjs  --plugin typedoc-plugin-markdown",
