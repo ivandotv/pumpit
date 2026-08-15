@@ -68,7 +68,7 @@ export const SCOPE = {
   CONTAINER_SINGLETON: "CONTAINER_SINGLETON",
 } as const
 
-// biome-ignore lint/suspicious/noUnsafeDeclarationMerging: merged with the `Disposable` interface at the bottom of the file, where the member is installed on the prototype
+// biome-ignore lint/suspicious/noUnsafeDeclarationMerging: merged with the `DisposeMethod` interface at the bottom of the file, where the member is installed on the prototype
 export class PumpIt {
   protected pool: Map<BindKey, PoolData> = new Map()
 
@@ -677,7 +677,19 @@ export class PumpIt {
 // `using container = new PumpIt()` unbinds everything on scope exit. The method
 // is attached to the prototype below rather than declared in the class body,
 // because `Symbol.dispose` does not exist on every supported runtime.
-export interface PumpIt extends Disposable {}
+//
+// Naming the global `Disposable` would leak it into the emitted .d.ts, where it
+// fails to resolve for consumers whose `lib` lacks esnext.disposable. Reading
+// the key off `SymbolConstructor`, which every lib declares, keeps the emitted
+// types self-contained: still `Disposable` where that type exists, an empty type
+// rather than an error where it does not.
+type DisposeMethod = SymbolConstructor extends {
+  readonly dispose: infer D extends symbol
+}
+  ? { [K in D]: () => void }
+  : Record<never, never>
+
+export interface PumpIt extends DisposeMethod {}
 
 if (DISPOSE_SYMBOL !== undefined) {
   Object.defineProperty(PumpIt.prototype, DISPOSE_SYMBOL, {
