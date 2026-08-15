@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest"
 import { PumpIt } from "../pumpit"
-import { INJECT_KEY, type InjectionData, get } from "../utils"
+import { get, INJECT_KEY, type InjectionData } from "../utils"
 
 /** The symbol is attached externally, so widen the target to accept it */
 type WithInjectKey = { [INJECT_KEY]?: InjectionData }
@@ -47,10 +47,8 @@ describe("Optional injection", () => {
 
       constructor(
         public keyOne: number,
-        // biome-ignore lint/style/useDefaultParameterLast: tests
         public optionalProp?: string,
-        // @ts-expect-error for testing purposes
-        public keyThree: number,
+        public keyThree?: number,
       ) {}
     }
 
@@ -100,10 +98,8 @@ describe("Optional injection", () => {
 
       constructor(
         public keyOne: number,
-        // biome-ignore lint/style/useDefaultParameterLast: <explanation>
         public optionalProp?: string,
-        // @ts-expect-error for testing purposes
-        public keyThree: number,
+        public keyThree?: number,
       ) {}
     }
 

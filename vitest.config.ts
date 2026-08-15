@@ -1,4 +1,4 @@
-import { configDefaults, defineConfig } from "vitest/config"
+import { defineConfig } from "vitest/config"
 
 export default defineConfig({
   test: {
@@ -6,17 +6,10 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "html", "clover", "json"],
-      exclude: [
-        ...(configDefaults.coverage.exclude
-          ? configDefaults.coverage.exclude
-          : []),
-        // vitest only excludes a fixed list of known config names, which
-        // does not include tsdown
-        "*.config.*",
-        "src/types-internal.ts",
-        "src/types.ts",
-        "src/index.ts",
-      ],
+      // vitest 4 dropped `coverage.all` and reports only the files it loaded,
+      // so scope the report explicitly or untested sources vanish from it
+      include: ["src/**"],
+      exclude: ["src/types-internal.ts", "src/types.ts", "src/index.ts"],
     },
   },
 })

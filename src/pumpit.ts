@@ -12,21 +12,21 @@ import type {
   ValidationResult,
   ValueBindOptions,
 } from "./types"
-import type { RequestCtx } from "./types-internal"
 import type {
   ClassPoolData,
   FactoryPoolData,
   PoolData,
+  RequestCtx,
   ResolverFn,
 } from "./types-internal"
 import {
   INJECT_KEY,
   type InjectionData,
   type InjectionOptions,
-  type ParsedInjectionData,
-  type Token,
   keyToString,
+  type ParsedInjectionData,
   parseInjectionData,
+  type Token,
 } from "./utils"
 
 //track undefined values from the factory

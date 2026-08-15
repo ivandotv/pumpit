@@ -1,20 +1,19 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.5.3/schema.json",
-  "organizeImports": {
-    "enabled": true
-  },
+  "$schema": "https://biomejs.dev/schemas/2.5.8/schema.json",
+  "assist": { "actions": { "source": { "organizeImports": "on" } } },
   "files": {
-    "ignore": [
-      "node_modules",
-      "coverage",
-      "dist",
-      ".vscode"
+    "includes": [
+      "**",
+      "!**/node_modules",
+      "!**/coverage",
+      "!**/dist",
+      "!**/.vscode"
     ]
   },
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true,
+      "preset": "recommended",
       "suspicious": {
         "noExplicitAny": "off",
         "noShadowRestrictedNames": "off"
