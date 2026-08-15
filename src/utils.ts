@@ -32,6 +32,26 @@ export type InjectionData = Injection[]
 /** Anything that can carry injection metadata*/
 export type Injectable = ClassConstructor | FactoryFn
 
+// phantom brand: only ever exists in the type system, never at runtime
+declare const TOKEN_TYPE: unique symbol
+
+/**
+ * A bind key that remembers what it resolves to, so
+ * {@link PumpIt.resolve | PumpIt.resolve()} can infer the type instead of
+ * being told. Created with {@link token | token()}.
+ */
+export type Token<T> = symbol & { readonly [TOKEN_TYPE]: T }
+
+/**
+ * Creates a typed injection token.
+ *
+ * @typeParam T - the type that will be bound and resolved under this token
+ * @param description - optional symbol description, shows up in error messages
+ */
+export function token<T>(description?: string): Token<T> {
+  return Symbol(description) as Token<T>
+}
+
 /**
  * get dependency by key
  * @param key - dependency {@link BindKey}

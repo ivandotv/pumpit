@@ -38,6 +38,37 @@ export type ClassValue =
       inject: InjectionData
     }
 
+/** A class binding constrained to produce `T`, used with typed tokens*/
+export type ClassValueFor<T> =
+  | ((new (...args: any[]) => T) & WithInjectProp)
+  | {
+      value: new (...args: any[]) => T
+      inject: InjectionData
+    }
+
+/** A factory binding constrained to produce `T`, used with typed tokens*/
+export type FactoryValueFor<T> =
+  | (((...args: any[]) => T) & WithInjectProp)
+  | {
+      value: (...args: any[]) => T
+      inject: InjectionData
+    }
+
+/** Options accepted when binding a class or a factory*/
+export type BindOptions = {
+  /** Scope that is going to be used {@link AvailableScopes}*/
+  scope?: AvailableScopes
+  /**
+   * Replace an existing binding under the same key instead of throwing.
+   * The previous binding is unbound first, which disposes its cached
+   * singleton (if any).
+   */
+  replace?: boolean
+}
+
+/** Options accepted when binding a value*/
+export type ValueBindOptions = Pick<BindOptions, "replace">
+
 /** Class bind options*/
 export type ClassOptions = {
   /** Class constant type {@link AvailableTypes} */

@@ -6,11 +6,7 @@ import type {
   FactoryFn,
   FactoryOptions,
 } from "./types"
-import type { InjectionData } from "./utils"
-
-type InternalResolveCtx = {
-  data?: Record<string, any>
-}
+import type { ParsedInjectionData } from "./utils"
 
 /**
  * What the pool actually holds for class and factory bindings: the bound value
@@ -18,8 +14,11 @@ type InternalResolveCtx = {
  * with the parsed injection data attached.
  */
 export type ResolverFn = ((...args: any[]) => any) & {
-  /** Dependencies to resolve before invoking the resolver */
-  inject: InjectionData | undefined
+  /**
+   * Dependencies to resolve before invoking the resolver. Parsed once when the
+   * value is bound, since injection metadata cannot change afterwards.
+   */
+  inject: ParsedInjectionData[] | undefined
   /** The unwrapped class or factory that was bound */
   original: ClassConstructor | FactoryFn
 }
@@ -44,14 +43,20 @@ export type FactoryPoolData = FactoryOptions & {
 
 export type PoolData = ValuePoolData | ClassPoolData | FactoryPoolData
 
+/**
+ * State that lives for exactly one {@link PumpIt.resolve | PumpIt.resolve()}
+ * call, and is shared with parent containers when resolution crosses into one.
+ * Every field is allocated on first use, since most resolve calls need none of
+ * them.
+ */
 export type RequestCtx = {
-  singletonCache: Map<BindKey, any>
-  requestCache: Map<BindKey, any>
-  transientCache: Map<BindKey, any>
-  // only class and factory bindings are tracked here, values resolve immediately
-  requestedKeys: Map<BindKey, { constructed: boolean; value: ResolverFn }>
-  ctx?: InternalResolveCtx
-  postConstruct: PostConstruct[]
+  /** Values already built for {@link SCOPE.REQUEST} bindings */
+  requestCache: Map<BindKey, any> | undefined
+  /** Keys currently being constructed, deepest last. Doubles as the path
+   * reported when a circular reference is detected. */
+  stack: BindKey[] | undefined
+  /** Instances waiting for their `postConstruct` hook to run */
+  postConstruct: PostConstruct[] | undefined
 }
 
 /** An instance that wants a callback once the whole resolve call completes*/

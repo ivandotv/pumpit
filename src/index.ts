@@ -3,9 +3,9 @@ export * from "./pumpit.js"
 export * from "./types.js"
 export * from "./pumpit-error.js"
 
-import { INJECT_KEY, get, registerInjections } from "./utils.js"
+import { INJECT_KEY, get, registerInjections, token } from "./utils.js"
 
-export { get, INJECT_KEY, registerInjections }
+export { get, INJECT_KEY, registerInjections, token }
 
 // types that appear in the public signatures above, so consumers can name them
 export type {
@@ -15,4 +15,5 @@ export type {
   InjectionFn,
   InjectionOptions,
   ParsedInjectionData,
+  Token,
 } from "./utils.js"
