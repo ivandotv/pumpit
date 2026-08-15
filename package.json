@@ -1,6 +1,6 @@
 {
   "name": "pumpit",
-  "version": "10.1.0",
+  "version": "11.0.0",
   "description": "Small dependency injection container without decorators. Typed tokens, four injection scopes, child containers and zero dependencies.",
   "keywords": [
     "ioc",

@@ -1,5 +1,55 @@
 # pumpa
 
+## 11.0.0
+
+### Major Changes
+
+- 72d5ed5: `PumpitError` is now the base class for every error the container throws and its constructor takes an `ErrorCode` instead of a `ValidationError[]`. Validation failures throw `PumpitValidationError`, a subclass that still carries `result`, but whose message now lists the unresolved keys instead of being the literal string `"Validation"`.
+
+  `validateSafe` always returns a `ValidationResult` and no longer returns `undefined`.
+
+  Injection metadata is read once when a value is bound instead of on every resolve, so `registerInjections` (or assigning `inject` / `INJECT_KEY`) must happen before `bindClass` and `bindFactory`. Later changes are no longer picked up.
+
+  Dependencies marked optional are no longer reported by `validate` and `validateSafe`.
+
+  `resolve` now infers the return type when the key is a class or a typed token, where it previously widened to `unknown`.
+
+  `setParent` accepts `undefined` to detach a parent, and throws when the parent would create a cycle.
+
+  Resolving is substantially faster: bound values ~2.5x, cached singletons ~5x, and a small transient graph ~2.4x, mostly by dropping per resolve allocations and parsing injection metadata at bind time.
+
+- ae34601: Stricter type definitions, which can fail a build that previously compiled. `registerInjections` now takes `InjectionData` instead of `unknown[]`, `PumpitError.result` is `ValidationError[]` instead of `any`, and the `inject` property on a class or factory is type checked. The protected `add` method drops its second argument, which was always discarded.
+
+  Also fixes `unbind` and `unbindAll` throwing a `TypeError` when a `SINGLETON` binding resolved to a string or number, and exports the types that already appeared in public signatures but could not be imported: `ClassConstructor`, `FactoryFn`, `WithInjectProp`, `ValidationError`, `ValidationResult`, `Injection`, `InjectionData`, `InjectionFn`, `InjectionOptions`, `Injectable` and `ParsedInjectionData`.
+
+### Minor Changes
+
+- 72d5ed5: Add typed tokens. `token<T>()` creates a `Symbol` bind key that carries its type, so `resolve` infers the result instead of being told, and bindings made under the token are type checked. `resolve` also infers the instance type when a class is used as the key.
+
+  Add `tryResolve`, which returns `undefined` for an unbound key instead of throwing. A missing required dependency of a bound key still throws.
+
+  Add `getKeys`, which lists the keys bound on the container, optionally including the parent chain.
+
+  Add a `replace` bind option, so a key can be rebound without unbinding it first. The previous binding is unbound, which disposes its cached singleton.
+
+  Support `Symbol.dispose` on resolved singletons, preferred over a `dispose` method. The container itself is now disposable, so `using container = new PumpIt()` unbinds everything on scope exit. Disposal ignores the lock, since throwing out of a disposal would mask whatever the enclosing block was doing. `unbindAll` still refuses a locked container.
+
+  Every error thrown by the container is now a `PumpitError` carrying a machine readable `code`, exported as `ERROR_CODE`.
+
+### Patch Changes
+
+- 72d5ed5: Fix bindings that resolve to `undefined` leaking an internal symbol. A `SINGLETON` or `REQUEST` binding whose class or factory produced `undefined` returned that sentinel on the first resolve, and injected it into every dependent afterwards.
+
+  Fix `validate` and `validateSafe` silently giving up. Reaching a binding that an earlier binding already listed as a dependency aborted the whole check, so `validate` did not throw and `validateSafe` returned `undefined`. Missing dependencies are now reported regardless of bind order, and optional dependencies are no longer reported at all.
+
+  Fix resolution that crosses into a parent container starting a fresh request. A `SINGLETON` owned by a parent used to be resolved through a brand new context, which split `REQUEST` scope into two instances within a single `resolve` call, ran `postConstruct` hooks before the outer graph finished building, and hid circular references behind a stack overflow.
+
+  Fix `setParent` accepting a parent that creates a cycle in the hierarchy, which turned every lookup into infinite recursion.
+
+  Fix `unbindAll` succeeding on a locked container when the container was empty.
+
+  Circular reference errors now report the full resolution path with the bound class names, instead of stringifying an internal wrapper function.
+
 ## 10.1.0
 
 ### Minor Changes
