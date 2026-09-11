@@ -121,9 +121,9 @@ jobs:
         env:
           CI: true
 
-      - name: Build package
+      - name: Check package
         run: |
-          pnpm build
+          pnpm check:package
 
       - name: Pack packages
         id: pack

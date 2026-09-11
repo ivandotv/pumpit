@@ -18,6 +18,7 @@ import type {
   PoolData,
   RequestCtx,
   ResolverFn,
+  SingletonCacheEntry,
 } from "./types-internal"
 import {
   INJECT_KEY,
@@ -72,7 +73,7 @@ export const SCOPE = {
 export class PumpIt {
   protected pool: Map<BindKey, PoolData> = new Map()
 
-  protected singletonCache: Map<BindKey, any> = new Map()
+  protected singletonCache: Map<BindKey, SingletonCacheEntry> = new Map()
 
   protected parent: PumpIt | undefined
 
@@ -105,6 +106,11 @@ export class PumpIt {
       }
       // the lock was already checked above
       this.remove(key, true)
+    } else {
+      // A child may already own an instance created from an inherited
+      // CONTAINER_SINGLETON binding under this key. Shadowing that binding
+      // must not leave the inherited instance in the key-based cache.
+      this.removeCached(key, true)
     }
 
     this.pool.set(key, info)
@@ -112,16 +118,31 @@ export class PumpIt {
 
   /** Removes a key without consulting the lock */
   protected remove(key: BindKey, dispose: boolean): void {
-    // `has` rather than a truthiness check, so the intent does not depend on
-    // what the singleton happens to resolve to
-    const hasSingleton = this.singletonCache.has(key)
-    const singleton = this.singletonCache.get(key)
+    const binding = this.pool.get(key)
 
     this.pool.delete(key)
-    this.singletonCache.delete(key)
+    if (binding !== undefined && binding.type !== TYPE.VALUE) {
+      this.removeCached(key, dispose, binding)
+    }
+  }
 
-    if (hasSingleton && dispose) {
-      this.callDispose(singleton)
+  /** Removes a cached singleton, optionally only when a binding owns it. */
+  protected removeCached(
+    key: BindKey,
+    dispose: boolean,
+    binding?: ClassPoolData | FactoryPoolData,
+  ): void {
+    const cached = this.singletonCache.get(key)
+    if (
+      cached === undefined ||
+      (binding !== undefined && cached.binding !== binding)
+    ) {
+      return
+    }
+
+    this.singletonCache.delete(key)
+    if (dispose) {
+      this.callDispose(cached.value)
     }
   }
 
@@ -131,7 +152,13 @@ export class PumpIt {
       this.remove(key, dispose)
     }
     this.pool.clear()
-    this.singletonCache.clear()
+
+    // A child owns the instances it creates for inherited
+    // CONTAINER_SINGLETON bindings even though those bindings are not in its
+    // local pool, so they need the same lifecycle treatment.
+    for (const key of this.singletonCache.keys()) {
+      this.removeCached(key, dispose)
+    }
   }
 
   /**
@@ -417,6 +444,18 @@ export class PumpIt {
       ancestor = ancestor.parent
     }
 
+    if (this.parent === parent) {
+      return
+    }
+
+    // Changing the lookup hierarchy makes child-owned instances created from
+    // inherited bindings stale. Locally bound singletons remain valid.
+    for (const [key, cached] of this.singletonCache) {
+      if (this.pool.get(key) !== cached.binding) {
+        this.removeCached(key, true)
+      }
+    }
+
     this.parent = parent
   }
 
@@ -442,6 +481,16 @@ export class PumpIt {
     ctx: RequestCtx,
   ): any {
     const data = this.getInjectable(key)
+
+    // An ancestor can replace or remove an inherited binding without touching
+    // this container. Reconcile the child-owned cache before taking the fast
+    // paths for values and missing keys as well as constructed bindings.
+    if (!this.pool.has(key)) {
+      const cached = this.singletonCache.get(key)
+      if (cached !== undefined && cached.binding !== data) {
+        this.removeCached(key, true)
+      }
+    }
 
     if (data === undefined) {
       if (options.optional) {
@@ -484,14 +533,11 @@ export class PumpIt {
 
       const cached = this.singletonCache.get(key)
       if (cached !== undefined) {
-        return cached === UNDEFINED_RESULT ? undefined : cached
+        return cached.value
       }
 
       const result = this.create(key, data, ctx)
-      this.singletonCache.set(
-        key,
-        result === undefined ? UNDEFINED_RESULT : result,
-      )
+      this.singletonCache.set(key, { binding: data, value: result })
 
       return result
     }

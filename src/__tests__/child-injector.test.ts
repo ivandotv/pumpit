@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest"
+import { describe, expect, test, vi } from "vitest"
 import { PumpIt, SCOPE } from "../pumpit"
 
 describe("Child container", () => {
@@ -252,6 +252,173 @@ describe("Child container", () => {
         const instance = childContainer.resolve<TestA>(TestA)
 
         expect(instance.config).toBe(childConfig)
+      })
+
+      test("shadowing a resolved parent binding replaces the child-owned instance", () => {
+        const parent = new PumpIt()
+        const child = parent.child()
+        const dispose = vi.fn()
+
+        class ParentService {
+          dispose() {
+            dispose()
+          }
+        }
+        class ChildService {}
+
+        parent.bindClass("service", ParentService, {
+          scope: SCOPE.CONTAINER_SINGLETON,
+        })
+
+        expect(child.resolve("service")).toBeInstanceOf(ParentService)
+
+        child.bindClass("service", ChildService, { scope: SCOPE.SINGLETON })
+
+        expect(dispose).toHaveBeenCalledTimes(1)
+        expect(child.resolve("service")).toBeInstanceOf(ChildService)
+      })
+
+      test("changing parent disposes inherited instances but preserves local singletons", () => {
+        const firstParent = new PumpIt()
+        const secondParent = new PumpIt()
+        const child = firstParent.child()
+        const inheritedDispose = vi.fn()
+
+        class FirstService {
+          dispose() {
+            inheritedDispose()
+          }
+        }
+        class SecondService {}
+        class LocalService {}
+
+        firstParent.bindClass("service", FirstService, {
+          scope: SCOPE.CONTAINER_SINGLETON,
+        })
+        secondParent.bindClass("service", SecondService, {
+          scope: SCOPE.CONTAINER_SINGLETON,
+        })
+        child.bindClass("local", LocalService, { scope: SCOPE.SINGLETON })
+
+        const inherited = child.resolve("service")
+        const local = child.resolve("local")
+
+        child.setParent(secondParent)
+
+        expect(inheritedDispose).toHaveBeenCalledTimes(1)
+        expect(child.resolve("service")).toBeInstanceOf(SecondService)
+        expect(child.resolve("service")).not.toBe(inherited)
+        expect(child.resolve("local")).toBe(local)
+      })
+
+      test("setting the same parent preserves child-owned instances", () => {
+        const parent = new PumpIt()
+        const child = parent.child()
+
+        class Service {}
+
+        parent.bindClass("service", Service, {
+          scope: SCOPE.CONTAINER_SINGLETON,
+        })
+        const instance = child.resolve("service")
+
+        child.setParent(parent)
+
+        expect(child.resolve("service")).toBe(instance)
+      })
+
+      test("replacing a parent binding invalidates a child-owned instance on next resolve", () => {
+        const parent = new PumpIt()
+        const child = parent.child()
+        const dispose = vi.fn()
+
+        class OldService {
+          dispose() {
+            dispose()
+          }
+        }
+        class NewService {}
+
+        parent.bindClass("service", OldService, {
+          scope: SCOPE.CONTAINER_SINGLETON,
+        })
+        const oldInstance = child.resolve("service")
+
+        parent.bindClass("service", NewService, {
+          scope: SCOPE.CONTAINER_SINGLETON,
+          replace: true,
+        })
+
+        const newInstance = child.resolve("service")
+        expect(dispose).toHaveBeenCalledTimes(1)
+        expect(newInstance).toBeInstanceOf(NewService)
+        expect(newInstance).not.toBe(oldInstance)
+      })
+
+      test("replacing an inherited binding with a value disposes the child-owned instance", () => {
+        const parent = new PumpIt()
+        const child = parent.child()
+        const dispose = vi.fn()
+
+        class Service {
+          dispose() {
+            dispose()
+          }
+        }
+
+        parent.bindClass("service", Service, {
+          scope: SCOPE.CONTAINER_SINGLETON,
+        })
+        child.resolve("service")
+
+        parent.bindValue("service", "replacement", { replace: true })
+
+        expect(child.resolve("service")).toBe("replacement")
+        expect(dispose).toHaveBeenCalledTimes(1)
+      })
+
+      test("removing an inherited binding disposes the child-owned instance on next lookup", () => {
+        const parent = new PumpIt()
+        const child = parent.child()
+        const dispose = vi.fn()
+
+        class Service {
+          dispose() {
+            dispose()
+          }
+        }
+
+        parent.bindClass("service", Service, {
+          scope: SCOPE.CONTAINER_SINGLETON,
+        })
+        child.resolve("service")
+
+        parent.unbind("service")
+
+        expect(child.tryResolve("service")).toBeUndefined()
+        expect(dispose).toHaveBeenCalledTimes(1)
+      })
+
+      test("disposing a child disposes instances created from inherited bindings", () => {
+        const parent = new PumpIt()
+        const child = parent.child()
+        const dispose = vi.fn()
+
+        class Service {
+          dispose() {
+            dispose()
+          }
+        }
+
+        parent.bindClass("service", Service, {
+          scope: SCOPE.CONTAINER_SINGLETON,
+        })
+        const first = child.resolve("service")
+
+        child[Symbol.dispose]()
+
+        expect(dispose).toHaveBeenCalledTimes(1)
+        expect(child.resolve("service")).not.toBe(first)
       })
     })
 

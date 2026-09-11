@@ -808,6 +808,12 @@ const childInstance = child.resolve<TestA>(TestA)
 parentInstance !== childInstance
 TestA.count === 2
 ```
+
+Instances created by a child for inherited `CONTAINER_SINGLETON` bindings belong
+to that child. They are disposed and recreated if the child shadows the key,
+changes parent, or the inherited binding is replaced. Disposing the child also
+disposes these child-owned instances without removing the parent's binding.
+
 ### Validating bindings
 
 Calling `validate` or `validateSafe` will validate the bindings in the container.

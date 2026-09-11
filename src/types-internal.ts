@@ -43,6 +43,12 @@ export type FactoryPoolData = FactoryOptions & {
 
 export type PoolData = ValuePoolData | ClassPoolData | FactoryPoolData
 
+/** A singleton value together with the binding definition that created it. */
+export type SingletonCacheEntry = {
+  binding: ClassPoolData | FactoryPoolData
+  value: any
+}
+
 /**
  * State that lives for exactly one {@link PumpIt.resolve | PumpIt.resolve()}
  * call, and is shared with parent containers when resolution crosses into one.
